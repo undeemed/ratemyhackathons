@@ -21,6 +21,9 @@ erDiagram
     USERS ||--o{ REVIEWS : writes
     EVENTS ||--o{ REVIEWS : receives
     EVENTS ||--o{ CRAWL_SOURCES : sourced_from
+    REVIEWS ||--o{ REVIEW_VOTES : receives
+    REVIEWS ||--o{ REVIEW_COMMENTS : has
+    REVIEW_COMMENTS ||--o{ REVIEW_COMMENTS : replies_to
 
     EVENTS {
         uuid id PK
@@ -50,7 +53,14 @@ erDiagram
         uuid id PK
         text username
         text email
+        text display_name
+        text bio
+        int age
         text avatar_url
+        text github
+        text twitter
+        text linkedin
+        text website
         timestamptz created_at
     }
 
@@ -66,6 +76,23 @@ erDiagram
         uuid user_id FK
         int rating
         text title
+        text body
+        timestamptz created_at
+    }
+
+    REVIEW_VOTES {
+        uuid id PK
+        uuid review_id FK
+        uuid user_id FK
+        boolean helpful
+        timestamptz created_at
+    }
+
+    REVIEW_COMMENTS {
+        uuid id PK
+        uuid review_id FK
+        uuid user_id FK
+        uuid parent_comment_id FK
         text body
         timestamptz created_at
     }
@@ -104,7 +131,7 @@ ratemyhackathons/
 ### Prerequisites
 
 - [Rust](https://rustup.rs/) (stable, 1.85+ for edition 2024)
-- [PostgreSQL](https://www.postgresql.org/) 15+
+- [PostgreSQL](https://www.postgresql.org/) 17
 
 ### Setup
 
@@ -120,8 +147,10 @@ createdb ratemyhackathons
 cp backend/.env.example backend/.env
 # Edit backend/.env with your database credentials
 
-# 4. Run the migration
+# 4. Run the migrations
 psql -d ratemyhackathons -f backend/migrations/20260313_initial_schema.sql
+psql -d ratemyhackathons -f backend/migrations/20260313_review_votes_comments.sql
+psql -d ratemyhackathons -f backend/migrations/20260313_user_profiles_event_slugs.sql
 
 # 5. Start the server
 cd backend
@@ -147,6 +176,10 @@ The API will be available at `http://127.0.0.1:8080`.
 | `GET` | `/api/users/{id}` | User detail with reviews |
 | `POST` | `/api/users` | Create user |
 | `POST` | `/api/reviews` | Create review (1-5 rating) |
+| `GET` | `/api/reviews/{id}` | Review detail with votes & threaded comments |
+| `POST` | `/api/reviews/{id}/vote` | Vote helpful/unhelpful (upsert) |
+| `POST` | `/api/reviews/{id}/comments` | Add comment or reply |
+| `GET` | `/api/reviews/{id}/comments` | Get threaded comment tree |
 | `GET` | `/api/search?q=&type=` | Full-text search |
 
 ---
@@ -262,19 +295,27 @@ Query params: `?page=1&per_page=20`
 // Response 200:
 {
   "data": [{
-    "id": "uuid", "username": "alice", "avatar_url": "...",
-    "review_count": 5, "created_at": "..."
+    "id": "uuid", "username": "alice", "display_name": "Alice Chen",
+    "avatar_url": "...", "review_count": 5, "created_at": "..."
   }],
   "total": 200, "page": 1, "per_page": 20
 }
 ```
 
-#### `GET /api/users/{id}`
+#### `GET /api/users/{id}` — Full profile
 
 ```json
 // Response 200:
 {
-  "id": "uuid", "username": "alice", "email": "alice@...", "avatar_url": "...",
+  "id": "uuid", "username": "alice", "email": "alice@...",
+  "display_name": "Alice Chen", "bio": "Full-stack developer",
+  "age": 22, "avatar_url": "...",
+  "socials": {
+    "github": "alicechen",
+    "twitter": "alice_dev",
+    "linkedin": "alice-chen",
+    "website": "https://alice.dev"
+  },
   "reviews": [{
     "id": "uuid", "event_id": "uuid", "event_name": "HackMIT 2025",
     "rating": 5, "title": "Amazing!", "body": "...", "created_at": "..."
@@ -286,7 +327,18 @@ Query params: `?page=1&per_page=20`
 
 ```json
 // Request:
-{ "username": "alice", "email": "alice@example.com", "avatar_url": "..." }
+{
+  "username": "alice",              // required
+  "email": "alice@example.com",      // required
+  "display_name": "Alice Chen",      // optional
+  "bio": "Full-stack developer",     // optional
+  "age": 22,                         // optional, 13-150
+  "avatar_url": "https://...",       // optional
+  "github": "alicechen",             // optional
+  "twitter": "alice_dev",            // optional
+  "linkedin": "alice-chen",          // optional
+  "website": "https://alice.dev"     // optional
+}
 // Response 201: full user object
 ```
 
@@ -294,7 +346,7 @@ Query params: `?page=1&per_page=20`
 
 ### Reviews
 
-#### `POST /api/reviews`
+#### `POST /api/reviews` — Create review
 
 ```json
 // Request:
@@ -308,7 +360,75 @@ Query params: `?page=1&per_page=20`
 // Response 201: full review object
 ```
 
----
+#### `GET /api/reviews/{id}` — Review detail with votes & comments
+
+```json
+// Response 200:
+{
+  "id": "uuid", "event_id": "uuid", "user_id": "uuid",
+  "rating": 5, "title": "Amazing!", "body": "...",
+  "created_at": "...",
+  "votes": { "helpful": 12, "unhelpful": 3 },
+  "comments": [
+    {
+      "id": "uuid", "user_id": "uuid", "username": "bob",
+      "body": "Great review!", "created_at": "...",
+      "replies": [
+        {
+          "id": "uuid", "user_id": "uuid", "username": "alice",
+          "body": "Thanks!", "created_at": "...",
+          "replies": []
+        }
+      ]
+    }
+  ]
+}
+```
+
+#### `POST /api/reviews/{id}/vote` — Vote helpful/unhelpful
+
+One vote per user per review. Re-voting updates the existing vote (upsert).
+
+```json
+// Request:
+{ "user_id": "uuid", "helpful": true }
+// Response 200: { "id": "uuid", "review_id": "uuid", "user_id": "uuid", "helpful": true, "created_at": "..." }
+```
+
+#### `POST /api/reviews/{id}/comments` — Add comment or reply
+
+Pass `parent_comment_id` to reply to an existing comment (Reddit-style nesting). Omit for a top-level comment.
+
+```json
+// Request (top-level comment):
+{ "user_id": "uuid", "body": "Great review!" }
+
+// Request (reply to another comment):
+{ "user_id": "uuid", "parent_comment_id": "uuid", "body": "I agree!" }
+
+// Response 201: full comment object
+```
+
+#### `GET /api/reviews/{id}/comments` — Get threaded comment tree
+
+Returns nested JSON tree — each comment has a `replies` array containing its children, recursively.
+
+```json
+// Response 200:
+[
+  {
+    "id": "uuid", "user_id": "uuid", "username": "bob",
+    "body": "Great review!", "created_at": "...",
+    "replies": [
+      {
+        "id": "uuid", "user_id": "uuid", "username": "alice",
+        "body": "Thanks!", "created_at": "...",
+        "replies": []
+      }
+    ]
+  }
+]
+```
 
 ### Search
 

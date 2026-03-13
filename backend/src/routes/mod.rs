@@ -1,6 +1,7 @@
 pub mod events;
 pub mod companies;
 pub mod users;
+pub mod reviews;
 pub mod search;
 
 use serde::Serialize;

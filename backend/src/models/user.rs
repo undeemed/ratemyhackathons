@@ -10,7 +10,14 @@ pub struct User {
     pub id: Uuid,
     pub username: String,
     pub email: String,
+    pub display_name: Option<String>,
+    pub bio: Option<String>,
+    pub age: Option<i32>,
     pub avatar_url: Option<String>,
+    pub github: Option<String>,
+    pub twitter: Option<String>,
+    pub linkedin: Option<String>,
+    pub website: Option<String>,
     pub created_at: DateTime<Utc>,
 }
 
@@ -20,6 +27,7 @@ pub struct User {
 pub struct UserSummary {
     pub id: Uuid,
     pub username: String,
+    pub display_name: Option<String>,
     pub avatar_url: Option<String>,
     pub review_count: i64,
     pub created_at: DateTime<Utc>,
@@ -30,8 +38,20 @@ pub struct UserDetail {
     pub id: Uuid,
     pub username: String,
     pub email: String,
+    pub display_name: Option<String>,
+    pub bio: Option<String>,
+    pub age: Option<i32>,
     pub avatar_url: Option<String>,
+    pub socials: UserSocials,
     pub reviews: Vec<UserReviewRef>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct UserSocials {
+    pub github: Option<String>,
+    pub twitter: Option<String>,
+    pub linkedin: Option<String>,
+    pub website: Option<String>,
 }
 
 /// Row for review joins (proper FromRow instead of tuple)
@@ -63,5 +83,12 @@ pub struct UserReviewRef {
 pub struct CreateUser {
     pub username: String,
     pub email: String,
+    pub display_name: Option<String>,
+    pub bio: Option<String>,
+    pub age: Option<i32>,
     pub avatar_url: Option<String>,
+    pub github: Option<String>,
+    pub twitter: Option<String>,
+    pub linkedin: Option<String>,
+    pub website: Option<String>,
 }
