@@ -7,7 +7,9 @@ A platform for rating, reviewing, and discovering hackathon events. Search by **
 | Layer | Technology | Rationale |
 |---|---|---|
 | Backend | Rust + [Actix Web](https://actix.rs/) | High-performance async REST API |
-| Database | PostgreSQL | Many-to-many relations, built-in full-text search (`tsvector`), JSONB for crawler data |
+| Crawler | Python + [Scrapling](https://github.com/D4Vinci/Scrapling) | Adaptive scraping with proxy rotation & stealth |
+| Analytics | Rust + Actix-Web + SvelteKit | Live dashboard with crawl stats, SSE feed |
+| Database | PostgreSQL | Many-to-many relations, full-text search (`tsvector`), JSONB for crawler data |
 | Query Layer | [SQLx](https://github.com/launchbadge/sqlx) | Async-native, compile-time checked SQL |
 | IDs | UUIDv7 | Time-ordered for efficient B-tree indexing |
 | Frontend | SvelteKit + Bun *(coming soon)* | |
@@ -102,10 +104,30 @@ erDiagram
         uuid event_id FK
         text source_url
         text source_type
+        text source_hash UK
         jsonb raw_data
         timestamptz crawled_at
     }
+
+    SCRAPE_SOURCES {
+        uuid id PK
+        text name
+        text source_type
+        text base_url
+        boolean enabled
+        int poll_interval_hours
+        timestamptz last_polled_at
+    }
 ```
+
+## Documentation
+
+| Component | README |
+|---|---|
+| **Backend API** | [backend/README.md](backend/README.md) |
+| **Services** | [services/README.md](services/README.md) |
+| **Crawler** | [services/crawler/README.md](services/crawler/README.md) |
+| **Analytics** | [services/analytics/README.md](services/analytics/README.md) |
 
 ## Project Structure
 
@@ -122,6 +144,21 @@ ratemyhackathons/
 │   │   └── routes/        # API route handlers
 │   ├── tests/             # Integration tests
 │   └── migrations/        # PostgreSQL migrations
+├── services/              # Standalone services
+│   ├── crawler/           # Python event scraper
+│   │   ├── main.py        # CLI: --once, --daemon, --dry-run
+│   │   ├── db.py          # asyncpg database layer
+│   │   ├── dedup.py       # Hash + fuzzy deduplication
+│   │   ├── proxy.py       # Proxy rotation setup
+│   │   ├── company.py     # Best-effort company matching
+│   │   └── spiders/       # Source-specific scrapers
+│   └── analytics/         # Rust analytics API + SvelteKit dashboard
+│       ├── src/            # Actix-web server (:8081)
+│       │   ├── main.rs
+│       │   ├── db.rs       # Analytics queries
+│       │   └── routes/     # crawl, events, reviews, live SSE
+│       └── dashboard/     # SvelteKit + Tailwind v4 + LayerChart
+│           └── src/routes/+page.svelte
 ├── CHANGELOG.md
 └── .env.example
 ```
@@ -132,6 +169,8 @@ ratemyhackathons/
 
 - [Rust](https://rustup.rs/) (stable, 1.85+ for edition 2024)
 - [PostgreSQL](https://www.postgresql.org/) 17
+- [Python](https://python.org/) 3.11+ with [uv](https://github.com/astral-sh/uv) (for crawler)
+- [Bun](https://bun.sh/) (for analytics dashboard)
 
 ### Setup
 
@@ -151,13 +190,28 @@ cp backend/.env.example backend/.env
 psql -d ratemyhackathons -f backend/migrations/20260313_initial_schema.sql
 psql -d ratemyhackathons -f backend/migrations/20260313_review_votes_comments.sql
 psql -d ratemyhackathons -f backend/migrations/20260313_user_profiles_event_slugs.sql
+psql -d ratemyhackathons -f backend/migrations/20260313_crawl_registry.sql
 
 # 5. Start the server
 cd backend
 cargo run
+
+# 6. (Optional) Run the crawler
+cd ../services/crawler
+pip install -r requirements.txt  # or: pip install scrapling asyncpg python-dotenv
+cp .env.example .env   # add your DATABASE_URL and PROXY_URL
+python main.py --dry-run   # preview without inserting
+python main.py --once      # single crawl pass
+python main.py --daemon    # continuous polling
+
+# 7. (Optional) Run the analytics dashboard
+cd ../analytics
+cargo run                  # API on :8081
+cd dashboard && bun install && bun dev   # dashboard on :5174
 ```
 
-The API will be available at `http://127.0.0.1:8080`.
+The API will be available at `http://127.0.0.1:8080`.  
+The analytics dashboard will be at `http://localhost:5174`.
 
 ## API Endpoints & Schemas
 

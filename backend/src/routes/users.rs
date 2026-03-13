@@ -1,6 +1,7 @@
 use actix_web::{get, post, web, HttpResponse};
 use sqlx::PgPool;
 use uuid::Uuid;
+use validator::Validate;
 
 use crate::errors::ApiError;
 use crate::models::user::*;
@@ -15,7 +16,6 @@ pub async fn list_users(
     let limit = query.limit();
     let offset = query.offset();
 
-    // Single query with review count subquery (no N+1)
     let summaries = sqlx::query_as::<_, UserSummary>(
         r#"
         SELECT u.id, u.username, u.display_name, u.avatar_url,
@@ -104,14 +104,14 @@ pub async fn create_user(
     pool: web::Data<PgPool>,
     body: web::Json<CreateUser>,
 ) -> Result<HttpResponse, ApiError> {
-    // Validate age if provided
-    if let Some(age) = body.age {
-        if age < 13 || age > 150 {
-            return Err(ApiError::BadRequest("Age must be between 13 and 150".to_string()));
-        }
-    }
+    body.validate()
+        .map_err(|e| ApiError::BadRequest(e.to_string()))?;
 
     let id = Uuid::now_v7();
+
+    // Sanitize free-text fields with ammonia
+    let display_name = body.display_name.as_deref().map(|s| ammonia::clean(s));
+    let bio = body.bio.as_deref().map(|s| ammonia::clean(s));
 
     let user = sqlx::query_as::<_, User>(
         r#"
@@ -121,10 +121,10 @@ pub async fn create_user(
         "#,
     )
     .bind(id)
-    .bind(&body.username)
+    .bind(ammonia::clean(&body.username))
     .bind(&body.email)
-    .bind(&body.display_name)
-    .bind(&body.bio)
+    .bind(&display_name)
+    .bind(&bio)
     .bind(body.age)
     .bind(&body.avatar_url)
     .bind(&body.github)
@@ -142,9 +142,8 @@ pub async fn create_review(
     pool: web::Data<PgPool>,
     body: web::Json<CreateReview>,
 ) -> Result<HttpResponse, ApiError> {
-    if body.rating < 1 || body.rating > 5 {
-        return Err(ApiError::BadRequest("Rating must be between 1 and 5".to_string()));
-    }
+    body.validate()
+        .map_err(|e| ApiError::BadRequest(e.to_string()))?;
 
     // Verify event and user exist in a single query
     let exists: Option<(Uuid, Uuid)> = sqlx::query_as(
@@ -161,7 +160,6 @@ pub async fn create_review(
 
     match exists {
         None => {
-            // Determine which one is missing for a useful error message
             let event_exists: Option<(Uuid,)> = sqlx::query_as("SELECT id FROM events WHERE id = $1")
                 .bind(body.event_id)
                 .fetch_optional(pool.get_ref())
@@ -177,6 +175,10 @@ pub async fn create_review(
 
     let id = Uuid::now_v7();
 
+    // Sanitize free-text fields
+    let title = body.title.as_deref().map(|s| ammonia::clean(s));
+    let review_body = body.body.as_deref().map(|s| ammonia::clean(s));
+
     let review = sqlx::query_as::<_, Review>(
         r#"
         INSERT INTO reviews (id, event_id, user_id, rating, title, body)
@@ -188,8 +190,8 @@ pub async fn create_review(
     .bind(body.event_id)
     .bind(body.user_id)
     .bind(body.rating)
-    .bind(&body.title)
-    .bind(&body.body)
+    .bind(&title)
+    .bind(&review_body)
     .fetch_one(pool.get_ref())
     .await?;
 

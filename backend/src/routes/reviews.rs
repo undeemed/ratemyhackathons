@@ -2,6 +2,7 @@ use actix_web::{get, post, web, HttpResponse};
 use sqlx::PgPool;
 use std::collections::HashMap;
 use uuid::Uuid;
+use validator::Validate;
 
 use crate::errors::ApiError;
 use crate::models::review::*;
@@ -167,6 +168,9 @@ pub async fn create_review_comment(
     id: web::Path<Uuid>,
     body: web::Json<CreateReviewComment>,
 ) -> Result<HttpResponse, ApiError> {
+    body.validate()
+        .map_err(|e| ApiError::BadRequest(e.to_string()))?;
+
     let review_id = id.into_inner();
 
     // Verify review exists
@@ -207,7 +211,7 @@ pub async fn create_review_comment(
     .bind(review_id)
     .bind(body.user_id)
     .bind(body.parent_comment_id)
-    .bind(&body.body)
+    .bind(ammonia::clean(&body.body))
     .fetch_one(pool.get_ref())
     .await?;
 

@@ -1,0 +1,13 @@
+[project]
+name = "ratemyhackathons-crawler"
+version = "0.1.0"
+description = "Hackathon event crawler using Scrapling"
+requires-python = ">=3.11"
+dependencies = [
+    "scrapling>=0.3",
+    "asyncpg>=0.30",
+    "python-dotenv>=1.0",
+]
+
+[project.scripts]
+crawl = "crawler.main:cli"

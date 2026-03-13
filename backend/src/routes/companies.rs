@@ -1,6 +1,7 @@
 use actix_web::{get, post, web, HttpResponse};
 use sqlx::PgPool;
 use uuid::Uuid;
+use validator::Validate;
 
 use crate::errors::ApiError;
 use crate::models::company::*;
@@ -86,7 +87,14 @@ pub async fn create_company(
     pool: web::Data<PgPool>,
     body: web::Json<CreateCompany>,
 ) -> Result<HttpResponse, ApiError> {
+    body.validate()
+        .map_err(|e| ApiError::BadRequest(e.to_string()))?;
+
     let id = Uuid::now_v7();
+
+    // Sanitize free-text fields
+    let name = ammonia::clean(&body.name);
+    let description = body.description.as_deref().map(|s| ammonia::clean(s));
 
     let company = sqlx::query_as::<_, Company>(
         r#"
@@ -96,10 +104,10 @@ pub async fn create_company(
         "#,
     )
     .bind(id)
-    .bind(&body.name)
+    .bind(&name)
     .bind(&body.logo_url)
     .bind(&body.website)
-    .bind(&body.description)
+    .bind(&description)
     .fetch_one(pool.get_ref())
     .await?;
 

@@ -24,6 +24,8 @@ uuid = { version = "1", features = ["v7", "serde"] }
 chrono = { version = "0.4", features = ["serde"] }
 env_logger = "0.11"
 log = "0.4"
+validator = { version = "0.19", features = ["derive"] }
+ammonia = "4"
 
 [dev-dependencies]
 actix-rt = "2"

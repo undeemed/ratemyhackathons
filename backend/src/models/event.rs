@@ -2,6 +2,7 @@ use chrono::{NaiveDate, DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 use uuid::Uuid;
+use validator::Validate;
 
 // ── Database rows ──
 
@@ -111,14 +112,25 @@ pub struct EventReviewRef {
 
 // ── API requests ──
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Validate)]
 pub struct CreateEvent {
+    #[validate(length(min = 1, max = 200, message = "Event name must be 1-200 characters"))]
     pub name: String,
+
+    #[validate(length(max = 5000, message = "Description must be under 5000 characters"))]
     pub description: Option<String>,
+
+    #[validate(length(max = 200, message = "Location must be under 200 characters"))]
     pub location: Option<String>,
+
+    #[validate(url(message = "Invalid event URL"))]
     pub url: Option<String>,
+
     pub start_date: Option<NaiveDate>,
     pub end_date: Option<NaiveDate>,
+
+    #[validate(url(message = "Invalid image URL"))]
     pub image_url: Option<String>,
+
     pub company_ids: Option<Vec<Uuid>>,
 }

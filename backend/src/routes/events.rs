@@ -1,6 +1,7 @@
 use actix_web::{get, post, web, HttpResponse};
 use sqlx::PgPool;
 use uuid::Uuid;
+use validator::Validate;
 
 use crate::errors::ApiError;
 use crate::models::event::*;
@@ -213,7 +214,15 @@ pub async fn create_event(
     pool: web::Data<PgPool>,
     body: web::Json<CreateEvent>,
 ) -> Result<HttpResponse, ApiError> {
+    body.validate()
+        .map_err(|e| ApiError::BadRequest(e.to_string()))?;
+
     let event_id = Uuid::now_v7();
+
+    // Sanitize free-text fields
+    let name = ammonia::clean(&body.name);
+    let description = body.description.as_deref().map(|s| ammonia::clean(s));
+    let location = body.location.as_deref().map(|s| ammonia::clean(s));
 
     // Use a transaction so event + company attachments are atomic
     let mut tx = pool.begin().await?;
@@ -225,9 +234,9 @@ pub async fn create_event(
         "#,
     )
     .bind(event_id)
-    .bind(&body.name)
-    .bind(&body.description)
-    .bind(&body.location)
+    .bind(&name)
+    .bind(&description)
+    .bind(&location)
     .bind(&body.url)
     .bind(body.start_date)
     .bind(body.end_date)
