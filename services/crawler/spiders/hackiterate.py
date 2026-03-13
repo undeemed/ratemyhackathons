@@ -1,9 +1,19 @@
-"""Hackiterate spider — scrapes hackiterate.com/directory."""
+"""Hackiterate spider — scrapes hackiterate.com/directory.
+
+Hackiterate is a JS-rendered SPA, so we use StealthyFetcher (Playwright)
+to get the fully rendered page. Falls back to the static Fetcher if
+StealthyFetcher is unavailable.
+"""
 
 import re
 from datetime import date
 
-from scrapling.fetchers import Fetcher
+try:
+    from scrapling.fetchers import StealthyFetcher
+    HAS_STEALTH = True
+except ImportError:
+    from scrapling.fetchers import Fetcher
+    HAS_STEALTH = False
 
 
 # Month abbreviation → number
@@ -38,18 +48,26 @@ def parse_hackiterate_date(date_text: str) -> tuple[date | None, int | None]:
 def scrape_hackiterate(url: str, proxy: str | None = None) -> list[dict]:
     """Scrape Hackiterate directory and return structured event data.
 
-    Args:
-        url: Hackiterate directory URL, e.g. https://hackiterate.com/directory
-        proxy: Optional proxy URL.
-
-    Returns:
-        List of event dicts.
+    Uses StealthyFetcher (Playwright) because Hackiterate renders
+    its directory listing client-side with JavaScript.
     """
-    kwargs = {"stealthy_headers": True}
+    kwargs = {}
     if proxy:
-        kwargs["proxy"] = proxy
+        kwargs["proxy"] = {"server": proxy}
 
-    page = Fetcher.get(url, **kwargs)
+    if HAS_STEALTH:
+        page = StealthyFetcher.fetch(
+            url,
+            headless=True,
+            wait_selector="a[href]",
+            wait_selector_state="attached",
+            **kwargs,
+        )
+    else:
+        print("[Hackiterate] StealthyFetcher not available, using Fetcher")
+        if proxy:
+            kwargs = {"proxy": proxy}
+        page = Fetcher.get(url, stealthy_headers=True, **kwargs)
 
     if page.status != 200:
         print(f"[Hackiterate] Failed to fetch {url}: status {page.status}")
@@ -57,53 +75,78 @@ def scrape_hackiterate(url: str, proxy: str | None = None) -> list[dict]:
 
     events = []
 
-    # Hackiterate has event links in the directory listing
-    # Each link contains: name, date, status (FINISHED/UPCOMING), location
-    event_links = page.css("a[href*='hackiterate.com/']")
-
+    # Get all links on the page
+    all_links = page.css("a[href]")
     seen_urls = set()
 
-    for link in event_links:
+    for link in all_links:
         href = link.attrib.get("href", "")
 
-        # Skip non-event links (navigation, legal, social)
-        if not href or any(skip in href for skip in [
+        # Only care about links that look like event detail pages
+        # Skip navigation, social, auth links
+        if not href:
+            continue
+        if any(skip in href for skip in [
             "/directory", "/contact", "/auth", "/legal",
             "twitter.com", "linkedin.com", "instagram.com",
+            "github.com", "mailto:", "#", "javascript:",
         ]):
             continue
 
         # Normalize URL
-        if not href.startswith("http"):
+        if href.startswith("/"):
             href = f"https://hackiterate.com{href}"
+
+        if not href.startswith("http"):
+            continue
+
+        # Must be hackiterate.com event page
+        if "hackiterate.com" not in href:
+            continue
 
         if href in seen_urls:
             continue
         seen_urls.add(href)
 
-        # Extract all text from the link
-        texts = [t.strip() for t in link.css("::text").getall() if t.strip()]
+        # Extract all text from the link container
+        texts = []
+        for node in link.css("*"):
+            t = node.text
+            if t and t.strip():
+                texts.append(t.strip())
+        # Also get direct text
+        if link.text and link.text.strip():
+            texts.insert(0, link.text.strip())
+
+        # Deduplicate while preserving order
+        seen_texts = set()
+        unique_texts = []
+        for t in texts:
+            if t not in seen_texts:
+                seen_texts.add(t)
+                unique_texts.append(t)
+        texts = unique_texts
 
         if not texts:
             continue
 
-        # First meaningful text is usually the event name
+        # Categorize fragments
         name = None
         date_text = ""
         location = None
         status = None
 
         for t in texts:
-            if t in ("VIEW", "FINISHED", "UPCOMING"):
-                status = t
+            if t.upper() in ("VIEW", "FINISHED", "UPCOMING", "LIVE"):
+                status = t.upper()
                 continue
-            if re.match(r"^[A-Z]{3}\s+\d{1,2}", t):
+            if re.match(r"^[A-Z]{3}\s+\d{1,2}", t.upper()):
                 date_text = t
                 continue
             if not name and len(t) > 2:
                 name = t
                 continue
-            if name and not location and t not in (name,):
+            if name and not location and t != name and len(t) > 2:
                 location = t
 
         if not name:

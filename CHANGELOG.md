@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **API Reconnaissance** (`services/crawler/cv/API_RECON.md`)
+  - Discovered Lu.ma open REST API: `api.lu.ma/discover/get-paginated-events` — no auth, rich JSON, cursor pagination
+  - **Cracked Cerebral Valley public API**: `api.cerebralvalley.ai/v1/public/event/pull` — no auth required!
+    - Extracted from 37 JS bundles via AIDA Exegol probing
+    - Also found: `POST /v1/search/event/search` (keyword + vector search)
+  - Both platforms return full event data (name, dates, location, description, image) with zero authentication
+
 - Initial backend scaffold with Rust/Actix Web
 - PostgreSQL schema with full-text search (tsvector/tsquery)
 - REST API endpoints: events, companies, users, reviews, search
@@ -38,3 +45,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - 6 dashboard panels: stat cards, source health, live feed, ratings, trending, recent reviews
 - Sub-READMEs with Mermaid UML diagrams for backend, services, crawler, analytics
 - Documentation links table in root README
+- **Sponsor scraper** (`services/crawler/sponsors.py`)
+  - 4-strategy extraction: CSS class/id, heading detection, src path, LLM fallback
+  - Uses StealthyFetcher (Playwright) for JS-rendered event pages
+  - Smart text extraction for LLM — finds sponsor keywords and grabs surrounding context
+- **OpenRouter LLM module** (`services/crawler/llm.py`)
+  - Dynamic free model discovery from `/api/v1/models`
+  - Provider-priority rotation (Google first)
+  - Paid model fallback (`gemini-2.0-flash`) when free tier is congested
+- `TODO.md` for project-wide task tracking
+- `.agent/rules.md` — agent rules requiring doc updates after every run

@@ -100,6 +100,22 @@ flowchart TB
     F4 -.-> Pipeline
 ```
 
+### Sponsor Extraction
+
+Each event page is visited to extract sponsor/partner names using 4 strategies:
+
+| Strategy | Method | Coverage |
+|---|---|---|
+| CSS class/id | `[class*='sponsor']`, `[id*='partner']` → img alt text | ~40% |
+| Heading detection | `<h2>Sponsors</h2>` → parent container imgs | ~20% |
+| Src path matching | `<img src="/sponsors/rbc.svg" alt="RBC">` | ~10% |
+| **LLM fallback** | Page text → OpenRouter (free models + paid Gemini Flash) | ~30% |
+
+**LLM module** (`llm.py`):
+- Dynamically discovers free models from OpenRouter `/api/v1/models`
+- Provider-priority rotation (Google first, then Mistral, OpenAI, Qwen)
+- Falls back to `google/gemini-2.0-flash` when free tier is congested
+
 ## Usage
 
 ```bash

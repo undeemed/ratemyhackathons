@@ -17,6 +17,7 @@ import db
 from dedup import make_source_hash, is_fuzzy_duplicate
 from proxy import get_single_proxy
 from company import detect_companies
+from sponsors import scrape_sponsors
 from spiders.mlh import scrape_mlh
 from spiders.hackiterate import scrape_hackiterate
 
@@ -32,6 +33,7 @@ async def process_events(
     pool,
     events: list[dict],
     source_type: str,
+    proxy: str | None = None,
     dry_run: bool = False,
 ):
     """Process scraped events: dedup, insert, link companies."""
@@ -92,7 +94,7 @@ async def process_events(
             source_hash=source_hash,
         )
 
-        # 4. Best-effort company detection
+        # 4. Best-effort company detection (regex on name/desc)
         text_to_scan = " ".join(filter(None, [
             event.get("name", ""),
             event.get("description", ""),
@@ -100,7 +102,29 @@ async def process_events(
         matched_companies = detect_companies(text_to_scan, companies)
         for company in matched_companies:
             await db.link_company_to_event(pool, event_id, company["id"])
-            print(f"  [COMPANY] Linked '{company['name']}' to '{event['name']}'")
+            print(
+                f"  [COMPANY] Linked '{company['name']}'"
+                f" to '{event['name']}'"
+            )
+
+        # 5. Scrape sponsors from event's own website
+        event_url = event.get("url", "")
+        if event_url:
+            try:
+                sponsor_names = scrape_sponsors(event_url, proxy=proxy)
+                if sponsor_names:
+                    print(
+                        f"  [SPONSORS] {event['name']}: "
+                        f"{len(sponsor_names)} found"
+                    )
+                    # Store scraped sponsors in the event's raw data
+                    event["scraped_sponsors"] = sponsor_names
+                    for sname in sponsor_names:
+                        print(f"    • {sname}")
+            except (ConnectionError, OSError, ValueError) as e:
+                print(
+                    f"  [SPONSORS] Failed for {event['name']}: {e}"
+                )
 
         inserted += 1
         print(f"  [NEW] {event['name']} ({event.get('start_date', '?')})")
@@ -142,7 +166,10 @@ async def crawl_once(pool, dry_run: bool = False):
 
         try:
             events = scraper(base_url, proxy=proxy)
-            inserted = await process_events(pool, events, source_type, dry_run=dry_run)
+            inserted = await process_events(
+                pool, events, source_type,
+                proxy=proxy, dry_run=dry_run,
+            )
             total_inserted += inserted
 
             if not dry_run:
