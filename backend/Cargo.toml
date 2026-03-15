@@ -7,6 +7,7 @@ description = "RateMyHackathons API — Rust/Actix Web backend"
 [dependencies]
 actix-web = "4"
 actix-cors = "0.7"
+actix-governor = "0.6"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 sqlx = { version = "0.8", features = [
@@ -26,6 +27,8 @@ env_logger = "0.11"
 log = "0.4"
 validator = { version = "0.19", features = ["derive"] }
 ammonia = "4"
+jsonwebtoken = "9"
+reqwest = { version = "0.12", features = ["json", "rustls-tls"], default-features = false }
 
 [dev-dependencies]
 actix-rt = "2"

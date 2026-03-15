@@ -59,6 +59,7 @@ pub struct EventReviewRow {
     pub rating: i32,
     pub title: Option<String>,
     pub body: Option<String>,
+    pub would_return: Option<bool>,
     pub created_at: DateTime<Utc>,
 }
 
@@ -98,6 +99,10 @@ pub struct EventDetail {
     pub reviews: Vec<EventReviewRef>,
     pub avg_rating: Option<f64>,
     pub review_count: i64,
+    pub would_return_pct: Option<f64>,
+    pub category_ratings: Vec<crate::models::review::CategoryAvg>,
+    pub top_tags: Vec<crate::models::tag::TagCount>,
+    pub rating_distribution: Vec<crate::models::review::RatingDistribution>,
 }
 
 #[derive(Debug, Serialize, FromRow)]
@@ -115,7 +120,9 @@ pub struct EventReviewRef {
     pub rating: i32,
     pub title: Option<String>,
     pub body: Option<String>,
+    pub would_return: Option<bool>,
     pub created_at: DateTime<Utc>,
+    pub category_ratings: Vec<crate::models::review::ReviewRatingRow>,
 }
 
 // ── API requests ──

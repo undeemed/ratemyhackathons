@@ -1,3 +1,6 @@
+-- Ensure gen_random_uuid() is available
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 -- Registered scrape sources (add/enable/disable dynamically)
 CREATE TABLE scrape_sources (
     id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),

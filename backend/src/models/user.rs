@@ -59,8 +59,10 @@ pub struct UserSocials {
 #[derive(Debug, FromRow)]
 pub struct UserReviewRow {
     pub id: Uuid,
-    pub event_id: Uuid,
-    pub event_name: String,
+    pub event_id: Option<Uuid>,
+    pub event_name: Option<String>,
+    pub company_id: Option<Uuid>,
+    pub company_name: Option<String>,
     pub rating: i32,
     pub title: Option<String>,
     pub body: Option<String>,
@@ -70,8 +72,10 @@ pub struct UserReviewRow {
 #[derive(Debug, Serialize)]
 pub struct UserReviewRef {
     pub id: Uuid,
-    pub event_id: Uuid,
-    pub event_name: String,
+    pub event_id: Option<Uuid>,
+    pub event_name: Option<String>,
+    pub company_id: Option<Uuid>,
+    pub company_name: Option<String>,
     pub rating: i32,
     pub title: Option<String>,
     pub body: Option<String>,

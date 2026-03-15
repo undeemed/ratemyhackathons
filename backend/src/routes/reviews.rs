@@ -1,11 +1,30 @@
-use actix_web::{get, post, web, HttpResponse};
+use actix_web::{get, post, web, HttpRequest, HttpResponse};
 use sqlx::PgPool;
 use std::collections::HashMap;
 use uuid::Uuid;
 use validator::Validate;
 
+use crate::auth::AuthState;
 use crate::errors::ApiError;
 use crate::models::review::*;
+
+/// Resolve user_id from JWT auth (if configured) or from request body fallback (dev mode)
+async fn resolve_user_id(
+    req: &HttpRequest,
+    auth_state: &Option<web::Data<AuthState>>,
+    pool: &PgPool,
+    body_user_id: Option<Uuid>,
+) -> Result<Uuid, ApiError> {
+    if let Some(state) = auth_state {
+        let auth_user = crate::auth::require_auth(req, state, pool).await
+            .map_err(|e| ApiError::Unauthorized(e.to_string()))?;
+        Ok(auth_user.user_id)
+    } else {
+        body_user_id.ok_or_else(|| {
+            ApiError::BadRequest("user_id is required (no auth configured)".to_string())
+        })
+    }
+}
 
 /// Build a nested comment tree from flat rows
 fn build_comment_tree(rows: Vec<ReviewCommentRow>) -> Vec<CommentNode> {
@@ -66,7 +85,7 @@ pub async fn get_review(
     let review_id = id.into_inner();
 
     let review = sqlx::query_as::<_, Review>(
-        "SELECT id, event_id, user_id, rating, title, body, created_at FROM reviews WHERE id = $1",
+        "SELECT id, event_id, company_id, user_id, rating, title, body, would_return, created_at FROM reviews WHERE id = $1",
     )
     .bind(review_id)
     .fetch_optional(pool.get_ref())
@@ -88,6 +107,27 @@ pub async fn get_review(
     .fetch_one(pool.get_ref())
     .await?;
 
+    // Category ratings for this review
+    let category_ratings = sqlx::query_as::<_, crate::models::review::ReviewRatingRow>(
+        "SELECT category, score FROM review_ratings WHERE review_id = $1",
+    )
+    .bind(review_id)
+    .fetch_all(pool.get_ref())
+    .await?;
+
+    // Tags for this review
+    let tags = sqlx::query_as::<_, crate::models::tag::Tag>(
+        r#"
+        SELECT t.id, t.name
+        FROM review_tags rt
+        JOIN tags t ON t.id = rt.tag_id
+        WHERE rt.review_id = $1
+        "#,
+    )
+    .bind(review_id)
+    .fetch_all(pool.get_ref())
+    .await?;
+
     // All comments (flat, then tree-assembled)
     let comment_rows = sqlx::query_as::<_, ReviewCommentRow>(
         r#"
@@ -107,11 +147,15 @@ pub async fn get_review(
     Ok(HttpResponse::Ok().json(serde_json::json!({
         "id": review.id,
         "event_id": review.event_id,
+        "company_id": review.company_id,
         "user_id": review.user_id,
         "rating": review.rating,
         "title": review.title,
         "body": review.body,
+        "would_return": review.would_return,
         "created_at": review.created_at,
+        "category_ratings": category_ratings,
+        "tags": tags,
         "votes": {
             "helpful": helpful.0,
             "unhelpful": unhelpful.0
@@ -123,11 +167,16 @@ pub async fn get_review(
 /// POST /api/reviews/{id}/vote — Vote helpful or unhelpful
 #[post("/reviews/{id}/vote")]
 pub async fn vote_review(
+    req: HttpRequest,
     pool: web::Data<PgPool>,
+    auth_state: Option<web::Data<AuthState>>,
     id: web::Path<Uuid>,
     body: web::Json<CreateReviewVote>,
 ) -> Result<HttpResponse, ApiError> {
     let review_id = id.into_inner();
+
+    // Resolve user from JWT or body
+    let user_id = resolve_user_id(&req, &auth_state, pool.get_ref(), body.user_id).await?;
 
     // Verify review exists
     let review_exists: Option<(Uuid,)> = sqlx::query_as("SELECT id FROM reviews WHERE id = $1")
@@ -153,7 +202,7 @@ pub async fn vote_review(
     )
     .bind(vote_id)
     .bind(review_id)
-    .bind(body.user_id)
+    .bind(user_id)
     .bind(body.helpful)
     .fetch_one(pool.get_ref())
     .await?;
@@ -164,7 +213,9 @@ pub async fn vote_review(
 /// POST /api/reviews/{id}/comments — Add a comment (top-level or reply)
 #[post("/reviews/{id}/comments")]
 pub async fn create_review_comment(
+    req: HttpRequest,
     pool: web::Data<PgPool>,
+    auth_state: Option<web::Data<AuthState>>,
     id: web::Path<Uuid>,
     body: web::Json<CreateReviewComment>,
 ) -> Result<HttpResponse, ApiError> {
@@ -172,6 +223,9 @@ pub async fn create_review_comment(
         .map_err(|e| ApiError::BadRequest(e.to_string()))?;
 
     let review_id = id.into_inner();
+
+    // Resolve user from JWT or body
+    let user_id = resolve_user_id(&req, &auth_state, pool.get_ref(), body.user_id).await?;
 
     // Verify review exists
     let review_exists: Option<(Uuid,)> = sqlx::query_as("SELECT id FROM reviews WHERE id = $1")
@@ -209,7 +263,7 @@ pub async fn create_review_comment(
     )
     .bind(comment_id)
     .bind(review_id)
-    .bind(body.user_id)
+    .bind(user_id)
     .bind(body.parent_comment_id)
     .bind(ammonia::clean(&body.body))
     .fetch_one(pool.get_ref())

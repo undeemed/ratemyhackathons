@@ -3,6 +3,8 @@ pub mod companies;
 pub mod users;
 pub mod reviews;
 pub mod search;
+pub mod tags;
+pub mod compare;
 
 use serde::Serialize;
 

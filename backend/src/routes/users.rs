@@ -1,12 +1,32 @@
-use actix_web::{get, post, web, HttpResponse};
+use actix_web::{get, post, web, HttpRequest, HttpResponse};
 use sqlx::PgPool;
 use uuid::Uuid;
 use validator::Validate;
 
+use crate::auth::AuthState;
 use crate::errors::ApiError;
 use crate::models::user::*;
 use crate::models::review::*;
 use super::{PaginatedResponse, PaginationParams};
+
+/// Resolve user_id from JWT auth (if configured) or from request body fallback (dev mode)
+async fn resolve_user_id(
+    req: &HttpRequest,
+    auth_state: &Option<web::Data<AuthState>>,
+    pool: &PgPool,
+    body_user_id: Option<Uuid>,
+) -> Result<Uuid, ApiError> {
+    if let Some(state) = auth_state {
+        let auth_user = crate::auth::require_auth(req, state, pool).await
+            .map_err(|e| ApiError::Unauthorized(e.to_string()))?;
+        Ok(auth_user.user_id)
+    } else {
+        // Dev mode: require user_id in body
+        body_user_id.ok_or_else(|| {
+            ApiError::BadRequest("user_id is required (no auth configured)".to_string())
+        })
+    }
+}
 
 #[get("/users")]
 pub async fn list_users(
@@ -62,9 +82,12 @@ pub async fn get_user(
 
     let reviews = sqlx::query_as::<_, UserReviewRow>(
         r#"
-        SELECT r.id, r.event_id, e.name as event_name, r.rating, r.title, r.body, r.created_at
+        SELECT r.id, r.event_id, e.name as event_name,
+               r.company_id, c.name as company_name,
+               r.rating, r.title, r.body, r.created_at
         FROM reviews r
-        JOIN events e ON e.id = r.event_id
+        LEFT JOIN events e ON e.id = r.event_id
+        LEFT JOIN companies c ON c.id = r.company_id
         WHERE r.user_id = $1
         ORDER BY r.created_at DESC
         "#,
@@ -91,6 +114,8 @@ pub async fn get_user(
             id: r.id,
             event_id: r.event_id,
             event_name: r.event_name,
+            company_id: r.company_id,
+            company_name: r.company_name,
             rating: r.rating,
             title: r.title,
             body: r.body,
@@ -101,9 +126,13 @@ pub async fn get_user(
 
 #[post("/users")]
 pub async fn create_user(
+    req: HttpRequest,
     pool: web::Data<PgPool>,
+    auth_state: Option<web::Data<AuthState>>,
     body: web::Json<CreateUser>,
 ) -> Result<HttpResponse, ApiError> {
+    crate::auth::require_auth_if_configured(&req, &auth_state, pool.get_ref()).await?;
+
     body.validate()
         .map_err(|e| ApiError::BadRequest(e.to_string()))?;
 
@@ -137,61 +166,138 @@ pub async fn create_user(
     Ok(HttpResponse::Created().json(user))
 }
 
+const VALID_CATEGORIES: &[&str] = &[
+    "organization", "prizes", "mentorship", "judging", "venue",
+    "food", "swag", "networking", "communication", "vibes",
+];
+
 #[post("/reviews")]
 pub async fn create_review(
+    req: HttpRequest,
     pool: web::Data<PgPool>,
+    auth_state: Option<web::Data<AuthState>>,
     body: web::Json<CreateReview>,
 ) -> Result<HttpResponse, ApiError> {
     body.validate()
         .map_err(|e| ApiError::BadRequest(e.to_string()))?;
 
-    // Verify event and user exist in a single query
-    let exists: Option<(Uuid, Uuid)> = sqlx::query_as(
-        r#"
-        SELECT e.id, u.id
-        FROM events e, users u
-        WHERE e.id = $1 AND u.id = $2
-        "#,
-    )
-    .bind(body.event_id)
-    .bind(body.user_id)
-    .fetch_optional(pool.get_ref())
-    .await?;
+    // Resolve user from JWT or body
+    let user_id = resolve_user_id(&req, &auth_state, pool.get_ref(), body.user_id).await?;
 
-    match exists {
-        None => {
-            let event_exists: Option<(Uuid,)> = sqlx::query_as("SELECT id FROM events WHERE id = $1")
-                .bind(body.event_id)
-                .fetch_optional(pool.get_ref())
-                .await?;
-
-            if event_exists.is_none() {
-                return Err(ApiError::NotFound(format!("Event {} not found", body.event_id)));
-            }
-            return Err(ApiError::NotFound(format!("User {} not found", body.user_id)));
+    // Validate XOR: exactly one target
+    match (&body.event_id, &body.company_id) {
+        (Some(_), None) | (None, Some(_)) => {}
+        _ => {
+            return Err(ApiError::BadRequest(
+                "Exactly one of event_id or company_id must be provided".to_string(),
+            ));
         }
-        Some(_) => {}
+    }
+
+    // Validate all 10 categories present and scores in range
+    if body.category_ratings.len() != 10 {
+        return Err(ApiError::BadRequest(
+            "All 10 category ratings are required".to_string(),
+        ));
+    }
+    for cat in VALID_CATEGORIES {
+        match body.category_ratings.get(*cat) {
+            Some(&score) if (1..=5).contains(&score) => {}
+            Some(_) => {
+                return Err(ApiError::BadRequest(
+                    format!("Category '{}' score must be between 1 and 5", cat),
+                ));
+            }
+            None => {
+                return Err(ApiError::BadRequest(
+                    format!("Missing required category: {}", cat),
+                ));
+            }
+        }
+    }
+
+    // Compute overall rating as average of category scores
+    let total: i16 = body.category_ratings.values().sum();
+    let rating = ((total as f64 / 10.0).round()) as i32;
+
+    // Verify target entity exists
+    if let Some(event_id) = body.event_id {
+        let exists: Option<(Uuid,)> = sqlx::query_as("SELECT id FROM events WHERE id = $1")
+            .bind(event_id)
+            .fetch_optional(pool.get_ref())
+            .await?;
+        if exists.is_none() {
+            return Err(ApiError::NotFound(format!("Event {} not found", event_id)));
+        }
+    }
+    if let Some(company_id) = body.company_id {
+        let exists: Option<(Uuid,)> = sqlx::query_as("SELECT id FROM companies WHERE id = $1")
+            .bind(company_id)
+            .fetch_optional(pool.get_ref())
+            .await?;
+        if exists.is_none() {
+            return Err(ApiError::NotFound(format!("Company {} not found", company_id)));
+        }
     }
 
     let id = Uuid::now_v7();
 
     // Sanitize free-text fields
     let title = body.title.as_deref().map(|s| ammonia::clean(s));
-    let review_body = body.body.as_deref().map(|s| ammonia::clean(s));
+    let review_body = ammonia::clean(&body.body);
 
-    let review = sqlx::query_as::<_, Review>(
+    // Transaction: insert review + 10 category ratings + tag links
+    let mut tx = pool.begin().await?;
+
+    sqlx::query(
         r#"
-        INSERT INTO reviews (id, event_id, user_id, rating, title, body)
-        VALUES ($1, $2, $3, $4, $5, $6)
-        RETURNING id, event_id, user_id, rating, title, body, created_at
+        INSERT INTO reviews (id, event_id, company_id, user_id, rating, title, body, would_return)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
         "#,
     )
     .bind(id)
     .bind(body.event_id)
-    .bind(body.user_id)
-    .bind(body.rating)
+    .bind(body.company_id)
+    .bind(user_id)
+    .bind(rating)
     .bind(&title)
     .bind(&review_body)
+    .bind(body.would_return)
+    .execute(&mut *tx)
+    .await?;
+
+    // Batch-insert category ratings
+    for (category, score) in &body.category_ratings {
+        sqlx::query(
+            "INSERT INTO review_ratings (review_id, category, score) VALUES ($1, $2, $3)",
+        )
+        .bind(id)
+        .bind(category)
+        .bind(score)
+        .execute(&mut *tx)
+        .await?;
+    }
+
+    // Link tags if provided
+    if let Some(ref tag_ids) = body.tag_ids {
+        for tag_id in tag_ids {
+            sqlx::query(
+                "INSERT INTO review_tags (review_id, tag_id) VALUES ($1, $2) ON CONFLICT DO NOTHING",
+            )
+            .bind(id)
+            .bind(tag_id)
+            .execute(&mut *tx)
+            .await?;
+        }
+    }
+
+    tx.commit().await?;
+
+    // Fetch the created review
+    let review = sqlx::query_as::<_, Review>(
+        "SELECT id, event_id, company_id, user_id, rating, title, body, would_return, created_at FROM reviews WHERE id = $1",
+    )
+    .bind(id)
     .fetch_one(pool.get_ref())
     .await?;
 

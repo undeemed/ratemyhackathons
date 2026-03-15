@@ -1,8 +1,9 @@
-use actix_web::{get, post, web, HttpResponse};
+use actix_web::{get, post, web, HttpRequest, HttpResponse};
 use sqlx::PgPool;
 use uuid::Uuid;
 use validator::Validate;
 
+use crate::auth::AuthState;
 use crate::errors::ApiError;
 use crate::models::event::*;
 use super::{PaginatedResponse, PaginationParams};
@@ -20,8 +21,8 @@ pub async fn list_events(
     query: web::Query<EventListParams>,
 ) -> Result<HttpResponse, ApiError> {
     let pagination = PaginationParams {
-        page: query.page,
-        per_page: query.per_page,
+        page: query.page.map(|p| p.max(1)),
+        per_page: query.per_page.map(|p| p.clamp(1, 100)),
     };
     let limit = pagination.limit();
     let offset = pagination.offset();
@@ -169,9 +170,9 @@ pub async fn get_event(
     .fetch_all(pool.get_ref())
     .await?;
 
-    let reviews = sqlx::query_as::<_, EventReviewRow>(
+    let review_rows = sqlx::query_as::<_, EventReviewRow>(
         r#"
-        SELECT r.id, r.user_id, u.username, r.rating, r.title, r.body, r.created_at
+        SELECT r.id, r.user_id, u.username, r.rating, r.title, r.body, r.would_return, r.created_at
         FROM reviews r
         JOIN users u ON u.id = r.user_id
         WHERE r.event_id = $1
@@ -189,6 +190,94 @@ pub async fn get_event(
     .fetch_one(pool.get_ref())
     .await?;
 
+    // Would return percentage
+    let would_return: (Option<f64>,) = sqlx::query_as(
+        r#"
+        SELECT COUNT(*) FILTER (WHERE would_return = true) * 100.0 / NULLIF(COUNT(*), 0)
+        FROM reviews WHERE event_id = $1
+        "#,
+    )
+    .bind(event_id)
+    .fetch_one(pool.get_ref())
+    .await?;
+
+    // Category averages
+    let category_ratings = sqlx::query_as::<_, crate::models::review::CategoryAvg>(
+        r#"
+        SELECT rr.category, AVG(rr.score)::float8 as avg
+        FROM review_ratings rr
+        JOIN reviews r ON r.id = rr.review_id
+        WHERE r.event_id = $1
+        GROUP BY rr.category
+        "#,
+    )
+    .bind(event_id)
+    .fetch_all(pool.get_ref())
+    .await?;
+
+    // Top tags
+    let top_tags = sqlx::query_as::<_, crate::models::tag::TagCount>(
+        r#"
+        SELECT t.name, COUNT(*) as count
+        FROM review_tags rt
+        JOIN tags t ON t.id = rt.tag_id
+        JOIN reviews r ON r.id = rt.review_id
+        WHERE r.event_id = $1
+        GROUP BY t.name
+        ORDER BY count DESC
+        LIMIT 5
+        "#,
+    )
+    .bind(event_id)
+    .fetch_all(pool.get_ref())
+    .await?;
+
+    // Rating distribution
+    let rating_distribution = sqlx::query_as::<_, crate::models::review::RatingDistribution>(
+        r#"
+        SELECT rating, COUNT(*) as count
+        FROM reviews WHERE event_id = $1
+        GROUP BY rating ORDER BY rating DESC
+        "#,
+    )
+    .bind(event_id)
+    .fetch_all(pool.get_ref())
+    .await?;
+
+    // Batch-fetch category ratings for all reviews
+    let review_ids: Vec<Uuid> = review_rows.iter().map(|r| r.id).collect();
+    let all_ratings = sqlx::query_as::<_, (Uuid, String, i16)>(
+        "SELECT review_id, category, score FROM review_ratings WHERE review_id = ANY($1)",
+    )
+    .bind(&review_ids)
+    .fetch_all(pool.get_ref())
+    .await?;
+
+    let reviews: Vec<EventReviewRef> = review_rows
+        .into_iter()
+        .map(|r| {
+            let cats: Vec<crate::models::review::ReviewRatingRow> = all_ratings
+                .iter()
+                .filter(|(rid, _, _)| *rid == r.id)
+                .map(|(_, cat, score)| crate::models::review::ReviewRatingRow {
+                    category: cat.clone(),
+                    score: *score,
+                })
+                .collect();
+            EventReviewRef {
+                id: r.id,
+                user_id: r.user_id,
+                username: r.username,
+                rating: r.rating,
+                title: r.title,
+                body: r.body,
+                would_return: r.would_return,
+                created_at: r.created_at,
+                category_ratings: cats,
+            }
+        })
+        .collect();
+
     Ok(HttpResponse::Ok().json(EventDetail {
         id: event.id,
         name: event.name,
@@ -201,25 +290,25 @@ pub async fn get_event(
         latitude: event.latitude,
         longitude: event.longitude,
         companies,
-        reviews: reviews.into_iter().map(|r| EventReviewRef {
-            id: r.id,
-            user_id: r.user_id,
-            username: r.username,
-            rating: r.rating,
-            title: r.title,
-            body: r.body,
-            created_at: r.created_at,
-        }).collect(),
+        reviews,
         avg_rating: stats.0,
         review_count: stats.1,
+        would_return_pct: would_return.0,
+        category_ratings,
+        top_tags,
+        rating_distribution,
     }))
 }
 
 #[post("/events")]
 pub async fn create_event(
+    req: HttpRequest,
     pool: web::Data<PgPool>,
+    auth_state: Option<web::Data<AuthState>>,
     body: web::Json<CreateEvent>,
 ) -> Result<HttpResponse, ApiError> {
+    crate::auth::require_auth_if_configured(&req, &auth_state, pool.get_ref()).await?;
+
     body.validate()
         .map_err(|e| ApiError::BadRequest(e.to_string()))?;
 

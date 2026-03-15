@@ -6,6 +6,7 @@ use std::fmt;
 pub enum ApiError {
     NotFound(String),
     BadRequest(String),
+    Unauthorized(String),
     InternalError(String),
     DatabaseError(sqlx::Error),
 }
@@ -21,6 +22,7 @@ impl fmt::Display for ApiError {
         match self {
             ApiError::NotFound(msg) => write!(f, "Not Found: {}", msg),
             ApiError::BadRequest(msg) => write!(f, "Bad Request: {}", msg),
+            ApiError::Unauthorized(msg) => write!(f, "Unauthorized: {}", msg),
             ApiError::InternalError(msg) => write!(f, "Internal Error: {}", msg),
             ApiError::DatabaseError(e) => write!(f, "Database Error: {}", e),
         }
@@ -36,6 +38,10 @@ impl ResponseError for ApiError {
             }),
             ApiError::BadRequest(msg) => HttpResponse::BadRequest().json(ErrorResponse {
                 error: "bad_request".to_string(),
+                message: msg.clone(),
+            }),
+            ApiError::Unauthorized(msg) => HttpResponse::Unauthorized().json(ErrorResponse {
+                error: "unauthorized".to_string(),
                 message: msg.clone(),
             }),
             ApiError::InternalError(msg) => {

@@ -17,12 +17,22 @@ pub struct SearchParams {
 pub struct SearchResponse {
     pub events: Vec<SearchResult>,
     pub companies: Vec<SearchResult>,
-    pub users: Vec<SearchResult>,
+    pub users: Vec<UserSearchResult>,
     pub total: i64,
 }
 
 #[derive(Debug, Serialize, sqlx::FromRow)]
 pub struct SearchResult {
+    pub id: Uuid,
+    pub name: String,
+    pub rank: f32,
+    pub avg_rating: Option<f64>,
+    pub review_count: i64,
+    pub would_return_pct: Option<f64>,
+}
+
+#[derive(Debug, Serialize, sqlx::FromRow)]
+pub struct UserSearchResult {
     pub id: Uuid,
     pub name: String,
     pub rank: f32,
@@ -52,9 +62,19 @@ pub async fn search(
     if search_types.contains(&"event") {
         events = sqlx::query_as::<_, SearchResult>(
             r#"
-            SELECT id, name, ts_rank(search_vector, plainto_tsquery('english', $1)) as rank
-            FROM events
-            WHERE search_vector @@ plainto_tsquery('english', $1)
+            SELECT e.id, e.name,
+                   ts_rank(e.search_vector, plainto_tsquery('english', $1)) as rank,
+                   rs.avg_rating,
+                   COALESCE(rs.review_count, 0) as review_count,
+                   rs.would_return_pct
+            FROM events e
+            LEFT JOIN LATERAL (
+                SELECT AVG(rating)::float8 as avg_rating,
+                       COUNT(*) as review_count,
+                       COUNT(*) FILTER (WHERE would_return = true) * 100.0 / NULLIF(COUNT(*), 0) as would_return_pct
+                FROM reviews WHERE event_id = e.id
+            ) rs ON true
+            WHERE e.search_vector @@ plainto_tsquery('english', $1)
             ORDER BY rank DESC
             LIMIT $2
             "#,
@@ -68,9 +88,19 @@ pub async fn search(
     if search_types.contains(&"company") {
         companies = sqlx::query_as::<_, SearchResult>(
             r#"
-            SELECT id, name, ts_rank(search_vector, plainto_tsquery('english', $1)) as rank
-            FROM companies
-            WHERE search_vector @@ plainto_tsquery('english', $1)
+            SELECT c.id, c.name,
+                   ts_rank(c.search_vector, plainto_tsquery('english', $1)) as rank,
+                   rs.avg_rating,
+                   COALESCE(rs.review_count, 0) as review_count,
+                   rs.would_return_pct
+            FROM companies c
+            LEFT JOIN LATERAL (
+                SELECT AVG(rating)::float8 as avg_rating,
+                       COUNT(*) as review_count,
+                       COUNT(*) FILTER (WHERE would_return = true) * 100.0 / NULLIF(COUNT(*), 0) as would_return_pct
+                FROM reviews WHERE company_id = c.id
+            ) rs ON true
+            WHERE c.search_vector @@ plainto_tsquery('english', $1)
             ORDER BY rank DESC
             LIMIT $2
             "#,
@@ -82,7 +112,7 @@ pub async fn search(
     }
 
     if search_types.contains(&"user") {
-        users = sqlx::query_as::<_, SearchResult>(
+        users = sqlx::query_as::<_, UserSearchResult>(
             r#"
             SELECT id, username as name,
                    ts_rank(to_tsvector('english', username), plainto_tsquery('english', $1)) as rank
