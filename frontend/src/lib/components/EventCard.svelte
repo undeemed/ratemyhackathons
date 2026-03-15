@@ -16,6 +16,7 @@
 
 <a
 	href="/events/{event.id}"
+	data-sveltekit-preload-data="off"
 	class="group relative flex flex-col overflow-hidden border border-border bg-bg transition-all duration-500 hover:border-accent hover:bg-surface {featured ? 'row-span-2' : ''} {stretch ? 'flex-1' : ''}"
 >
 	<!-- Decorative corner accent -->

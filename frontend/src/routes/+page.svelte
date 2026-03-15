@@ -203,12 +203,6 @@
         start: "top top",
         end: "+=5000",
         scrub: 2,
-        snap: {
-          snapTo: "labels",
-          duration: { min: 0.2, max: 0.8 },
-          delay: 0.1,
-          ease: "power1.inOut",
-        },
       },
     });
 
@@ -291,7 +285,7 @@
 <!-- ═══════ HERO + GLOBE SHOWCASE (single pinned section) ═══════ -->
 <section bind:this={sectionEl} class="relative h-screen overflow-hidden">
   <!-- Globe container — ONE instance, GSAP morphs position/size -->
-  <div bind:this={globeContainerEl} class="absolute aspect-square">
+  <div bind:this={globeContainerEl} class="absolute aspect-square" style="will-change: transform;">
     <Globe markers={data.markers} focus={globeFocus} />
   </div>
 
@@ -300,60 +294,63 @@
     bind:this={heroTextEl}
     class="relative z-10 mx-auto flex h-screen w-full max-w-[1400px] items-center px-6"
   >
-    <div class="max-w-3xl">
+    <div class="max-w-5xl">
       <h1
         class="font-display text-[clamp(3.5rem,11vw,10rem)] italic leading-[0.85] tracking-tight"
       >
-        Every<br />hackathon,<br />
+        Every hackathon,<br />
         <span
           style="background-image: linear-gradient(to right, var(--color-score-red), var(--color-score-yellow), var(--color-score-green)); -webkit-background-clip: text; background-clip: text; color: transparent;"
           >rated.</span
         >
       </h1>
 
-      <div class="mt-8 h-px w-24 bg-dim"></div>
-
-      <p class="mt-8 max-w-md text-sm leading-relaxed text-muted">
-        No sponsored placements. No corporate filters. Just thousands of honest
-        reviews from people who were actually there.
-      </p>
-
-      <form onsubmit={handleHeroSearch} class="mt-10 max-w-sm">
-        <div class="mb-3 flex gap-4 text-[11px] uppercase tracking-[0.2em]">
-          <button
-            type="button"
-            class="transition-colors {searchMode === 'events'
-              ? 'text-text'
-              : 'text-dim hover:text-muted'}"
-            onclick={() => (searchMode = "events")}>Hackathons</button
-          >
-          <button
-            type="button"
-            class="transition-colors {searchMode === 'companies'
-              ? 'text-text'
-              : 'text-dim hover:text-muted'}"
-            onclick={() => (searchMode = "companies")}>Companies</button
-          >
+      <div class="mt-10 flex flex-col gap-8 sm:flex-row sm:items-start sm:gap-12">
+        <div class="shrink-0 sm:max-w-xs">
+          <div class="mb-4 h-px w-24 bg-dim"></div>
+          <p class="text-sm leading-relaxed text-muted">
+            No sponsored placements. No corporate filters. Just thousands of honest
+            reviews from people who were actually there.
+          </p>
         </div>
-        <div
-          class="group flex items-center border-b border-dim transition-colors focus-within:border-text"
-        >
-          <input
-            bind:value={heroSearchQuery}
-            type="text"
-            placeholder={searchMode === "events"
-              ? "Search hackathons..."
-              : "Search companies..."}
-            class="w-full bg-transparent py-3 text-sm text-text placeholder:text-dim focus:outline-none"
-          />
-          <button
-            type="submit"
-            class="text-dim transition-colors group-focus-within:text-text"
+
+        <form onsubmit={handleHeroSearch} class="flex-1 sm:max-w-lg">
+          <div class="mb-4 flex gap-4 text-xs uppercase tracking-[0.2em]">
+            <button
+              type="button"
+              class="transition-colors {searchMode === 'events'
+                ? 'text-text'
+                : 'text-dim hover:text-muted'}"
+              onclick={() => (searchMode = "events")}>Hackathons</button
+            >
+            <button
+              type="button"
+              class="transition-colors {searchMode === 'companies'
+                ? 'text-text'
+                : 'text-dim hover:text-muted'}"
+              onclick={() => (searchMode = "companies")}>Companies</button
+            >
+          </div>
+          <div
+            class="group flex items-center border-b-2 border-dim transition-colors focus-within:border-text"
           >
-            <ArrowRight class="h-4 w-4" />
-          </button>
-        </div>
-      </form>
+            <input
+              bind:value={heroSearchQuery}
+              type="text"
+              placeholder={searchMode === "events"
+                ? "Search hackathons..."
+                : "Search companies..."}
+              class="w-full bg-transparent py-4 text-lg text-text placeholder:text-dim focus:outline-none"
+            />
+            <button
+              type="submit"
+              class="text-dim transition-colors group-focus-within:text-text"
+            >
+              <ArrowRight class="h-6 w-6" />
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 

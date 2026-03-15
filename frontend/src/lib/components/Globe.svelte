@@ -121,17 +121,21 @@
 	}
 
 	onMount(() => {
+		let destroyed = false;
+
 		// Delay cobe creation: Svelte mounts children BEFORE parents, so the
 		// parent's onMount (which sets GSAP dimensions) hasn't run yet.
 		// requestAnimationFrame fires after all onMounts + browser layout.
 		const rafId = requestAnimationFrame(() => {
+			if (destroyed) return;
+
 			// Follow cobe's official pattern: cache width via resize listener,
 			// never read offsetWidth inside onRender (avoids forced reflows).
 			let width = canvasEl.offsetWidth;
 			if (!width) return;
 
 			const onResize = () => {
-				if (canvasEl) width = canvasEl.offsetWidth;
+				if (canvasEl && !destroyed) width = canvasEl.offsetWidth;
 			};
 			window.addEventListener('resize', onResize);
 
@@ -149,7 +153,7 @@
 				theta: 0.2,
 				dark: 1,
 				diffuse: 1.2,
-				mapSamples: 12000,
+				mapSamples: 20000,
 				mapBrightness: 2,
 				mapBaseBrightness: 0.02,
 				baseColor: [0.2, 0.2, 0.2],
@@ -157,6 +161,8 @@
 				glowColor: [0.1, 0.1, 0.1],
 				markers: cobeMarkers,
 				onRender: (state) => {
+					if (destroyed) return;
+
 					// When focus is set (showcase mode), rotate to that location
 					// and DON'T auto-spin — avoids conflicting with GSAP's tween
 					if (focus && focus.lat !== 0 && focus.lng !== 0) {
@@ -179,6 +185,8 @@
 					state.width = width * 2;
 					state.height = width * 2;
 					state.markers = cobeMarkers;
+					// High-res when large (hero), lower when shrunk (showcase)
+					state.mapSamples = (focus && focus.lat !== 0) ? 12000 : 20000;
 				},
 			});
 
@@ -189,6 +197,7 @@
 		});
 
 		return () => {
+			destroyed = true;
 			cancelAnimationFrame(rafId);
 			(canvasEl as any)?.__cleanupResize?.();
 			globe?.destroy();
