@@ -14,7 +14,7 @@
 
 <div class="mx-auto max-w-[1400px] px-6 py-24">
 	<div class="mb-16" use:fadeIn>
-		<span class="text-[10px] uppercase tracking-[0.3em] text-dim">Archive</span>
+		<a href="/" class="mb-6 inline-block text-xs uppercase tracking-[0.2em] text-dim transition-colors hover:text-text">&larr; Back</a>
 		<h1 class="mt-2 font-display text-6xl italic sm:text-7xl">All events</h1>
 		<p class="mt-4 text-xs text-muted">{data.total} hackathons and counting</p>
 		<div class="mt-6 h-px w-24 bg-border"></div>

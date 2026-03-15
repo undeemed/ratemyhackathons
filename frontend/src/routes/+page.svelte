@@ -9,6 +9,7 @@
   } from "$lib/animations/gsap";
   import { ArrowRight } from "lucide-svelte";
   import { onMount } from "svelte";
+  import { beforeNavigate } from "$app/navigation";
   import gsap from "gsap";
   import { ScrollTrigger } from "gsap/ScrollTrigger";
   import type { PageData } from "./$types";
@@ -152,6 +153,13 @@
     });
   }
 
+  // Kill ScrollTrigger BEFORE navigation — snap intercepts scroll changes
+  // during SvelteKit client-side nav and pulls the page back to a label.
+  beforeNavigate(() => {
+    gsap.killTweensOf("*");
+    ScrollTrigger.getAll().forEach((t) => t.kill());
+  });
+
   onMount(() => {
     gsap.registerPlugin(ScrollTrigger);
 
@@ -265,9 +273,9 @@
     tl.addLabel("end");
 
     return () => {
-      ScrollTrigger.getAll().forEach((t) => {
-        if (t.trigger === sectionEl) t.kill();
-      });
+      tl.kill();
+      ScrollTrigger.getAll().forEach((t) => t.kill());
+      ScrollTrigger.refresh();
     };
   });
 </script>
@@ -533,7 +541,7 @@
 </section>
 
 <!-- ═══════ PULL QUOTE ═══════ -->
-<section class="bg-surface py-28">
+<section class="bg-[#111] py-28">
   <div class="mx-auto max-w-[1000px] px-6 text-center" use:slideUp>
     <span class="font-display text-8xl italic text-border">&ldquo;</span>
     <p
@@ -543,9 +551,6 @@
       what the sponsors say happened.
     </p>
     <div class="mx-auto mt-8 h-px w-24 bg-border"></div>
-    <p class="mt-6 text-[11px] uppercase tracking-[0.3em] text-dim">
-      What we believe
-    </p>
   </div>
 </section>
 
