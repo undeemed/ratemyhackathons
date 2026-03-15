@@ -92,10 +92,10 @@ Landing page is a storyboard with 7 scroll-triggered sections (hero, marquee, st
 **Landing page scroll animation (`+page.svelte`):**
 - All GSAP wrapped in `gsap.context()` — single `ctx.revert()` on unmount cleans up everything
 - Hero globe: 90vw on desktop (max 1440px), positioned at `top: 45%` shifted right (`vw * 1.05 - heroW`)
-- Morph uses ONLY transform properties (`x`, `y`, `scale`) — no `width`/`height`/`left` changes during scroll, avoiding forced layout reflows. `morphScale = maxShowSize / heroW`, `morphX = vw/2 - heroCenterX`
+- Morph uses layout-based GSAP tween (`width`, `height`, `left`, `top`) — cobe re-renders at correct size within its container. Showcase size: `Math.min(vh * 0.65, vw * 0.5)`, centered with `left: (vw - showW) / 2`
 - `scrub: 2` (no snap — snap caused lag on reverse scroll)
 - `globeFocus` is a plain mutable object `{lat: 0, lng: 0}` — GSAP tweens it directly, Globe reads it every frame in `onRender`. When both are 0, globe auto-spins.
-- Phase sequence: hero hold → morph (fade text, translate+scale globe to center) → cycle events (spin globe to each lat/lng, slide cards in/out) → exit fade
+- Phase sequence: hero hold → morph (fade text, resize+center globe) → cycle events (spin globe to each lat/lng, slide cards in/out) → exit fade
 
 Theme colors in `app.css` via Tailwind v4 `@theme`: `bg #000`, `surface #080808`, `elevated #141414`, `border #2a2a2a`, `text #fff`, `muted #999`, `dim #555`, `accent #e0e0e0`.
 

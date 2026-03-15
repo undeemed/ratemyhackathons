@@ -11,3 +11,6 @@
 | 2026-03-15 | Removed `aspect-square` from globe wrapper → wrapper collapsed to 0x0 → globe disappeared | Removing CSS sizing without providing alternative dimensions causes element collapse; always verify elements have a size source |
 | 2026-03-15 | Pixel-based `left` centering drifted with GSAP `scale` transforms | Use `left: '50%'` + `xPercent: -50` for centering — works correctly with all transforms |
 | 2026-03-15 | Per-event zoom in/out (scale 1.25→1) caused distracting pulsing during scrub | Apply zoom once at section start, hold during content cycling, zoom out once at exit |
+| 2026-03-15 | Pushed to prod before user tested locally — broke globe sizing | ALWAYS let user test on localhost first before pushing/deploying |
+| 2026-03-15 | Capped cobe's cached `width` variable to 800px — broke display size (cobe rendered 800px but CSS stretched to 1440px) | Cap `devicePixelRatio` instead of width to limit GPU buffer; width must match actual display size for correct rendering |
+| 2026-03-15 | Transform-based morph (`scale`/`x`/`y`) caused globe to overflow container — cobe renders at original size regardless of CSS transform | Use layout-based GSAP morph (`width`/`height`/`left`) so cobe re-renders at correct size within its container |

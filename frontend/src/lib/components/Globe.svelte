@@ -29,10 +29,10 @@
 	$effect(() => {
 		if (!globe) return;
 		if (!visible && !globePaused) {
-			globe.toggle(); // pause
+			globe.toggle(false); // pause
 			globePaused = true;
 		} else if (visible && globePaused) {
-			globe.toggle(); // resume
+			globe.toggle(true); // resume
 			globePaused = false;
 		}
 	});
@@ -149,13 +149,11 @@
 
 			// Follow cobe's official pattern: cache width via resize listener,
 			// never read offsetWidth inside onRender (avoids forced reflows).
-			// Cap at 800px to keep render target ≤1600x1600 (~10MB vs 32MB at 2880)
-			const MAX_RENDER = 800;
-			let width = Math.min(canvasEl.offsetWidth, MAX_RENDER);
+			let width = canvasEl.offsetWidth;
 			if (!width) return;
 
 			const onResize = () => {
-				if (canvasEl && !destroyed) width = Math.min(canvasEl.offsetWidth, MAX_RENDER);
+				if (canvasEl && !destroyed) width = canvasEl.offsetWidth;
 			};
 			window.addEventListener('resize', onResize);
 
@@ -165,7 +163,11 @@
 				{ opacity: 1, duration: 1.5, ease: 'power2.out', delay: 0.2 }
 			);
 
-			const dpr = Math.min(window.devicePixelRatio || 1, 2);
+			// Cap render resolution: scale DPR down for large canvases
+			// to keep GPU buffer under ~10MB (1600x1600 max)
+			const MAX_RENDER_PX = 1600;
+			const rawDpr = window.devicePixelRatio || 1;
+			const dpr = Math.min(rawDpr, MAX_RENDER_PX / width);
 
 			globe = createGlobe(canvasEl, {
 				devicePixelRatio: dpr,

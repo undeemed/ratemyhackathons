@@ -30,9 +30,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Date-based marker brightness (closer = brighter)
   - Scroll-driven showcase: hero → morph → event cycling → exit
   - Globe zoom once at morph, not per-event pulse
-  - Scroll perf fix: transform-only GSAP morph (`x`/`y`/`scale`) — no forced reflows
+  - Scroll morph: layout-based GSAP morph (`width`/`height`/`left`) — globe re-renders at correct size within container
   - Cobe official resize pattern — cached width via event listener, not per-frame `offsetWidth`
-  - Dynamic `mapSamples`: 20K hero (high-res) / 12K showcase (perf)
+  - Dynamic `mapSamples`: 16K hero / 8K showcase (perf)
+  - Globe visibility toggle: `globe.toggle(false/true)` pauses/resumes cobe when scrolled past
+  - Marker sampling: cap at 200 markers for GPU performance (down from 1600+)
+  - DPR capping: `Math.min(rawDpr, MAX_RENDER_PX / width)` limits GPU buffer without affecting display size
   - Removed ScrollTrigger `snap` — caused lag on reverse scroll
   - Globe `destroyed` guard prevents cobe rendering after navigation
   - `will-change: transform` on globe container for GPU compositor isolation

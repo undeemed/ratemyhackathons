@@ -185,17 +185,11 @@
       const heroW = Math.min(vw >= 1024 ? vw * 0.9 : vw * 1.2, 1440);
       const heroL = vw * 1.05 - heroW;
 
-      // Showcase: visually smaller + centered (achieved via transforms, not layout)
-      const maxShowSize = Math.min(vh * 0.9, vw * 0.9);
-      const morphScale = maxShowSize / heroW; // shrink to fit viewport
-      const heroCenterX = heroL + heroW / 2;
-      const morphX = vw / 2 - heroCenterX; // translate to viewport center
-      const heroCenterY = vh * 0.45; // matches top: '45%' with yPercent: -50
-      const morphY = vh / 2 - heroCenterY; // translate to vertical center
+      // Showcase: fits within viewport, centered
+      const showW = Math.min(vh * 0.65, vw * 0.5);
+      const showL = (vw - showW) / 2;
 
-      // Initial hero position — fixed layout, never changes during scroll.
-      // All scroll animations use transforms only (x/scale) so offsetWidth
-      // reads in Globe.svelte stay cheap (no forced layout reflow).
+      // Initial hero position
       gsap.set(globeContainerEl, {
         width: heroW,
         height: heroW,
@@ -227,16 +221,17 @@
       tl.addLabel("hero");
       tl.to({}, { duration: 0.15 });
 
-      // Phase 2: Fade hero text, morph globe to center + zoom in
-      // Uses ONLY transform properties (x, scale) — no layout changes
+      // Phase 2: Fade hero text, morph globe to center + shrink
+      // Layout-based morph: width/height/left so cobe re-renders at correct size
       tl.addLabel("morph");
       tl.to(heroTextEl, { autoAlpha: 0, y: -60, duration: 0.15 });
       tl.to(
         globeContainerEl,
         {
-          x: morphX,
-          y: morphY,
-          scale: morphScale,
+          width: showW,
+          height: showW,
+          left: showL,
+          top: "50%",
           duration: 0.2,
           ease: "power2.inOut",
         },
@@ -277,7 +272,6 @@
       tl.addLabel("exit");
       tl.to(globeContainerEl, {
         opacity: 0,
-        scale: 0.85,
         duration: 0.2,
       });
 
