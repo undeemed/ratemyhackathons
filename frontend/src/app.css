@@ -9,6 +9,11 @@
 	--color-muted: #999999;
 	--color-dim: #555555;
 	--color-accent: #e0e0e0;
+	--color-gold: #c8a84e;
+	--color-gold-dim: #8a7235;
+	--color-score-green: #4caf50;
+	--color-score-yellow: #ffc107;
+	--color-score-red: #ef5350;
 	--font-display: 'Instrument Serif', serif;
 	--font-body: 'Space Mono', monospace;
 }
@@ -82,4 +87,107 @@ body::before {
 }
 .hover-line:hover::after {
 	width: 100%;
+}
+
+/* ═══════ CINEMATIC SECTIONS ═══════ */
+
+.section-hero {
+	position: relative;
+	min-height: 100svh;
+	display: flex;
+	align-items: center;
+	overflow: hidden;
+}
+
+.section-title {
+	font-family: var(--font-display);
+	font-style: italic;
+	font-size: clamp(5rem, 15vw, 14rem);
+	line-height: 0.85;
+	letter-spacing: -0.02em;
+	color: #fff;
+	mix-blend-mode: difference;
+}
+
+/* Section edge transitions — diagonal clip */
+.section-edge-top {
+	clip-path: polygon(0 4vw, 100% 0, 100% 100%, 0 100%);
+	margin-top: -4vw;
+	padding-top: calc(4vw + 2rem);
+}
+
+.section-edge-bottom::after {
+	content: '';
+	position: absolute;
+	bottom: -1px;
+	left: 0;
+	right: 0;
+	height: 6vw;
+	background: inherit;
+	clip-path: polygon(0 0, 100% 100%, 0 100%);
+	z-index: 1;
+}
+
+/* Section tinted backgrounds — barely perceptible */
+.section-warm { background-color: #0a0806; }
+.section-cool { background-color: #06080a; }
+.section-neutral { background-color: #050505; }
+
+/* Drop cap for section taglines */
+.drop-cap::first-letter {
+	font-family: var(--font-display);
+	font-style: italic;
+	font-size: 4em;
+	float: left;
+	line-height: 0.8;
+	margin-right: 0.08em;
+	margin-top: 0.05em;
+	color: var(--color-gold);
+}
+
+/* Gold accent line */
+.accent-line {
+	height: 1px;
+	background: linear-gradient(90deg, var(--color-gold) 0%, transparent 100%);
+}
+
+/* Fade mask for generative backgrounds */
+.fade-edges {
+	-webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, black 40%, transparent 100%);
+	mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, black 40%, transparent 100%);
+}
+
+/* Split text animation helper */
+.char-reveal {
+	display: inline-block;
+	opacity: 0;
+	transform: translateY(40px);
+}
+
+/* Section number (roman numeral) */
+.section-numeral {
+	font-family: var(--font-display);
+	font-style: italic;
+	font-size: clamp(8rem, 20vw, 20rem);
+	color: #0f0f0f;
+	line-height: 0.8;
+	user-select: none;
+	pointer-events: none;
+}
+
+/* Horizontal rule with fade */
+.hr-fade {
+	border: none;
+	height: 1px;
+	background: linear-gradient(90deg, transparent, var(--color-border), transparent);
+}
+
+@keyframes float {
+	0%, 100% { transform: translateY(0px); }
+	50% { transform: translateY(-15px); }
+}
+
+@keyframes pulse-dot {
+	0%, 100% { opacity: 0.4; }
+	50% { opacity: 1; }
 }

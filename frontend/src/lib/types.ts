@@ -45,6 +45,10 @@ export interface EventDetail {
 	reviews: ReviewRef[];
 	avg_rating: number | null;
 	review_count: number;
+	would_return_pct: number | null;
+	category_ratings: CategoryAvg[];
+	top_tags: TagCount[];
+	rating_distribution: RatingDistributionEntry[];
 }
 
 export interface CompanyRef {
@@ -60,7 +64,14 @@ export interface ReviewRef {
 	rating: number;
 	title: string | null;
 	body: string | null;
+	would_return: boolean | null;
 	created_at: string;
+	category_ratings: ReviewRating[];
+}
+
+export interface ReviewRating {
+	category: string;
+	score: number;
 }
 
 export interface GlobeMarker {
@@ -78,6 +89,50 @@ export interface Company {
 	website: string | null;
 	description: string | null;
 	created_at: string;
+}
+
+export interface CompanyDetail {
+	id: string;
+	name: string;
+	logo_url: string | null;
+	website: string | null;
+	description: string | null;
+	events: CompanyEventRef[];
+	avg_rating: number | null;
+	review_count: number;
+	would_return_pct: number | null;
+	category_ratings: CategoryAvg[];
+	top_tags: TagCount[];
+	rating_distribution: RatingDistributionEntry[];
+	reviews: ReviewRef[];
+}
+
+export interface CompanyEventRef {
+	id: string;
+	name: string;
+	role: string | null;
+	start_date: string | null;
+	avg_rating: number | null;
+}
+
+export interface CategoryAvg {
+	category: string;
+	avg: number;
+}
+
+export interface TagCount {
+	name: string;
+	count: number;
+}
+
+export interface RatingDistributionEntry {
+	rating: number;
+	count: number;
+}
+
+export interface Tag {
+	id: string;
+	name: string;
 }
 
 export interface User {
@@ -116,8 +171,103 @@ export interface PaginatedResponse<T> {
 	per_page: number;
 }
 
+export interface SearchResult {
+	id: string;
+	name: string;
+	rank: number;
+	avg_rating: number | null;
+	review_count: number;
+	would_return_pct: number | null;
+}
+
+export interface UserSearchResult {
+	id: string;
+	name: string;
+	rank: number;
+}
+
 export interface SearchResults {
-	events: EventSummary[];
-	companies: Company[];
-	users: User[];
+	events: SearchResult[];
+	companies: SearchResult[];
+	users: UserSearchResult[];
+	total: number;
+}
+
+export interface CompareEntity {
+	id: string;
+	name: string;
+	avg_rating: number | null;
+	review_count: number;
+	would_return_pct: number | null;
+	category_ratings: CategoryAvg[];
+}
+
+export interface CreateReviewPayload {
+	event_id?: string;
+	company_id?: string;
+	title?: string;
+	body: string;
+	would_return?: boolean;
+	category_ratings: Record<string, number>;
+	tag_ids?: string[];
+}
+
+export const RATING_CATEGORIES = [
+	'organization',
+	'prizes',
+	'mentorship',
+	'judging',
+	'venue',
+	'food',
+	'swag',
+	'networking',
+	'communication',
+	'vibes',
+] as const;
+
+export type RatingCategory = (typeof RATING_CATEGORIES)[number];
+
+export const CATEGORY_LABELS: Record<RatingCategory, string> = {
+	organization: 'Organization',
+	prizes: 'Prizes',
+	mentorship: 'Mentorship',
+	judging: 'Judging',
+	venue: 'Venue',
+	food: 'Food & Drinks',
+	swag: 'Swag',
+	networking: 'Networking',
+	communication: 'Communication',
+	vibes: 'Vibes',
+};
+
+export const CATEGORY_ICONS: Record<RatingCategory, string> = {
+	organization: '&#9776;',
+	prizes: '&#9733;',
+	mentorship: '&#9998;',
+	judging: '&#9878;',
+	venue: '&#9962;',
+	food: '&#9749;',
+	swag: '&#127873;',
+	networking: '&#128101;',
+	communication: '&#128172;',
+	vibes: '&#9889;',
+};
+
+export const SCORE_LABELS = ['', 'Awful', 'OK', 'Good', 'Great', 'Awesome'] as const;
+
+export function scoreColor(score: number): string {
+	if (score >= 4.0) return '#4caf50';
+	if (score >= 3.0) return '#ffc107';
+	return '#ef5350';
+}
+
+export function scoreBg(score: number): string {
+	if (score >= 4.0) return 'bg-score-green';
+	if (score >= 3.0) return 'bg-score-yellow';
+	return 'bg-score-red';
+}
+
+export function scoreLabel(score: number): string {
+	const rounded = Math.round(score);
+	return SCORE_LABELS[Math.min(Math.max(rounded, 1), 5)];
 }

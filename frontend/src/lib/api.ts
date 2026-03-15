@@ -4,10 +4,14 @@ import type {
 	EventDetail,
 	GlobeMarker,
 	Company,
+	CompanyDetail,
 	User,
 	Review,
 	ReviewComment,
 	SearchResults,
+	CompareEntity,
+	Tag,
+	CreateReviewPayload,
 } from './types';
 
 const BASE = '/api';
@@ -23,6 +27,8 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 	}
 	return res.json();
 }
+
+// ── Events ──
 
 export function listEvents(params?: { page?: number; per_page?: number; company_id?: string }) {
 	const q = new URLSearchParams();
@@ -40,6 +46,8 @@ export function getGlobeMarkers() {
 	return request<GlobeMarker[]>('/events/globe');
 }
 
+// ── Companies ──
+
 export function listCompanies(params?: { page?: number; per_page?: number }) {
 	const q = new URLSearchParams();
 	if (params?.page) q.set('page', String(params.page));
@@ -48,28 +56,32 @@ export function listCompanies(params?: { page?: number; per_page?: number }) {
 }
 
 export function getCompany(id: string) {
-	return request<Company>(`/companies/${id}`);
+	return request<CompanyDetail>(`/companies/${id}`);
 }
+
+// ── Users ──
 
 export function getUser(id: string) {
 	return request<User>(`/users/${id}`);
 }
 
+// ── Reviews ──
+
 export function getReview(id: string) {
 	return request<Review>(`/reviews/${id}`);
 }
 
-export function createReview(userId: string, data: { event_id: string; rating: number; title?: string; body?: string }) {
+export function createReview(userId: string, data: CreateReviewPayload) {
 	return request<Review>(`/users/${userId}/reviews`, {
 		method: 'POST',
 		body: JSON.stringify(data),
 	});
 }
 
-export function voteReview(id: string, vote: 'up' | 'down') {
-	return request<Review>(`/reviews/${id}/vote`, {
+export function voteReview(id: string, data: { helpful: boolean }) {
+	return request<void>(`/reviews/${id}/vote`, {
 		method: 'POST',
-		body: JSON.stringify({ vote }),
+		body: JSON.stringify(data),
 	});
 }
 
@@ -77,13 +89,36 @@ export function listComments(reviewId: string) {
 	return request<ReviewComment[]>(`/reviews/${reviewId}/comments`);
 }
 
-export function createComment(reviewId: string, data: { user_id: string; body: string }) {
+export function createComment(reviewId: string, data: { body: string; parent_comment_id?: string }) {
 	return request<ReviewComment>(`/reviews/${reviewId}/comments`, {
 		method: 'POST',
 		body: JSON.stringify(data),
 	});
 }
 
-export function search(q: string) {
-	return request<SearchResults>(`/search?q=${encodeURIComponent(q)}`);
+// ── Search ──
+
+export function search(q: string, type?: string) {
+	const params = new URLSearchParams({ q });
+	if (type) params.set('type', type);
+	return request<SearchResults>(`/search?${params}`);
+}
+
+// ── Tags ──
+
+export function listTags() {
+	return request<Tag[]>('/tags');
+}
+
+export function createTag(name: string) {
+	return request<Tag>('/tags', {
+		method: 'POST',
+		body: JSON.stringify({ name }),
+	});
+}
+
+// ── Compare ──
+
+export function compare(type: 'event' | 'company', ids: string[]) {
+	return request<CompareEntity[]>(`/compare?type=${type}&ids=${ids.join(',')}`);
 }

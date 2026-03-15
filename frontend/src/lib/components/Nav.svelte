@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { Search, X } from 'lucide-svelte';
+	import { X } from 'lucide-svelte';
+	import { Show, UserButton } from 'svelte-clerk';
 
 	let mobileOpen = $state(false);
 	let searchQuery = $state('');
@@ -19,6 +20,7 @@
 		<div class="hidden items-center gap-8 md:flex">
 			<a href="/events" class="hover-line text-xs uppercase tracking-[0.2em] text-muted transition-colors hover:text-text">Events</a>
 			<a href="/companies" class="hover-line text-xs uppercase tracking-[0.2em] text-muted transition-colors hover:text-text">Companies</a>
+			<a href="/compare" class="hover-line text-xs uppercase tracking-[0.2em] text-muted transition-colors hover:text-text">Compare</a>
 			<form onsubmit={handleSearch} class="relative">
 				<input
 					bind:value={searchQuery}
@@ -27,6 +29,16 @@
 					class="h-8 w-40 border-b border-border bg-transparent text-xs uppercase tracking-widest text-text placeholder:text-dim focus:border-text focus:outline-none"
 				/>
 			</form>
+			<Show when="signed-out">
+				{#snippet children()}
+					<a href="/sign-in" class="text-xs uppercase tracking-[0.2em] text-muted transition-colors hover:text-text">Sign In</a>
+				{/snippet}
+			</Show>
+			<Show when="signed-in">
+				{#snippet children()}
+					<UserButton />
+				{/snippet}
+			</Show>
 		</div>
 
 		<button class="text-muted md:hidden" onclick={() => (mobileOpen = !mobileOpen)}>
@@ -39,6 +51,7 @@
 			<div class="flex flex-col gap-6">
 				<a href="/events" class="text-sm uppercase tracking-[0.2em] text-muted">Events</a>
 				<a href="/companies" class="text-sm uppercase tracking-[0.2em] text-muted">Companies</a>
+				<a href="/compare" class="text-sm uppercase tracking-[0.2em] text-muted">Compare</a>
 				<form onsubmit={handleSearch}>
 					<input
 						bind:value={searchQuery}
@@ -47,6 +60,17 @@
 						class="w-full border-b border-border bg-transparent pb-2 text-sm text-text placeholder:text-dim focus:border-text focus:outline-none"
 					/>
 				</form>
+				<Show when="signed-out">
+					{#snippet children()}
+						<a href="/sign-in" class="text-sm uppercase tracking-[0.2em] text-muted">Sign In</a>
+						<a href="/sign-up" class="text-sm uppercase tracking-[0.2em] text-muted">Sign Up</a>
+					{/snippet}
+				</Show>
+				<Show when="signed-in">
+					{#snippet children()}
+						<UserButton />
+					{/snippet}
+				</Show>
 			</div>
 		</div>
 	{/if}

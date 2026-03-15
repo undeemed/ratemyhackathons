@@ -1,5 +1,5 @@
 <script lang="ts">
-	import EventCard from '$lib/components/EventCard.svelte';
+	import ScoreBadge from '$lib/components/ScoreBadge.svelte';
 	import { fadeIn, staggerChildren } from '$lib/animations/gsap';
 	import type { PageData } from './$types';
 
@@ -14,6 +14,8 @@
 			window.location.href = `/search?q=${encodeURIComponent(searchQuery.trim())}`;
 		}
 	}
+
+	const totalResults = $derived(data.results?.total ?? 0);
 </script>
 
 <svelte:head>
@@ -26,6 +28,9 @@
 		<h1 class="mt-2 font-display text-6xl italic sm:text-7xl">
 			{#if data.q}&ldquo;{data.q}&rdquo;{:else}Find anything{/if}
 		</h1>
+		{#if data.q && data.results}
+			<p class="mt-3 text-xs text-muted">{totalResults} result{totalResults !== 1 ? 's' : ''} for &ldquo;{data.q}&rdquo;</p>
+		{/if}
 
 		<form onsubmit={handleSearch} class="mt-8 max-w-lg">
 			<div class="flex items-center border-b border-border transition-colors focus-within:border-text">
@@ -58,9 +63,21 @@
 
 		{#if activeTab === 'events'}
 			{#if data.results.events.length > 0}
-				<div class="grid gap-px border border-border sm:grid-cols-2 lg:grid-cols-3" use:staggerChildren={{ stagger: 0.06 }}>
-					{#each data.results.events as event (event.id)}
-						<EventCard {event} />
+				<div class="space-y-0 divide-y divide-border" use:staggerChildren={{ stagger: 0.06 }}>
+					{#each data.results.events as result (result.id)}
+						<a href="/events/{result.id}" class="group flex items-stretch transition-colors hover:bg-elevated">
+							<div class="flex flex-col items-center justify-center p-4 sm:p-6">
+								<span class="text-[9px] uppercase tracking-[0.2em] text-dim mb-1">Quality</span>
+								<ScoreBadge score={result.avg_rating} size="md" />
+								<span class="mt-1 text-[9px] text-dim">{result.review_count} review{result.review_count !== 1 ? 's' : ''}</span>
+							</div>
+							<div class="flex flex-1 flex-col justify-center border-l border-border p-4 sm:p-6">
+								<h3 class="font-display text-2xl italic transition-colors group-hover:text-white sm:text-3xl">{result.name}</h3>
+								{#if result.would_return_pct !== null}
+									<p class="mt-1 text-xs text-muted">{result.would_return_pct.toFixed(0)}% would attend again</p>
+								{/if}
+							</div>
+						</a>
 					{/each}
 				</div>
 			{:else}
@@ -70,13 +87,20 @@
 
 		{#if activeTab === 'companies'}
 			{#if data.results.companies.length > 0}
-				<div class="grid gap-px border border-border sm:grid-cols-2 lg:grid-cols-3" use:staggerChildren={{ stagger: 0.04 }}>
-					{#each data.results.companies as company (company.id)}
-						<a href="/companies/{company.id}" class="group p-6 transition-colors hover:bg-elevated">
-							<h3 class="font-display text-2xl italic group-hover:text-white">{company.name}</h3>
-							{#if company.description}
-								<p class="mt-1 text-xs text-muted">{company.description}</p>
-							{/if}
+				<div class="space-y-0 divide-y divide-border" use:staggerChildren={{ stagger: 0.04 }}>
+					{#each data.results.companies as result (result.id)}
+						<a href="/companies/{result.id}" class="group flex items-stretch transition-colors hover:bg-elevated">
+							<div class="flex flex-col items-center justify-center p-4 sm:p-6">
+								<span class="text-[9px] uppercase tracking-[0.2em] text-dim mb-1">Quality</span>
+								<ScoreBadge score={result.avg_rating} size="md" />
+								<span class="mt-1 text-[9px] text-dim">{result.review_count} review{result.review_count !== 1 ? 's' : ''}</span>
+							</div>
+							<div class="flex flex-1 flex-col justify-center border-l border-border p-4 sm:p-6">
+								<h3 class="font-display text-2xl italic transition-colors group-hover:text-white sm:text-3xl">{result.name}</h3>
+								{#if result.would_return_pct !== null}
+									<p class="mt-1 text-xs text-muted">{result.would_return_pct.toFixed(0)}% would attend again</p>
+								{/if}
+							</div>
 						</a>
 					{/each}
 				</div>
@@ -87,13 +111,10 @@
 
 		{#if activeTab === 'users'}
 			{#if data.results.users.length > 0}
-				<div class="grid gap-px border border-border sm:grid-cols-2 lg:grid-cols-3" use:staggerChildren={{ stagger: 0.04 }}>
+				<div class="space-y-0 divide-y divide-border" use:staggerChildren={{ stagger: 0.04 }}>
 					{#each data.results.users as user (user.id)}
-						<a href="/users/{user.id}" class="group p-6 transition-colors hover:bg-elevated">
-							<h3 class="font-display text-2xl italic group-hover:text-white">{user.username}</h3>
-							{#if user.bio}
-								<p class="mt-1 text-xs text-muted">{user.bio}</p>
-							{/if}
+						<a href="/users/{user.id}" class="group flex items-center p-4 transition-colors hover:bg-elevated sm:p-6">
+							<h3 class="font-display text-2xl italic transition-colors group-hover:text-white">{user.name}</h3>
 						</a>
 					{/each}
 				</div>
@@ -101,7 +122,9 @@
 				<p class="py-16 text-center text-xs text-dim">No users match.</p>
 			{/if}
 		{/if}
-	{:else if !data.q}
+	{:else if data.q}
+		<p class="py-16 text-center text-xs text-dim">Search failed. The backend may not be running.</p>
+	{:else}
 		<p class="py-16 text-center text-xs text-dim">Type something to search.</p>
 	{/if}
 </div>

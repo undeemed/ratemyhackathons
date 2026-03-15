@@ -55,6 +55,25 @@ export function staggerChildren(node: HTMLElement, params?: { stagger?: number; 
 	return { destroy() { ScrollTrigger.getAll().forEach((t) => { if (t.trigger === node) t.kill(); }); } };
 }
 
+export function globeReveal(node: HTMLElement) {
+	ensureRegistered();
+	gsap.fromTo(
+		node,
+		{ opacity: 0, x: 200, scale: 0.7, rotation: -40 },
+		{
+			opacity: 1, x: 0, scale: 1, rotation: 0,
+			ease: 'none',
+			scrollTrigger: {
+				trigger: node,
+				start: 'top 95%',
+				end: 'top 30%',
+				scrub: 1,
+			},
+		}
+	);
+	return { destroy() { ScrollTrigger.getAll().forEach((t) => { if (t.trigger === node) t.kill(); }); } };
+}
+
 export function countUp(node: HTMLElement, params: { target: number; duration?: number; prefix?: string; suffix?: string }) {
 	ensureRegistered();
 	const { target, duration = 2, prefix = '', suffix = '' } = params;

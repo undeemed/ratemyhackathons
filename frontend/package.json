@@ -12,10 +12,12 @@
   "dependencies": {
     "cobe": "^0.6.3",
     "gsap": "^3.12.7",
-    "lucide-svelte": "^0.468.0"
+    "lucide-svelte": "^0.468.0",
+    "svelte-clerk": "^1.0.2"
   },
   "devDependencies": {
-    "@sveltejs/adapter-auto": "^6.0.0",
+    "@lightpanda/browser": "^1.2.0",
+    "@sveltejs/adapter-node": "^5.0.0",
     "@sveltejs/kit": "^2.21.0",
     "@sveltejs/vite-plugin-svelte": "^5.0.0",
     "@tailwindcss/vite": "^4.1.0",

@@ -3,21 +3,25 @@
 	import EventCard from '$lib/components/EventCard.svelte';
 	import { fadeIn, slideUp, staggerChildren, countUp } from '$lib/animations/gsap';
 	import { ArrowRight } from 'lucide-svelte';
+	import { onMount } from 'svelte';
+	import gsap from 'gsap';
+	import { ScrollTrigger } from 'gsap/ScrollTrigger';
 	import type { PageData } from './$types';
 	import type { EventSummary } from '$lib/types';
 
 	let { data }: { data: PageData } = $props();
 
 	let heroSearchQuery = $state('');
+	let searchMode = $state<'events' | 'companies'>('events');
 
 	function handleHeroSearch(e: SubmitEvent) {
 		e.preventDefault();
 		if (heroSearchQuery.trim()) {
-			window.location.href = `/search?q=${encodeURIComponent(heroSearchQuery.trim())}`;
+			const type = searchMode === 'companies' ? '&type=company' : '';
+			window.location.href = `/search?q=${encodeURIComponent(heroSearchQuery.trim())}${type}`;
 		}
 	}
 
-	// Fallback demo events when backend isn't running
 	const demoEvents: EventSummary[] = [
 		{ id: '1', name: 'TreeHacks', description: 'Stanford\'s flagship hackathon — 1,600 hackers, 36 hours, $250K+ in prizes', location: 'Stanford, CA', url: null, start_date: '2026-02-14', end_date: '2026-02-16', image_url: null, latitude: 37.43, longitude: -122.17, companies: [{ id: 'c1', name: 'Google', role: 'sponsor' }], avg_rating: 4.7, review_count: 89, created_at: '' },
 		{ id: '2', name: 'HackMIT', description: 'MIT\'s annual hackathon bringing together 1,000+ students', location: 'Cambridge, MA', url: null, start_date: '2026-10-01', end_date: '2026-10-02', image_url: null, latitude: 42.36, longitude: -71.09, companies: [{ id: 'c2', name: 'Microsoft', role: 'sponsor' }], avg_rating: 4.5, review_count: 124, created_at: '' },
@@ -29,6 +33,136 @@
 
 	const events = $derived(data.events.length > 0 ? data.events : demoEvents);
 	const eventCount = $derived(data.totalEvents || 10380);
+
+	// ── Single Globe: hero → showcase morph ──
+	let sectionEl: HTMLElement;
+	let globeContainerEl: HTMLElement;
+	let heroTextEl: HTMLElement;
+	let showcaseCardEls: HTMLElement[] = [];
+	const globeFocus = { lat: 0, lng: 0 };
+
+	const showcaseEvents = $derived(
+		events.filter((e) => e.latitude != null && e.longitude != null).slice(0, 5)
+	);
+
+	function fmtDate(d: string | null) {
+		if (!d) return '';
+		return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+	}
+
+	onMount(() => {
+		gsap.registerPlugin(ScrollTrigger);
+
+		const vw = window.innerWidth;
+		const vh = window.innerHeight;
+
+		// Hero: large, shifted right
+		const heroW = Math.min(vw >= 1024 ? vw * 0.6 : vw * 0.85, 1000);
+		const heroL = vw * 1.05 - heroW;
+
+		// Showcase: 70% of hero size, centered
+		const showW = heroW * 0.8;
+		const showL = (vw - showW) / 2;
+
+		// Initial hero position — globe auto-spins (globeFocus stays at 0,0)
+		gsap.set(globeContainerEl, {
+			width: heroW,
+			height: heroW,
+			left: heroL,
+			top: '50%',
+			yPercent: -50,
+		});
+
+		if (showcaseEvents.length === 0) return;
+
+		// Hide all event cards
+		showcaseCardEls.forEach((el) => {
+			if (el) gsap.set(el, { autoAlpha: 0, x: -60 });
+		});
+
+		const tl = gsap.timeline({
+			scrollTrigger: {
+				trigger: sectionEl,
+				pin: true,
+				start: 'top top',
+				end: '+=5000',
+				scrub: 1,
+				snap: {
+					snapTo: 'labels',
+					duration: { min: 0.2, max: 0.8 },
+					delay: 0.1,
+					ease: 'power1.inOut',
+				},
+			},
+		});
+
+		// Phase 1: Hold hero (globe auto-spins with dots visible)
+		tl.addLabel('hero');
+		tl.to({}, { duration: 0.15 });
+
+		// Phase 2: Fade hero text, morph globe to center + zoom in
+		tl.addLabel('morph');
+		tl.to(heroTextEl, { autoAlpha: 0, y: -60, duration: 0.15 });
+		tl.to(
+			globeContainerEl,
+			{
+				width: showW,
+				height: showW,
+				left: '50%',
+				xPercent: -50,
+				scale: 1.25,
+				duration: 0.2,
+				ease: 'power2.inOut',
+			},
+			'<'
+		);
+
+		// Phase 3: Cycle events — spin globe to each location
+		showcaseEvents.forEach((event, i) => {
+			const card = showcaseCardEls[i];
+			if (!card) return;
+
+			tl.addLabel(`event-${i}`);
+
+			// Spin globe to this event's lat/lng
+			tl.to(globeFocus, {
+				lat: event.latitude!,
+				lng: event.longitude!,
+				duration: 0.3,
+				ease: 'power2.inOut',
+			});
+
+			// Event card slides in
+			tl.fromTo(
+				card,
+				{ autoAlpha: 0, x: -60 },
+				{ autoAlpha: 1, x: 0, duration: 0.15 },
+				'-=0.1'
+			);
+
+			// Hold on this event
+			tl.to({}, { duration: 0.35 });
+
+			// Card exits
+			tl.to(card, { autoAlpha: 0, x: 60, duration: 0.15 });
+		});
+
+		// Phase 4: Exit — fade out
+		tl.addLabel('exit');
+		tl.to(globeContainerEl, {
+			opacity: 0,
+			scale: 0.85,
+			duration: 0.2,
+		});
+
+		tl.addLabel('end');
+
+		return () => {
+			ScrollTrigger.getAll().forEach((t) => {
+				if (t.trigger === sectionEl) t.kill();
+			});
+		};
+	});
 </script>
 
 <svelte:head>
@@ -36,18 +170,19 @@
 	<meta name="description" content="The internet's honest record of hackathon experiences." />
 </svelte:head>
 
-<!-- ═══════ HERO ═══════ -->
-<section class="relative flex min-h-[100svh] items-center overflow-hidden">
-	<!-- Globe: big, bright, bleeds right -->
-	<div class="pointer-events-none absolute -right-[5%] top-1/2 w-[85vw] max-w-[1000px] -translate-y-1/2 opacity-70 sm:pointer-events-auto sm:opacity-80 lg:w-[60vw]" use:fadeIn={{ y: 0, duration: 1.5 }}>
-		<Globe markers={data.markers} />
+<!-- ═══════ HERO + GLOBE SHOWCASE (single pinned section) ═══════ -->
+<section bind:this={sectionEl} class="relative h-screen overflow-hidden">
+	<!-- Globe container — ONE instance, GSAP morphs position/size -->
+	<div bind:this={globeContainerEl} class="absolute aspect-square">
+		<Globe markers={data.markers} focus={globeFocus} />
 	</div>
 
-	<div class="relative z-10 mx-auto w-full max-w-[1400px] px-6 py-24">
-		<div class="max-w-3xl" use:fadeIn={{ y: 50, duration: 1 }}>
+	<!-- Hero text — fades out during morph -->
+	<div bind:this={heroTextEl} class="relative z-10 mx-auto flex h-screen w-full max-w-[1400px] items-center px-6">
+		<div class="max-w-3xl">
 			<h1 class="font-display text-[clamp(3.5rem,11vw,10rem)] italic leading-[0.85] tracking-tight">
 				Every<br />hackathon,<br />
-				<span class="text-muted">rated.</span>
+				<span class="bg-gradient-to-r from-score-red via-score-yellow to-score-green bg-clip-text text-transparent">rated.</span>
 			</h1>
 
 			<div class="mt-8 h-px w-24 bg-dim"></div>
@@ -57,13 +192,16 @@
 				honest reviews from people who were actually there.
 			</p>
 
-			<!-- Search bar: minimal underline style -->
 			<form onsubmit={handleHeroSearch} class="mt-10 max-w-sm">
+				<div class="mb-3 flex gap-4 text-[11px] uppercase tracking-[0.2em]">
+					<button type="button" class="transition-colors {searchMode === 'events' ? 'text-text' : 'text-dim hover:text-muted'}" onclick={() => searchMode = 'events'}>Hackathons</button>
+					<button type="button" class="transition-colors {searchMode === 'companies' ? 'text-text' : 'text-dim hover:text-muted'}" onclick={() => searchMode = 'companies'}>Companies</button>
+				</div>
 				<div class="group flex items-center border-b border-dim transition-colors focus-within:border-text">
 					<input
 						bind:value={heroSearchQuery}
 						type="text"
-						placeholder="Search hackathons..."
+						placeholder={searchMode === 'events' ? 'Search hackathons...' : 'Search companies...'}
 						class="w-full bg-transparent py-3 text-sm text-text placeholder:text-dim focus:outline-none"
 					/>
 					<button type="submit" class="text-dim transition-colors group-focus-within:text-text">
@@ -73,6 +211,41 @@
 			</form>
 		</div>
 	</div>
+
+	<!-- Event cards — appear during showcase phase -->
+	{#each showcaseEvents as event, i}
+		<div
+			bind:this={showcaseCardEls[i]}
+			class="invisible absolute left-8 top-1/2 z-20 -translate-y-1/2 border border-border bg-surface/90 px-8 py-6 backdrop-blur-sm lg:left-20"
+			style="max-width: 380px;"
+		>
+			<span class="text-[10px] uppercase tracking-[0.3em] text-dim">
+				{String(i + 1).padStart(2, '0')} / {String(showcaseEvents.length).padStart(2, '0')}
+			</span>
+			<h3 class="mt-3 font-display text-3xl italic leading-tight lg:text-4xl">
+				{event.name}
+			</h3>
+			{#if event.location}
+				<p class="mt-2 text-sm text-muted">{event.location}</p>
+			{/if}
+			{#if event.start_date}
+				<p class="mt-1 text-xs uppercase tracking-wider text-dim">
+					{fmtDate(event.start_date)}
+				</p>
+			{/if}
+			{#if event.description}
+				<p class="mt-3 line-clamp-2 text-xs leading-relaxed text-muted">
+					{event.description}
+				</p>
+			{/if}
+			<a
+				href="/events/{event.id}"
+				class="mt-4 inline-block text-xs uppercase tracking-[0.2em] text-text transition-colors hover:text-accent"
+			>
+				View details &rarr;
+			</a>
+		</div>
+	{/each}
 </section>
 
 <!-- ═══════ MARQUEE TICKER ═══════ -->
@@ -124,23 +297,11 @@
 			</a>
 		</div>
 
-		<!-- Magazine layout: featured spans 2 rows, flat grid -->
-		<div class="grid gap-4 md:grid-cols-2 md:grid-rows-2" use:staggerChildren={{ stagger: 0.08 }}>
-			{#each events.slice(0, 1) as event (event.id)}
-				<EventCard {event} featured={true} />
-			{/each}
-			{#each events.slice(1, 3) as event (event.id)}
+		<div class="grid gap-4 sm:grid-cols-2 md:grid-cols-3" use:staggerChildren={{ stagger: 0.06 }}>
+			{#each events.slice(0, 6) as event (event.id)}
 				<EventCard {event} />
 			{/each}
 		</div>
-
-		{#if events.length > 3}
-			<div class="mt-4 grid gap-4 md:grid-cols-3" use:staggerChildren={{ stagger: 0.06 }}>
-				{#each events.slice(3, 6) as event (event.id)}
-					<EventCard {event} />
-				{/each}
-			</div>
-		{/if}
 
 		<div class="mt-10 text-center sm:hidden">
 			<a href="/events" class="text-xs uppercase tracking-[0.2em] text-muted">View all events &rarr;</a>
