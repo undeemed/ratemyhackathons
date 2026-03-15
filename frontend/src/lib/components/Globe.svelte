@@ -30,10 +30,10 @@
 	const today = Date.now();
 
 	function markerBrightness(dateStr: string | null): number {
-		if (!dateStr) return 0.3;
+		if (!dateStr) return 0.5;
 		const daysAway = (new Date(dateStr).getTime() - today) / 86_400_000;
-		if (daysAway < 0) return Math.max(0.15, 0.5 + daysAway / 60); // past events fade
-		return Math.max(0.2, 1 - daysAway / 180); // future events: closer = brighter
+		if (daysAway < 0) return Math.max(0.3, 0.7 + daysAway / 60); // past events fade
+		return Math.max(0.4, 1 - daysAway / 180); // future events: closer = brighter
 	}
 
 	const cobeMarkers = $derived(
@@ -157,13 +157,13 @@
 				phi: 0.4,
 				theta: 0.2,
 				dark: 1,
-				diffuse: 1.2,
+				diffuse: 2,
 				mapSamples: 16000,
-				mapBrightness: 2,
-				mapBaseBrightness: 0.02,
-				baseColor: [0.2, 0.2, 0.2],
+				mapBrightness: 4,
+				mapBaseBrightness: 0.05,
+				baseColor: [0.35, 0.35, 0.35],
 				markerColor: [1, 1, 1],
-				glowColor: [0.1, 0.1, 0.1],
+				glowColor: [0.15, 0.15, 0.15],
 				markers: cobeMarkers,
 				onRender: (state) => {
 					if (destroyed) return;
