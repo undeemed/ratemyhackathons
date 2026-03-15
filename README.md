@@ -187,13 +187,13 @@ ratemyhackathons/
 │   │   │   └── API_RECON.md
 │   │   └── hackiterate/   # Hackiterate scraping recon
 │   │       └── API_RECON.md
-│   └── analytics/         # Rust analytics API + SvelteKit dashboard
+│   └── analytics/         # Rust analytics API + SvelteKit admin dashboard
 │       ├── src/            # Actix-web server (:8081)
 │       │   ├── main.rs
 │       │   ├── db.rs       # Analytics queries
 │       │   └── routes/     # crawl, events, reviews, live SSE
-│       └── dashboard/     # SvelteKit + Tailwind v4 + LayerChart
-│           └── src/routes/+page.svelte
+│       └── dashboard/     # SvelteKit + Tailwind v4 admin dashboard
+│           └── src/routes/ # overview, events, crawl, reviews pages
 ├── CHANGELOG.md
 └── .env.example
 ```
@@ -227,6 +227,7 @@ psql -d ratemyhackathons -f backend/migrations/20260313_review_votes_comments.sq
 psql -d ratemyhackathons -f backend/migrations/20260313_user_profiles_event_slugs.sql
 psql -d ratemyhackathons -f backend/migrations/20260313_crawl_registry.sql
 psql -d ratemyhackathons -f backend/migrations/20260314_event_geocoding.sql
+psql -d ratemyhackathons -f backend/migrations/20260314_rmp_ratings.sql
 
 # 5. Start the server
 cd backend
@@ -277,12 +278,16 @@ bun run check              # TypeScript/Svelte type checking
 | `GET` | `/api/users` | List users (paginated) |
 | `GET` | `/api/users/{id}` | User detail with reviews |
 | `POST` | `/api/users` | Create user |
-| `POST` | `/api/reviews` | Create review (1-5 rating) |
+| `POST` | `/api/users/{id}/reviews` | Create review (10 category scores, auth required) |
 | `GET` | `/api/reviews/{id}` | Review detail with votes & threaded comments |
 | `POST` | `/api/reviews/{id}/vote` | Vote helpful/unhelpful (upsert) |
 | `POST` | `/api/reviews/{id}/comments` | Add comment or reply |
 | `GET` | `/api/reviews/{id}/comments` | Get threaded comment tree |
 | `GET` | `/api/search?q=&type=` | Full-text search |
+| `GET` | `/api/tags` | List all tags |
+| `GET` | `/api/tags/top?entity_type=&entity_id=` | Top 5 tags for entity |
+| `POST` | `/api/tags` | Create tag (returns existing if name matches) |
+| `GET` | `/api/compare?type=&ids=` | Side-by-side entity comparison |
 
 ---
 
@@ -448,18 +453,33 @@ Query params: `?page=1&per_page=20`
 
 ### Reviews
 
-#### `POST /api/reviews` — Create review
+#### `POST /api/users/{user_id}/reviews` — Create review
+
+Requires authentication (Clerk JWT) in production. In dev mode, `user_id` in body is used.
 
 ```json
 // Request:
 {
-  "event_id": "uuid",   // required
-  "user_id": "uuid",    // required
-  "rating": 5,          // required, 1-5
-  "title": "Amazing!",  // optional
-  "body": "Great event"  // optional
+  "event_id": "uuid",              // XOR with company_id
+  "company_id": "uuid",           // XOR with event_id
+  "title": "Amazing!",            // optional, max 200 chars
+  "body": "Detailed review...",   // required, 350-5000 chars
+  "would_return": true,           // optional
+  "category_ratings": {           // required, all 10 categories
+    "organization": 5,
+    "prizes": 4,
+    "mentorship": 5,
+    "judging": 4,
+    "venue": 3,
+    "food": 4,
+    "swag": 3,
+    "networking": 5,
+    "communication": 4,
+    "vibes": 5
+  },
+  "tag_ids": ["uuid1", "uuid2"]   // optional
 }
-// Response 201: full review object
+// Response 201: full review object with computed overall rating
 ```
 
 #### `GET /api/reviews/{id}` — Review detail with votes & comments

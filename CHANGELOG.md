@@ -9,6 +9,77 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Internal Admin Dashboard** (`services/analytics/dashboard/`)
+  - Multi-page layout with sidebar navigation (Overview, Events, Crawl Sources, Reviews)
+  - Overview page: entity counts from main API, crawl activity stats, live SSE feed, trending events, rating distribution, recent reviews
+  - Events browser: paginated table with client-side search/filter, color-coded ratings, company tags
+  - Crawl Sources page: source health table with status indicators, by-type breakdown, 30-day crawl history bar chart
+  - Reviews page: total/average stats, rating distribution with %, most-reviewed ranking, recent reviews table
+  - Vite proxy: `/main-api` → main backend `:8080` for event/company/user data alongside analytics API `:8081`
+
+- **Hero UX improvements**
+  - "rated." text uses red → yellow → green gradient matching score color system
+  - Search mode toggle: Hackathons / Companies buttons swap placeholder and search type
+  - "Browse by company" and "All events" links below search bar
+  - WIP popup shows once only (persists dismiss to localStorage), button text "Enter anyways"
+  - Recent events section: flat 3-column grid replacing oversized magazine layout with `row-span-2`
+
+- **Globe & Landing Page Overhaul**
+  - Fixed oval globe rendering: canvas uses `w-full aspect-square` (CSS `height: 100%` can't resolve against `aspect-ratio`-derived height)
+  - Cobe uses `offsetWidth` for both width and height (official cobe pattern for circular rendering)
+  - Cobe creation delayed via `requestAnimationFrame` (Svelte mounts children before parents)
+  - Date-based marker brightness: closer/ongoing events glow brighter, distant future events are dimmer
+  - Globe surface tuned (`mapBrightness: 2`, `baseColor: [0.2,0.2,0.2]`) so hackathon markers stand out
+  - Marker dots enlarged to `size: 0.1` with per-marker color based on `start_date`
+  - Scroll-driven showcase: hero globe (shifted right) morphs to centered showcase (80% size, scale 1.25)
+  - Globe zoom applied once at morph start, stays zoomed during event cycling, zooms out at exit
+  - Globe centering via `left: '50%'` + GSAP `xPercent: -50` for reliable centering with scale transforms
+  - Hero search bar with hackathons/companies toggle and gradient "rated." text
+
+- **Frontend Rebuild — RMP-Style UI (Phase 3+4)**
+  - Score color system: green (#4caf50) ≥4.0, yellow (#ffc107) ≥3.0, red (#ef5350) <3.0
+  - Theme vars: `--color-score-green`, `--color-score-yellow`, `--color-score-red`
+  - 5 new components: ScoreBadge (color-coded score square), CategoryGrid (2-column category bars), RatingDistribution (Awesome→Awful bar chart), TagPills (tag badges), RatingSlider (1-5 selector)
+  - Updated ReviewCard: per-category score breakdown, would-return badge
+  - RMP-style search results: score badge + name + would-return % in list layout
+  - Company detail page: giant score badge, category grid, top tags, rating distribution chart, events list, reviews with breakdowns
+  - Event detail page: same structure with image, dates, companies, rate/compare CTAs
+  - Rate form for events (`/events/{id}/rate`): auth gate via Clerk `<Show>`, 10 category sliders, would-return toggle, tag selector, 350-5000 char review body
+  - Rate form for companies (`/companies/{id}/rate`): same structure
+  - Compare page (`/compare`): side-by-side entity comparison with category bars, shareable URLs
+  - Compare link added to Nav (desktop + mobile)
+  - Updated `types.ts`: CategoryAvg, TagCount, RatingDistribution, CompanyDetail, CompareEntity, CreateReviewPayload, scoreColor/scoreLabel/scoreBg helpers, RATING_CATEGORIES constant
+  - Updated `api.ts`: getCompany→CompanyDetail, compare(), listTags(), createTag(), search with type filter
+
+- **Clerk Authentication (Phase 2)**
+  - Frontend: `svelte-clerk` integration with `withClerkHandler()`, `buildClerkProps()`, `<ClerkProvider>`
+  - Sign-in (`/sign-in`) and sign-up (`/sign-up`) pages styled to brutalist theme
+  - Auth-aware Nav component with `<Show when="signed-in/out">` conditional rendering + `<UserButton />`
+  - Backend: `auth.rs` module with JWKS-cached JWT verification (RS256, `jsonwebtoken` crate)
+  - `AuthState` with 1-hour JWKS cache TTL, `sync_clerk_user()` for clerk_id → user lookup-or-create
+  - `Unauthorized` error variant in `ApiError` enum
+  - Graceful auth: when `CLERK_JWKS_URL` is set, JWT required for POST endpoints; when not set (dev), falls back to `user_id` in body
+  - `user_id` made optional in `CreateReview`, `CreateReviewVote`, `CreateReviewComment` DTOs
+  - Updated `create_review`, `vote_review`, `create_review_comment` handlers with `resolve_user_id()` helper
+  - New dependencies: `jsonwebtoken` 9, `reqwest` 0.12 (backend); `svelte-clerk` 1.0 (frontend)
+  - `.env.example` files for both backend and frontend with Clerk configuration
+
+- **RMP-Style Multi-Dimensional Ratings (Phase 1: Schema + API)**
+  - 10 hackathon-specific rating categories: organization, prizes, mentorship, judging, venue, food, swag, networking, communication, vibes
+  - `review_ratings` table for per-category scores (1-5) per review
+  - `tags` and `review_tags` tables for crowd-sourced labeling
+  - Company reviews: reviews can now target companies (not just events) via XOR constraint
+  - "Would return" boolean metric on reviews
+  - Overall `rating` auto-computed as average of 10 category scores
+  - Tag CRUD endpoints: `GET /api/tags`, `GET /api/tags/top`, `POST /api/tags`
+  - Compare endpoint: `GET /api/compare?type=company&ids=uuid1,uuid2` for side-by-side comparison
+  - Enhanced search results with `avg_rating`, `review_count`, `would_return_pct`
+  - Enhanced company detail with `category_ratings`, `top_tags`, `rating_distribution`, per-review breakdowns
+  - Enhanced event detail with same additions
+  - Per-review category ratings and tags in review detail endpoint
+  - `clerk_id` column on users table (prep for Phase 2 auth)
+  - Partial unique indexes for one review per user per event/company
+
 - **Frontend v2** — Editorial brutalist B&W redesign
   - Pure black/white color scheme with Instrument Serif italic + Space Mono monospace
   - Grain texture overlay (SVG feTurbulence), no border-radius

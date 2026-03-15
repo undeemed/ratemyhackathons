@@ -1,0 +1,12 @@
+**/node_modules
+**/target
+**/.venv
+**/__pycache__
+**/*.pyc
+**/.DS_Store
+.git
+.gitignore
+*.log
+.playwright-mcp/
+deploy/.env
+docs/

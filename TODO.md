@@ -1,44 +1,57 @@
 # RateMyHackathons — TODO
 
-> Last updated: 2026-03-14 (frontend v2 — editorial B&W redesign)
+> Last updated: 2026-03-15
 
-## 🔴 In Progress
+## Planned
 
+- [ ] Homepage autocomplete search bar (SearchAutocomplete component — live dropdown)
+- [ ] Tag voting (upvote existing tags on reviews)
 - [ ] Fix LLM sponsor extraction — add paid model fallback for reliability
-
-## 🟡 Planned
-
 - [ ] Store scraped sponsors in DB (new `event_sponsors` table)
-- [ ] Deduplicate sponsor names across events (normalize casing, abbreviations)
-- [ ] Add `--skip-sponsors` flag for bulk crawl runs
-- [ ] Rate-limit sponsor scraping (avoid hammering event sites)
-- [ ] Dashboard: sponsor analytics panel (top sponsors, sponsor frequency)
-- [ ] Integration tests for spider → DB pipeline
-- [ ] Frontend: auth (login/signup)
-- [ ] Frontend: write review form on event detail page
 - [ ] Frontend: responsive polish + accessibility audit
-- [ ] Frontend: mobile navigation (hamburger menu)
-- [ ] Frontend: event images from crawler (OG image scraping)
 - [ ] Frontend: loading skeletons for API-dependent sections
+- [ ] Deploy analytics dashboard alongside main app (Docker service)
 
-## 🟢 Completed
+## Completed
 
+- [x] **Internal Admin Dashboard** — multi-page analytics dashboard
+  - [x] Sidebar navigation (Overview, Events, Crawl Sources, Reviews)
+  - [x] Overview: entity counts, crawl stats, live SSE feed, trending, ratings, recent reviews
+  - [x] Events browser: paginated table with search/filter, color-coded ratings, company tags
+  - [x] Crawl Sources: source health table, by-type breakdown, 30d history bar chart
+  - [x] Reviews: rating distribution with %, trending events, recent reviews table
+  - [x] Main API proxy (`/main-api` → `:8080`) for event/company/user data
+- [x] **Hero UX improvements**
+  - [x] "rated." gradient text (red → yellow → green matching score colors)
+  - [x] Search mode toggle: Hackathons / Companies with dynamic placeholder
+  - [x] WIP popup: shows once only (localStorage), "Enter anyways" button
+  - [x] Recent events: flat 3-column grid (removed oversized `row-span-2` magazine layout)
+- [x] **Globe & Landing Page Overhaul**
+  - [x] Fixed oval globe: canvas `aspect-square` + cobe `offsetWidth` for both dims
+  - [x] `requestAnimationFrame` for cobe creation (child-before-parent mount timing)
+  - [x] Date-based marker brightness (closer = brighter)
+  - [x] Scroll-driven showcase: hero → morph → event cycling → exit
+  - [x] Globe zoom once at morph, not per-event pulse
+- [x] **Phase 4: Advanced Features**
+  - [x] Compare tool (`/compare` page with side-by-side category comparison)
+  - [x] Compare link in nav (desktop + mobile)
+  - [x] Shareable compare URLs
+- [x] **Phase 3: Frontend Rebuild** — RMP-style color-coded scores
+  - [x] Updated `types.ts`: CategoryAvg, TagCount, RatingDistribution, CompanyDetail, CompareEntity, CreateReviewPayload, score helpers
+  - [x] Updated `api.ts`: getCompany returns CompanyDetail, compare(), listTags(), createTag()
+  - [x] Score color theme vars: `--color-score-green/yellow/red`
+  - [x] New components: ScoreBadge, CategoryGrid, RatingDistribution, TagPills, RatingSlider
+  - [x] Updated ReviewCard with category breakdowns + would-return badge
+  - [x] RMP-style search results (score badge + name + would-return %)
+  - [x] Company detail page (giant score, category grid, top tags, rating distribution, events list, reviews)
+  - [x] Event detail page (same structure with image, dates, companies)
+  - [x] Rate form for events (`/events/{id}/rate`) with auth gate, 10 category sliders, tags, review text
+  - [x] Rate form for companies (`/companies/{id}/rate`) — same structure
+- [x] **Phase 2: Clerk Auth** — svelte-clerk frontend + Rust JWT middleware
+- [x] **Phase 1: Schema + API** — Multi-dimensional ratings
 - [x] **Frontend v2** — Editorial brutalist B&W redesign
-  - [x] Pure black/white color scheme (Instrument Serif italic + Space Mono)
-  - [x] Grain texture overlay via SVG feTurbulence
-  - [x] Improved contrast: borders `#2a2a2a`, muted `#999`, dim `#555`
-  - [x] EventCard with corner accents, large ratings, hover animations
-  - [x] Magazine layout (featured `row-span-2` + stacked right)
-  - [x] Graceful API fallback (demo events on landing, empty states on inner pages)
-  - [x] 0 TypeScript errors across all files
 - [x] **Frontend v1** — SvelteKit app with cobe globe hero + GSAP scroll animations
-  - [x] DB migration: add lat/lng to events table
-  - [x] Backend: add lat/lng to models/routes + `GET /api/events/globe`
-  - [x] Crawler: geocoding module (Nominatim via geopy)
-  - [x] Frontend scaffold (SvelteKit + Tailwind v4 + bun)
-  - [x] Landing page storyboard (7 sections with GSAP ScrollTrigger)
-  - [x] Inner pages (events, companies, users, search)
-- [x] MLH spider — 194 events, correct name/location parsing
+- [x] MLH spider — 194 events
 - [x] Hackiterate spider — 6 events via StealthyFetcher (Playwright)
 - [x] CV spider — 9,258 events via public API
 - [x] Luma spider — 920 events via discover API
@@ -46,15 +59,12 @@
 - [x] LLM module — dynamic free model discovery from OpenRouter
 - [x] Analytics Rust API + SvelteKit dashboard
 - [x] Backend API (Actix-web, PostgreSQL)
-- [x] API recon for CV, Luma, MLH, Hackiterate
-- [x] Root README with doc links, getting started guide
-- [x] CLAUDE.md with context7 MCP requirement
 
-## 📝 Notes
+## Notes
 
 - Free OpenRouter models: 20 req/min, 1000/day (with $10+ credits)
-- Use paid models as fallback when free tier is congested
-- Most hackathon sites are SPAs — use StealthyFetcher for JS rendering
-- Sponsor extraction: CSS strategies work for ~70% of sites, LLM handles the rest
-- Frontend plan: `docs/FRONTEND_PLAN.md`
 - Frontend design: B&W editorial brutalist, Instrument Serif (italic) + Space Mono, no border-radius
+- Score colors: green (#4caf50) ≥4.0, yellow (#ffc107) ≥3.0, red (#ef5350) <3.0
+- Rate form requires: all 10 categories rated + 350-5000 char review body
+- Auth: Clerk (signed-in required for reviews), dev mode falls back to body user_id
+- Admin dashboard: SvelteKit on :5174, reads from analytics API (:8081) + main API (:8080)
