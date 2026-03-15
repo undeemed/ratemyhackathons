@@ -8,19 +8,34 @@
 		markers = [],
 		class: className = '',
 		focus = null as { lat: number; lng: number } | null,
+		visible = true,
 	}: {
 		markers?: GlobeMarker[];
 		class?: string;
 		focus?: { lat: number; lng: number } | null;
+		visible?: boolean;
 	} = $props();
 
 	let canvasEl: HTMLCanvasElement;
 	let wrapperEl: HTMLDivElement;
 	let globe: ReturnType<typeof createGlobe> | undefined;
+	let globePaused = false;
 	let pointerInteracting: number | null = null;
 	let pointerInteractionMovement = 0;
 	let currentPhi = 0;
 	let currentTheta = 0.2;
+
+	// Pause/resume cobe rendering when visibility changes
+	$effect(() => {
+		if (!globe) return;
+		if (!visible && !globePaused) {
+			globe.toggle(); // pause
+			globePaused = true;
+		} else if (visible && globePaused) {
+			globe.toggle(); // resume
+			globePaused = false;
+		}
+	});
 
 	// Hover tooltip state
 	let hoveredEvent = $state<GlobeMarker | null>(null);
@@ -134,11 +149,13 @@
 
 			// Follow cobe's official pattern: cache width via resize listener,
 			// never read offsetWidth inside onRender (avoids forced reflows).
-			let width = canvasEl.offsetWidth;
+			// Cap at 800px to keep render target ≤1600x1600 (~10MB vs 32MB at 2880)
+			const MAX_RENDER = 800;
+			let width = Math.min(canvasEl.offsetWidth, MAX_RENDER);
 			if (!width) return;
 
 			const onResize = () => {
-				if (canvasEl && !destroyed) width = canvasEl.offsetWidth;
+				if (canvasEl && !destroyed) width = Math.min(canvasEl.offsetWidth, MAX_RENDER);
 			};
 			window.addEventListener('resize', onResize);
 
