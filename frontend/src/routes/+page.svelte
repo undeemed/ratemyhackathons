@@ -11,6 +11,7 @@
   import { onMount } from "svelte";
   import gsap from "gsap";
   import { ScrollTrigger } from "gsap/ScrollTrigger";
+  import { beforeNavigate } from "$app/navigation";
   import type { PageData } from "./$types";
   import type { EventSummary } from "$lib/types";
 
@@ -163,11 +164,20 @@
 
   // GSAP context scopes all animations — ctx.revert() cleans up everything
   // on unmount without the expensive killTweensOf("*") nuclear option.
+  let ctx: ReturnType<typeof gsap.context> | undefined;
+
+  // Kill ScrollTrigger BEFORE SvelteKit swaps pages — otherwise the pin
+  // spacer (~5000px) inflates the new page's document height, pushing
+  // its content below a huge blank gap.
+  beforeNavigate(() => {
+    ctx?.revert();
+    ctx = undefined;
+  });
 
   onMount(() => {
     gsap.registerPlugin(ScrollTrigger);
 
-    const ctx = gsap.context(() => {
+    ctx = gsap.context(() => {
       const vw = window.innerWidth;
       const vh = window.innerHeight;
 
@@ -274,9 +284,11 @@
       tl.addLabel("end");
     });
 
-    // gsap.context().revert() cleans up ALL tweens, timelines, and ScrollTriggers
-    // created within the context — single call, no manual tracking needed.
-    return () => ctx.revert();
+    // Fallback cleanup if component unmounts without navigation (e.g. HMR)
+    return () => {
+      ctx?.revert();
+      ctx = undefined;
+    };
   });
 </script>
 
