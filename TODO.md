@@ -7,8 +7,10 @@
 - [ ] Fix LLM sponsor extraction — add paid model fallback for reliability
 - [x] Investigate AIDA MCP for discovering event data endpoints (CV, Luma, etc.)
   - See `services/crawler/cv/API_RECON.md` for full report
-- [ ] Build CV (Cerebral Valley) spider — **PUBLIC API cracked: `GET /v1/public/event/pull?featured=true`** (no auth!)
-- [ ] Build Luma spider — **open API at `api.lu.ma/discover/get-paginated-events`** (no auth, JSON, cursor-paginated)
+- [x] Build CV (Cerebral Valley) spider — **PUBLIC API cracked: `GET /v1/public/event/pull?featured=true`** (no auth!)
+  - ✅ Dry run: **9,258 events** extracted (featured + approved)
+- [x] Build Luma spider — **open API at `api.lu.ma/discover/get-paginated-events`** (no auth, JSON, cursor-paginated)
+  - ✅ Dry run: **920 events** extracted (20 pages)
 
 ## 🟡 Planned
 

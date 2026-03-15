@@ -16,6 +16,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Also found: `POST /v1/search/event/search` (keyword + vector search)
   - Both platforms return full event data (name, dates, location, description, image) with zero authentication
 
+- **Cerebral Valley spider** (`services/crawler/spiders/cerebralvalley.py`)
+  - Fetches events from public API: `GET /v1/public/event/pull?{status}=true`
+  - Pulls both `featured` and `approved` status endpoints, deduplicates by event ID
+  - Dry run: 9,258 events extracted
+
+- **Luma spider** (`services/crawler/spiders/luma.py`)
+  - Fetches events from public API: `GET api.lu.ma/discover/get-paginated-events`
+  - Cursor-based pagination, up to 20 pages (1,000 events max per run)
+  - Dry run: 920 events extracted
+
+- **Standalone dry-run script** (`services/crawler/dry_run.py`)
+  - Test CV and Luma spiders without a database connection
+  - Usage: `python dry_run.py cv`, `python dry_run.py luma`, or both
+
 - Initial backend scaffold with Rust/Actix Web
 - PostgreSQL schema with full-text search (tsvector/tsquery)
 - REST API endpoints: events, companies, users, reviews, search

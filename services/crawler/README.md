@@ -46,6 +46,12 @@ classDiagram
         +parse_hackiterate_date(text)
         +scrape_hackiterate(url, proxy) list
     }
+    class CVSpider {
+        +scrape_cerebralvalley(url, proxy) list
+    }
+    class LumaSpider {
+        +scrape_luma(url, proxy) list
+    }
 
     Main --> Db
     Main --> Dedup
@@ -53,6 +59,8 @@ classDiagram
     Main --> Company
     Main --> MLHSpider
     Main --> HackiterateSpider
+    Main --> CVSpider
+    Main --> LumaSpider
 ```
 
 ## Crawl Pipeline
@@ -90,14 +98,22 @@ flowchart TB
         H4 & H5 & H6 --> H7["Yield event dict"]
     end
 
-    subgraph Future["Future Spiders"]
-        F1["Cerebral Valley"] -.-> F3["StealthyFetcher"]
-        F2["Luma"] -.-> F3
-        F3 -.-> F4["Reverse-engineered API"]
+    subgraph CVSpider["Cerebral Valley Spider"]
+        C1["GET /v1/public/event/pull"] --> C2["Pull featured + approved"]
+        C2 --> C3["Deduplicate by event ID"]
+        C3 --> C4["Parse datetime, build URL"]
+        C4 --> C5["Yield event dict"]
     end
 
-    M7 & H7 --> Pipeline["Dedup + Insert Pipeline"]
-    F4 -.-> Pipeline
+    subgraph LumaSpider["Luma Spider"]
+        L1["GET /discover/get-paginated-events"] --> L2["Cursor pagination loop"]
+        L2 --> L3["Extract event + geo_address_info"]
+        L3 --> L4["Parse ISO datetime, build lu.ma URL"]
+        L4 --> L5["Yield event dict"]
+        L2 -->|has_more| L2
+    end
+
+    M7 & H7 & C5 & L5 --> Pipeline["Dedup + Insert Pipeline"]
 ```
 
 ### Sponsor Extraction
@@ -132,12 +148,12 @@ python main.py --daemon --interval 7200   # poll every 2h
 
 ## Sources
 
-| Source | Type | Status |
-|---|---|---|
-| `mlh.com/seasons/{YYYY}/events` | Server-rendered | ✅ Ready |
-| `hackiterate.com/directory` | Server-rendered | ✅ Ready |
-| `cerebralvalley.ai` | SPA (Next.js) | 🔜 Needs API reverse-engineering |
-| `luma.com` | SPA | 🔜 Needs API reverse-engineering |
+| Source | Type | Status | Dry-run count |
+|---|---|---|---|
+| `mlh.com/seasons/{YYYY}/events` | Server-rendered HTML | ✅ Ready | 194 |
+| `hackiterate.com/directory` | JS-rendered (Playwright) | ✅ Ready | 6 |
+| `cerebralvalley.ai` | Public JSON API (no auth) | ✅ Ready | 9,258 |
+| `lu.ma` | Public JSON API (no auth, cursor-paginated) | ✅ Ready | 920 |
 
 New sources can be added dynamically via the `scrape_sources` table.
 

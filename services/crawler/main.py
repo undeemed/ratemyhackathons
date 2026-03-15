@@ -20,12 +20,16 @@ from company import detect_companies
 from sponsors import scrape_sponsors
 from spiders.mlh import scrape_mlh
 from spiders.hackiterate import scrape_hackiterate
+from spiders.cerebralvalley import scrape_cerebralvalley
+from spiders.luma import scrape_luma
 
 
 # Source type → scraper function
 SCRAPERS = {
     "mlh": scrape_mlh,
     "hackiterate": scrape_hackiterate,
+    "cerebralvalley": scrape_cerebralvalley,
+    "luma": scrape_luma,
 }
 
 

@@ -128,6 +128,10 @@ erDiagram
 | **Services** | [services/README.md](services/README.md) |
 | **Crawler** | [services/crawler/README.md](services/crawler/README.md) |
 | **Analytics** | [services/analytics/README.md](services/analytics/README.md) |
+| **CV API Recon** | [services/crawler/cv/API_RECON.md](services/crawler/cv/API_RECON.md) |
+| **Luma API Recon** | [services/crawler/luma/API_RECON.md](services/crawler/luma/API_RECON.md) |
+| **MLH Recon** | [services/crawler/mlh/API_RECON.md](services/crawler/mlh/API_RECON.md) |
+| **Hackiterate Recon** | [services/crawler/hackiterate/API_RECON.md](services/crawler/hackiterate/API_RECON.md) |
 
 ## Project Structure
 
@@ -147,11 +151,19 @@ ratemyhackathons/
 ├── services/              # Standalone services
 │   ├── crawler/           # Python event scraper
 │   │   ├── main.py        # CLI: --once, --daemon, --dry-run
+│   │   ├── dry_run.py     # Standalone spider test (no DB needed)
 │   │   ├── db.py          # asyncpg database layer
 │   │   ├── dedup.py       # Hash + fuzzy deduplication
 │   │   ├── proxy.py       # Proxy rotation setup
 │   │   ├── company.py     # Best-effort company matching
-│   │   └── spiders/       # Source-specific scrapers
+│   │   ├── sponsors.py    # 4-strategy sponsor extraction
+│   │   ├── llm.py         # OpenRouter LLM (free + paid fallback)
+│   │   ├── spiders/       # Source-specific scrapers
+│   │   │   ├── mlh.py             # MLH (HTML scraping)
+│   │   │   ├── hackiterate.py     # Hackiterate (Playwright)
+│   │   │   ├── cerebralvalley.py  # CV public API
+│   │   │   └── luma.py            # Luma discover API
+│   │   └── cv/            # API recon notes
 │   └── analytics/         # Rust analytics API + SvelteKit dashboard
 │       ├── src/            # Actix-web server (:8081)
 │       │   ├── main.rs
@@ -544,9 +556,9 @@ cargo test
 
 ## Data Population
 
-Data will be populated via:
-1. **Manual entry** through the API
-2. **Web crawler** (future) — crawled data stored in `crawl_sources` table with raw JSONB
+Data is populated via:
+1. **Web crawler** — 4 spiders (MLH, Hackiterate, Cerebral Valley, Luma) with `--dry-run` preview mode
+2. **Manual entry** through the API
 
 ## License
 

@@ -1,10 +1,10 @@
-# API Reconnaissance Report — Cerebral Valley & Lu.ma
+# API Recon — Cerebral Valley
 
 > Date: 2026-03-13 | Tools: AIDA Exegol + JS bundle analysis + HTTP probing
 
 ---
 
-## 🟢 Cerebral Valley — CRACKED (No Auth Required)
+## 🟢 Status: CRACKED (No Auth Required)
 
 ### Base URL: `https://api.cerebralvalley.ai/v1`
 
@@ -111,7 +111,7 @@ Returns event detail but requires Clerk JWT auth header.
 
 ### Spider Strategy
 
-Simple HTTP with `httpx`/`requests`. No StealthyFetcher needed!
+Simple HTTP with `urllib`. No StealthyFetcher needed!
 
 ```python
 # Pull all featured events
@@ -133,82 +133,9 @@ Body: {"tz": "America/Los_Angeles", "query": "hackathon"}
 - **Analytics**: PostHog
 - **Search**: Hybrid keyword + vector search
 
----
+### How We Found It
 
-## 🟢 Lu.ma — FULLY OPEN API
-
-### Endpoint: `GET https://api.lu.ma/discover/get-paginated-events`
-
-**Query Parameters:**
-
-| Param | Type | Description |
-|---|---|---|
-| `pagination_limit` | int | Events per page (default: 20) |
-| `next_cursor` | string | Base64 cursor from previous `next_cursor` |
-| `geo_latitude` | float | Filter by lat (e.g., `37.7749`) |
-| `geo_longitude` | float | Filter by lng (e.g., `-122.4194`) |
-| `geo_radius` | float | Radius in km |
-
-**Response:**
-```json
-{
-  "entries": [
-    {
-      "api_id": "evt-xxx",
-      "event": {
-        "name": "Event Name",
-        "start_at": "2026-03-13T20:00:00.000Z",
-        "end_at": "2026-03-14T03:30:00.000Z",
-        "timezone": "America/Los_Angeles",
-        "url": "rl4zp1hu",
-        "cover_url": "https://images.lumacdn.com/...",
-        "location_type": "offline",
-        "geo_address_info": {
-          "city": "San Francisco",
-          "full_address": "123 Main St, SF, CA 94103"
-        },
-        "coordinate": {"latitude": 37.79, "longitude": -122.40}
-      },
-      "hosts": [{"name": "Host", "twitter_handle": "..."}],
-      "guest_count": 36,
-      "ticket_info": {"is_free": true, "spots_remaining": 44}
-    }
-  ],
-  "has_more": true,
-  "next_cursor": "eyJzdiI6..."
-}
-```
-
-### Pagination
-
-```
-Page 1: GET /discover/get-paginated-events?pagination_limit=50
-Page 2: ...&next_cursor={response.next_cursor}
-Repeat until has_more === false
-```
-
-### Spider Strategy
-
-Simple HTTP. Iterate cursor until `has_more === false`.
-
----
-
-## 📊 Summary
-
-| Feature | Cerebral Valley | Lu.ma |
-|---|---|---|
-| API Access | ✅ Public endpoints | ✅ Fully open |
-| Auth Required | ❌ No (public routes) | ❌ No |
-| Data Format | JSON | JSON |
-| Fetcher Needed | `Fetcher` (HTTP) | `Fetcher` (HTTP) |
-| Pagination | Status-based batches | Cursor-based |
-| Search | ✅ Keyword + vector | ❌ Not available |
-| Rate Limits | Unknown | Unknown |
-| Data Richness | High (desc + summary) | Very high |
-
-### How We Found Them
-
-1. **CV**: Downloaded all 37 JS bundles → grepped for `fetch()` calls → found `/public/event/pull` and `/search/event/search` → tested with params from error messages
-2. **Lu.ma**: Direct API probing at `api.lu.ma` → discovered `/discover/get-paginated-events`
-3. **AIDA Exegol**: Used for curl through Docker container
-4. **robots.txt**: Revealed `/api/e/og/*` OG image endpoint (Twitterbot-allowed)
+1. Downloaded all 37 JS bundles → grepped for `fetch()` calls
+2. Found `/public/event/pull` and `/search/event/search`
+3. Tested with params from error messages
+4. AIDA Exegol used for curl through Docker container
