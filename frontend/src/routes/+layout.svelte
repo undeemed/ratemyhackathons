@@ -30,7 +30,35 @@
 	}
 </script>
 
-<ClerkProvider>
+<ClerkProvider appearance={{
+	variables: {
+		colorPrimary: '#ffffff',
+		colorBackground: '#0a0a0a',
+		colorText: '#ffffff',
+		colorTextSecondary: '#999999',
+		colorInputBackground: '#141414',
+		colorInputText: '#ffffff',
+		colorNeutral: '#ffffff',
+		colorDanger: '#ef5350',
+		borderRadius: '0px',
+		fontFamily: "'Space Mono', monospace",
+		fontFamilyButtons: "'Space Mono', monospace",
+	},
+	elements: {
+		card: { boxShadow: 'none', border: '1px solid #2a2a2a' },
+		headerTitle: { fontFamily: "'Instrument Serif', serif", fontStyle: 'italic' },
+		headerSubtitle: { color: '#999' },
+		socialButtonsBlockButton: { border: '1px solid #2a2a2a', borderRadius: '0' },
+		formFieldInput: { border: '1px solid #2a2a2a', borderRadius: '0' },
+		formButtonPrimary: { borderRadius: '0', textTransform: 'uppercase', letterSpacing: '0.15em', fontSize: '11px' },
+		footerActionLink: { color: '#e0e0e0' },
+		dividerLine: { background: '#2a2a2a' },
+		dividerText: { color: '#555' },
+		formFieldLabel: { color: '#999' },
+		footer: { background: '#0a0a0a' },
+		internal: { background: '#0a0a0a' },
+	}
+}}>
 	{#if showWip}
 		<!-- svelte-ignore a11y_no_static_element_interactions -->
 		<div bind:this={overlay} onclick={dismiss}
