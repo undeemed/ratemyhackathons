@@ -6,7 +6,6 @@
 
 - [ ] **Performance: Globe/homepage GPU pressure** — hero globe can reach 1440px → 2880x2880 render target (~32MB color buffers). Add `LIMIT` or sampling to `/events/globe` endpoint, cap globe render dimensions
 - [ ] **Performance: Hover detection O(n)** — `findNearestMarker()` scans all markers on every pointer move with trig math. Add spatial index or throttle
-- [ ] **Bug: SectionNav kills all ScrollTriggers globally** — `SectionNav.svelte:48` should scope cleanup to its own triggers, not nuke everything
 - [ ] Homepage autocomplete search bar (SearchAutocomplete component — live dropdown)
 - [ ] Tag voting (upvote existing tags on reviews)
 - [ ] Fix LLM sponsor extraction — add paid model fallback for reliability
@@ -17,6 +16,7 @@
 
 ## Completed
 
+- [x] **Fix: Globe memory leak / browser freeze on reverse scroll** — cobe render loop never paused when off-screen; added `onLeave`/`onEnterBack` to toggle `visible` prop
 - [x] **Fix: ScrollTrigger ghost layout on navigation** — `beforeNavigate` kills pin spacer before SvelteKit swaps pages
 - [x] **Fix: Globe too dim** — bumped diffuse, mapBrightness, baseColor, glowColor, marker brightness floors
 - [x] **Internal Admin Dashboard** — multi-page analytics dashboard

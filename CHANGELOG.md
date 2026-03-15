@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Globe memory leak / browser freeze on reverse scroll** — cobe WebGL render loop (60fps, 16K mapSamples) never paused when scrolled past the pinned section. Globe kept burning GPU at full resolution even at opacity 0 off-screen. Added `onLeave`/`onEnterBack` ScrollTrigger callbacks to toggle `visible` prop, which calls `globe.toggle(false)` to pause cobe's rAF loop when the section is scrolled past and resumes on scroll-back.
 - **ScrollTrigger ghost layout on navigation** — pin spacer (~5000px) persisted during client-side navigation, pushing new page content below a blank gap. `beforeNavigate` now calls `ctx.revert()` before SvelteKit swaps pages.
 - **Globe too dim** — increased `diffuse` (1.2→2), `mapBrightness` (2→4), `baseColor` (0.2→0.35), `glowColor` (0.1→0.15), raised marker brightness floors
 

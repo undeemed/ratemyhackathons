@@ -13,6 +13,7 @@
 
   let heroSearchQuery = $state("");
   let searchMode = $state<"events" | "companies">("events");
+  let globeVisible = $state(true);
 
   // Sample markers to ~200 for GPU perf (1600+ is too many for cobe)
   const MAX_GLOBE_MARKERS = 200;
@@ -222,6 +223,8 @@
           start: "top top",
           end: "+=5000",
           scrub: 2,
+          onLeave: () => { globeVisible = false; },
+          onEnterBack: () => { globeVisible = true; },
         },
       });
 
@@ -492,7 +495,7 @@
 <section bind:this={sectionEl} class="relative h-screen overflow-hidden">
   <!-- Globe container — ONE instance, GSAP morphs position/size -->
   <div bind:this={globeContainerEl} class="absolute aspect-square">
-    <Globe markers={globeMarkers} focus={globeFocus} />
+    <Globe markers={globeMarkers} focus={globeFocus} visible={globeVisible} />
   </div>
 
   <!-- Hero text — fades out during morph, pointer-events pass through to globe -->
