@@ -77,19 +77,25 @@ Spiders (scrape + geocode) → main.py (dedup + process) → PostgreSQL ← Back
 ### Frontend Architecture
 SvelteKit app at `frontend/`. Editorial brutalist B&W design: pure black (`#000`) background, white text, `Instrument Serif` italic for display, `Space Mono` monospace for body. Grain texture overlay via SVG feTurbulence. No border-radius anywhere.
 
-Landing page is a storyboard with 7 scroll-triggered sections (hero, marquee, stats, featured events, how-it-works, pull quote, CTA) powered by GSAP ScrollTrigger. Hero has an interactive cobe WebGL globe with dots at hackathon locations (lat/lng from DB) — globe starts shifted right, then morphs to center during scroll-driven showcase. Date-based marker brightness: closer events glow brighter, distant future events are dimmer. Featured events use a flat 3-column grid layout.
+Landing page is a storyboard with 7 scroll-triggered sections (hero, marquee, stats, featured events, how-it-works, pull quote, CTA) powered by GSAP ScrollTrigger. Hero has an interactive cobe WebGL globe with dots at hackathon locations (lat/lng from DB) — globe starts shifted right at 90% viewport width, then morphs to center during scroll-driven showcase. Date-based marker brightness: closer events glow brighter, distant future events are dimmer. Featured events use a flat 3-column grid layout.
 
 **Globe component (`Globe.svelte`) critical patterns:**
-- Canvas uses `w-full aspect-square` (NOT `h-full w-full` — CSS `height: 100%` can't resolve against `aspect-ratio`-derived parent height, causing oval rendering)
-- Cobe uses `offsetWidth` for BOTH `state.width` and `state.height` (official cobe pattern — ensures perfectly circular rendering)
-- Cobe creation wrapped in `requestAnimationFrame` (Svelte mounts children before parents — Globe's `onMount` fires before page's `onMount` sets GSAP container dimensions)
-- Per-marker `color` array for date-based brightness (closer = brighter white, future = dimmer)
+- Wrapper uses `aspect-square w-full`, canvas uses `w-full aspect-square` (NOT `h-full` — CSS `height: 100%` can't resolve against `aspect-ratio`-derived parent height, causing oval rendering)
+- Cobe width cached via `resize` event listener (official cobe pattern — never read `offsetWidth` inside `onRender` to avoid forced reflows). Same cached `width` used for BOTH `state.width` and `state.height`.
+- Cobe creation wrapped in `requestAnimationFrame` with `destroyed` guard (Svelte mounts children before parents — Globe's `onMount` fires before page's `onMount` sets GSAP container dimensions)
+- `devicePixelRatio` capped at 2 (`Math.min(window.devicePixelRatio || 1, 2)`)
+- Per-marker `color` array for date-based brightness: `markerBrightness()` returns 0.4–1.0 for future events (closer = brighter), 0.3–0.7 for past events (fading)
+- `prevMarkerRef` tracking avoids reassigning `state.markers` every frame when derived array hasn't changed
+- Dynamic `mapSamples`: 8K when focused (showcase), 16K for hero (high-res)
+- Cleanup: `destroyed` flag prevents `onRender` after navigation, `cancelAnimationFrame` + `removeEventListener('resize')` + `globe.destroy()`
 
 **Landing page scroll animation (`+page.svelte`):**
-- Single pinned section with GSAP ScrollTrigger timeline: hero hold → morph (fade text, resize/center globe, zoom in once) → cycle events (spin globe to each lat/lng, show/hide event cards) → exit fade
-- Globe centering uses `left: '50%'` + `xPercent: -50` (reliable with scale transforms, unlike pixel-based `left`)
-- Showcase globe = 80% of hero size, scale 1.25 applied once during morph (not per-event)
-- `globeFocus` is a plain mutable object `{lat, lng}` — GSAP tweens it directly, Globe reads it every frame in `onRender`
+- All GSAP wrapped in `gsap.context()` — single `ctx.revert()` on unmount cleans up everything
+- Hero globe: 90vw on desktop (max 1440px), positioned at `top: 45%` shifted right (`vw * 1.05 - heroW`)
+- Morph uses ONLY transform properties (`x`, `y`, `scale`) — no `width`/`height`/`left` changes during scroll, avoiding forced layout reflows. `morphScale = maxShowSize / heroW`, `morphX = vw/2 - heroCenterX`
+- `scrub: 2` (no snap — snap caused lag on reverse scroll)
+- `globeFocus` is a plain mutable object `{lat: 0, lng: 0}` — GSAP tweens it directly, Globe reads it every frame in `onRender`. When both are 0, globe auto-spins.
+- Phase sequence: hero hold → morph (fade text, translate+scale globe to center) → cycle events (spin globe to each lat/lng, slide cards in/out) → exit fade
 
 Theme colors in `app.css` via Tailwind v4 `@theme`: `bg #000`, `surface #080808`, `elevated #141414`, `border #2a2a2a`, `text #fff`, `muted #999`, `dim #555`, `accent #e0e0e0`.
 
