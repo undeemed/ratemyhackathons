@@ -1,4 +1,5 @@
 use actix_web::{get, post, web, HttpRequest, HttpResponse};
+use serde::Deserialize;
 use sqlx::PgPool;
 use uuid::Uuid;
 use validator::Validate;
@@ -8,38 +9,123 @@ use crate::errors::ApiError;
 use crate::models::company::*;
 use super::{PaginatedResponse, PaginationParams};
 
+#[derive(Debug, Deserialize)]
+pub struct CompanyListParams {
+    pub page: Option<i64>,
+    pub per_page: Option<i64>,
+    pub search: Option<String>,
+}
+
+impl CompanyListParams {
+    fn pagination(&self) -> PaginationParams {
+        PaginationParams { page: self.page, per_page: self.per_page }
+    }
+}
+
 #[get("/companies")]
 pub async fn list_companies(
     pool: web::Data<PgPool>,
-    query: web::Query<PaginationParams>,
+    query: web::Query<CompanyListParams>,
 ) -> Result<HttpResponse, ApiError> {
-    let limit = query.limit();
-    let offset = query.offset();
+    let pag = query.pagination();
+    let limit = pag.limit();
+    let offset = pag.offset();
+    let search_filter = query.search.as_deref().unwrap_or("").trim();
 
-    // Single query with event count subquery (no N+1)
-    let summaries = sqlx::query_as::<_, CompanySummary>(
+    let (summaries, total) = if search_filter.is_empty() {
+        let rows = sqlx::query_as::<_, CompanySummary>(
+            r#"
+            SELECT c.id, c.name, c.logo_url, c.website, c.description,
+                   (SELECT COUNT(*) FROM event_companies WHERE company_id = c.id) as event_count,
+                   (SELECT AVG(rating)::float8 FROM reviews WHERE company_id = c.id) as avg_rating,
+                   (SELECT COUNT(*) FROM reviews WHERE company_id = c.id) as review_count,
+                   c.created_at
+            FROM companies c
+            ORDER BY c.name ASC
+            LIMIT $1 OFFSET $2
+            "#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(pool.get_ref())
+        .await?;
+
+        let total: (i64,) = sqlx::query_as("SELECT COUNT(*) FROM companies")
+            .fetch_one(pool.get_ref())
+            .await?;
+        (rows, total.0)
+    } else {
+        let pattern = format!("%{}%", search_filter);
+        let rows = sqlx::query_as::<_, CompanySummary>(
+            r#"
+            SELECT c.id, c.name, c.logo_url, c.website, c.description,
+                   (SELECT COUNT(*) FROM event_companies WHERE company_id = c.id) as event_count,
+                   (SELECT AVG(rating)::float8 FROM reviews WHERE company_id = c.id) as avg_rating,
+                   (SELECT COUNT(*) FROM reviews WHERE company_id = c.id) as review_count,
+                   c.created_at
+            FROM companies c
+            WHERE c.name ILIKE $3
+            ORDER BY c.name ASC
+            LIMIT $1 OFFSET $2
+            "#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .bind(&pattern)
+        .fetch_all(pool.get_ref())
+        .await?;
+
+        let total: (i64,) = sqlx::query_as("SELECT COUNT(*) FROM companies WHERE name ILIKE $1")
+            .bind(&pattern)
+            .fetch_one(pool.get_ref())
+            .await?;
+        (rows, total.0)
+    };
+
+    let company_ids: Vec<Uuid> = summaries.iter().map(|s| s.id).collect();
+    let all_cat_ratings = sqlx::query_as::<_, (Uuid, String, f64)>(
         r#"
-        SELECT c.id, c.name, c.logo_url, c.website, c.description,
-               (SELECT COUNT(*) FROM event_companies WHERE company_id = c.id) as event_count,
-               c.created_at
-        FROM companies c
-        ORDER BY c.name ASC
-        LIMIT $1 OFFSET $2
+        SELECT r.company_id, rr.category, AVG(rr.score)::float8 as avg
+        FROM review_ratings rr
+        JOIN reviews r ON r.id = rr.review_id
+        WHERE r.company_id = ANY($1)
+        GROUP BY r.company_id, rr.category
         "#,
     )
-    .bind(limit)
-    .bind(offset)
+    .bind(&company_ids)
     .fetch_all(pool.get_ref())
     .await?;
 
-    let total: (i64,) = sqlx::query_as("SELECT COUNT(*) FROM companies")
-        .fetch_one(pool.get_ref())
-        .await?;
+    let data: Vec<CompanySummaryResponse> = summaries
+        .into_iter()
+        .map(|s| {
+            let cats: Vec<crate::models::review::CategoryAvg> = all_cat_ratings
+                .iter()
+                .filter(|(cid, _, _)| *cid == s.id)
+                .map(|(_, cat, avg)| crate::models::review::CategoryAvg {
+                    category: cat.clone(),
+                    avg: *avg,
+                })
+                .collect();
+            CompanySummaryResponse {
+                id: s.id,
+                name: s.name,
+                logo_url: s.logo_url,
+                website: s.website,
+                description: s.description,
+                event_count: s.event_count,
+                avg_rating: s.avg_rating,
+                review_count: s.review_count,
+                category_ratings: cats,
+                created_at: s.created_at,
+            }
+        })
+        .collect();
 
     Ok(HttpResponse::Ok().json(PaginatedResponse {
-        data: summaries,
-        total: total.0,
-        page: query.page(),
+        data,
+        total,
+        page: pag.page(),
         per_page: limit,
     }))
 }

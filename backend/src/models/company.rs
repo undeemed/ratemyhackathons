@@ -26,6 +26,22 @@ pub struct CompanySummary {
     pub website: Option<String>,
     pub description: Option<String>,
     pub event_count: i64,
+    pub avg_rating: Option<f64>,
+    pub review_count: i64,
+    pub created_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct CompanySummaryResponse {
+    pub id: Uuid,
+    pub name: String,
+    pub logo_url: Option<String>,
+    pub website: Option<String>,
+    pub description: Option<String>,
+    pub event_count: i64,
+    pub avg_rating: Option<f64>,
+    pub review_count: i64,
+    pub category_ratings: Vec<crate::models::review::CategoryAvg>,
     pub created_at: DateTime<Utc>,
 }
 

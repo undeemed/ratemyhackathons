@@ -27,6 +27,7 @@ export interface EventSummary {
 	companies: CompanyRef[];
 	avg_rating: number | null;
 	review_count: number;
+	category_ratings: CategoryAvg[];
 	created_at: string;
 }
 
@@ -88,6 +89,10 @@ export interface Company {
 	logo_url: string | null;
 	website: string | null;
 	description: string | null;
+	event_count: number;
+	avg_rating: number | null;
+	review_count: number;
+	category_ratings: CategoryAvg[];
 	created_at: string;
 }
 

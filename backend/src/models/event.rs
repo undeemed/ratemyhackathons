@@ -80,6 +80,7 @@ pub struct EventSummary {
     pub companies: Vec<EventCompanyRef>,
     pub avg_rating: Option<f64>,
     pub review_count: i64,
+    pub category_ratings: Vec<crate::models::review::CategoryAvg>,
     pub created_at: DateTime<Utc>,
 }
 

@@ -149,8 +149,11 @@ ratemyhackathons/
 │   │   │   └── components/    # Globe, EventCard, ReviewCard, Nav, Footer
 │   │   └── routes/
 │   │       ├── +page.svelte   # Landing page (7 sections)
-│   │       ├── events/        # Event list + detail
+│   │       ├── about/         # About page (mission, stack, data sources)
+│   │       ├── api/           # API documentation (interactive endpoint reference)
+│   │       ├── events/        # Event list (sort/search/list-grid toggle) + detail
 │   │       ├── companies/     # Company list + detail
+│   │       ├── compare/       # Side-by-side comparison (inline search, entity chips, shareable URLs)
 │   │       ├── users/[id]/    # User profiles
 │   │       └── search/        # Tabbed search results
 ├── backend/               # Rust API server
@@ -354,7 +357,7 @@ Query params: `?page=1&per_page=20&company_id=uuid`
 
 #### `GET /api/companies`
 
-Query params: `?page=1&per_page=20`
+Query params: `?page=1&per_page=20&search=google`
 
 ```json
 // Response 200:
@@ -362,7 +365,12 @@ Query params: `?page=1&per_page=20`
   "data": [{
     "id": "uuid", "name": "Google", "logo_url": "https://...",
     "website": "https://google.com", "description": "...",
-    "event_count": 12, "created_at": "..."
+    "event_count": 12, "avg_rating": 4.1, "review_count": 23,
+    "category_ratings": [
+      { "category": "organization", "avg": 4.5 },
+      { "category": "vibes", "avg": 4.2 }
+    ],
+    "created_at": "..."
   }],
   "total": 50, "page": 1, "per_page": 20
 }
@@ -577,6 +585,8 @@ All list endpoints use **correlated subqueries** instead of the N+1 pattern. Her
 ```sql
 SELECT c.id, c.name, c.logo_url, c.website, c.description,
        (SELECT COUNT(*) FROM event_companies WHERE company_id = c.id) as event_count,
+       (SELECT AVG(rating)::float8 FROM reviews WHERE company_id = c.id) as avg_rating,
+       (SELECT COUNT(*) FROM reviews WHERE company_id = c.id) as review_count,
        c.created_at
 FROM companies c
 ORDER BY c.name ASC
@@ -588,6 +598,7 @@ LIMIT $1 OFFSET $2
 - `FROM companies c` — Read the companies table (aliased as `c`)
 - `SELECT c.id, c.name, ...` — Pick which columns to return
 - `(SELECT COUNT(*) ...)` — **Subquery**: while on each company row, peek into `event_companies` and count matching rows. This runs *inside* the main query, not as a separate call
+- `(SELECT AVG(rating) ...)` — Another subquery: compute average rating from reviews for this company
 - `ORDER BY c.name ASC` — Sort A→Z
 - `LIMIT $1 OFFSET $2` — Pagination (`$1` = page size, `$2` = how many rows to skip)
 

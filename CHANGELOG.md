@@ -7,8 +7,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+
+- **Compare page: inline search with entity selection**
+  - Debounced search input (300ms) calls `/api/search` filtered by type (event or company)
+  - Dropdown shows matching results with score badge and review count; click to add
+  - Selected entities shown as removable chips; URL updates via `goto()` for shareable links
+  - Events / Companies type toggle clears selection and filters search results
+  - Max 4 entities (compare API limit); comparison grid renders at 2+
+  - Replaces broken flow that redirected to `/search` with no way back
+  - Dev-only mock data: 4 mock events + 4 mock companies, selectable via toggle, gated behind `esm-env` DEV (tree-shaken in prod)
+- **About page** (`/about`) — editorial brutalist about page with mission statement, 3-step "How It Works" flow (Crawl → Enrich → Review), 2-column tech stack grid, data sources (MLH, Luma, CV, Hackiterate), 10 rating categories grid, open source links (GitHub repo)
+- **API documentation page** (`/api`) — interactive API reference with overview cards (base URL, auth, format), quick-reference endpoint table, 7 expandable sections (Events, Companies, Users, Reviews, Search, Tags, Compare) with method color-coding, auth badges, request/response examples, architecture note with correlated subquery example
+
+- **Events page: sort, search, and view toggle**
+  - Client-side search bar filters events by name or location in real time
+  - Sort dropdown with 13 options: Date, Name, Overall Rating + all 10 category ratings (Organization, Prizes, Mentorship, Judging, Venue, Food & Drinks, Swag, Networking, Communication, Vibes) with ascending/descending toggle
+  - When sorting by a category, the rating column shows that category's average instead of overall rating
+  - Display toggle: list view (default) or grid view (existing EventCard layout)
+  - List view matches companies page layout: color-coded rating on left (green/yellow/red), event name + date + review count center, location right
+  - `GET /api/events` now returns `category_ratings` (per-category averages) in `EventSummary`, batch-fetched in one query (no N+1)
+  - Fetches all events in single request (per_page 500) for client-side filtering
+  - Dev-only placeholder events via `$app/environment` `dev` flag (tree-shaken in production builds)
+
+- **Companies page: list layout with sort & search**
+  - Replaced 3-column card grid with flat list view (rating left, company name center, events hosted right)
+  - Client-side search bar with clear button, filters by name or description
+  - Sort dropdown matching events page: General (Name, Overall Rating, Events Hosted) + Category (all 10 rating categories) with ↑/↓ direction toggle
+  - When sorting by a category, the rating column shows that category's average instead of overall rating
+  - `GET /api/companies` now returns `avg_rating`, `review_count`, and `category_ratings` alongside `event_count`; new `?search=` query param for server-side ILIKE name filtering
+  - Backend batch-fetches category averages for all listed companies in one query (no N+1)
+  - Dev-only placeholder companies via `dev` flag (tree-shaken in production)
+
 ### Fixed
 
+- **Clerk sign-in/sign-up dark theme** — Clerk components used default white card on black background. Added `appearance` prop to `ClerkProvider` with dark brutalist styling: black card bg, white text, `#111` inputs with `#333` borders, white primary button (inverted), `Space Mono` font, `Instrument Serif` italic header, 0px border-radius, 560px card width. Removed redundant "Sign In"/"Sign Up" headings. Centered via flex without constraining wrapper.
 - **Globe memory leak / browser freeze on reverse scroll** — cobe WebGL render loop (60fps, 16K mapSamples) never paused when scrolled past the pinned section. Globe kept burning GPU at full resolution even at opacity 0 off-screen. Added `onLeave`/`onEnterBack` ScrollTrigger callbacks to toggle `visible` prop, which calls `globe.toggle(false)` to pause cobe's rAF loop when the section is scrolled past and resumes on scroll-back.
 - **ScrollTrigger ghost layout on navigation** — pin spacer (~5000px) persisted during client-side navigation, pushing new page content below a blank gap. `beforeNavigate` now calls `ctx.revert()` before SvelteKit swaps pages.
 - **Globe too dim** — increased `diffuse` (1.2→2), `mapBrightness` (2→4), `baseColor` (0.2→0.35), `glowColor` (0.1→0.15), raised marker brightness floors

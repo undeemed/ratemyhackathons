@@ -16,6 +16,12 @@
 
 ## Completed
 
+- [x] **Compare page: inline search with entity selection** — debounced search dropdown filtered by event/company type, click-to-add chips, `goto()` URL sync for shareable links, max 4 entities, dev-only mock data (4 events + 4 companies) gated behind `esm-env` DEV
+- [x] **About page (`/about`)** — mission, how-it-works, tech stack (2-col grid), data sources, rating categories, open source links
+- [x] **API docs page (`/api`)** — interactive endpoint reference with expandable sections, method color-coding, auth badges, request/response examples
+- [x] **Companies page: list layout with sort & search** — flat list view (rating/name/events hosted), client-side search, sort dropdown with 13 options (name/rating/events + 10 categories), category sort swaps rating column to show category avg, backend returns avg_rating + review_count + category_ratings + search param
+- [x] **Fix: Clerk sign-in/sign-up dark theme** — dark brutalist appearance on ClerkProvider, removed redundant headings, centered + enlarged card
+- [x] **Events page: sort, search, and view toggle** — client-side search/sort/display-mode toolbar, sort dropdown with 13 options (date/name/rating + 10 categories), category sort swaps rating column to show category avg, backend returns `category_ratings` in EventSummary (batch-fetched), list default
 - [x] **Fix: Globe memory leak / browser freeze on reverse scroll** — cobe render loop never paused when off-screen; added `onLeave`/`onEnterBack` to toggle `visible` prop
 - [x] **Fix: ScrollTrigger ghost layout on navigation** — `beforeNavigate` kills pin spacer before SvelteKit swaps pages
 - [x] **Fix: Globe too dim** — bumped diffuse, mapBrightness, baseColor, glowColor, marker brightness floors

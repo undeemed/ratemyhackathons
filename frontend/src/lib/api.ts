@@ -42,16 +42,24 @@ export function getEvent(id: string) {
 	return request<EventDetail>(`/events/${id}`);
 }
 
-export function getGlobeMarkers() {
-	return request<GlobeMarker[]>('/events/globe');
+// Module-level cache — globe markers rarely change, no need to re-fetch
+// on every SvelteKit client-side navigation back to the landing page.
+let _globeCache: GlobeMarker[] | null = null;
+
+export async function getGlobeMarkers() {
+	if (_globeCache) return _globeCache;
+	const markers = await request<GlobeMarker[]>('/events/globe');
+	_globeCache = markers;
+	return markers;
 }
 
 // ── Companies ──
 
-export function listCompanies(params?: { page?: number; per_page?: number }) {
+export function listCompanies(params?: { page?: number; per_page?: number; search?: string }) {
 	const q = new URLSearchParams();
 	if (params?.page) q.set('page', String(params.page));
 	if (params?.per_page) q.set('per_page', String(params.per_page));
+	if (params?.search) q.set('search', params.search);
 	return request<PaginatedResponse<Company>>(`/companies?${q}`);
 }
 

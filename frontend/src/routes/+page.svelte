@@ -50,6 +50,7 @@
       companies: [{ id: "c1", name: "Google", role: "sponsor" }],
       avg_rating: 4.7,
       review_count: 89,
+      category_ratings: [],
       created_at: "",
     },
     {
@@ -66,6 +67,7 @@
       companies: [{ id: "c2", name: "Microsoft", role: "sponsor" }],
       avg_rating: 4.5,
       review_count: 124,
+      category_ratings: [],
       created_at: "",
     },
     {
@@ -82,6 +84,7 @@
       companies: [{ id: "c3", name: "Ethereum Foundation", role: "organizer" }],
       avg_rating: 4.3,
       review_count: 67,
+      category_ratings: [],
       created_at: "",
     },
     {
@@ -98,6 +101,7 @@
       companies: [{ id: "c4", name: "Meta", role: "sponsor" }],
       avg_rating: 4.1,
       review_count: 56,
+      category_ratings: [],
       created_at: "",
     },
     {
@@ -115,6 +119,7 @@
       companies: [{ id: "c5", name: "Shopify", role: "sponsor" }],
       avg_rating: 4.8,
       review_count: 201,
+      category_ratings: [],
       created_at: "",
     },
     {
@@ -132,6 +137,7 @@
       companies: [{ id: "c6", name: "Nokia", role: "sponsor" }],
       avg_rating: 4.6,
       review_count: 78,
+      category_ratings: [],
       created_at: "",
     },
   ];

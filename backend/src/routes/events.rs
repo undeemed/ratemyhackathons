@@ -103,6 +103,20 @@ pub async fn list_events(
     .fetch_all(pool.get_ref())
     .await?;
 
+    // Batch-fetch category ratings for all events in one query
+    let cat_rows = sqlx::query_as::<_, (Uuid, String, f64)>(
+        r#"
+        SELECT r.event_id, rr.category, AVG(rr.score)::float8 as avg
+        FROM review_ratings rr
+        JOIN reviews r ON r.id = rr.review_id
+        WHERE r.event_id = ANY($1)
+        GROUP BY r.event_id, rr.category
+        "#,
+    )
+    .bind(&event_ids)
+    .fetch_all(pool.get_ref())
+    .await?;
+
     let summaries: Vec<EventSummary> = rows
         .into_iter()
         .map(|row| {
@@ -113,6 +127,15 @@ pub async fn list_events(
                     id: c.id,
                     name: c.name.clone(),
                     role: c.role.clone(),
+                })
+                .collect();
+
+            let category_ratings: Vec<crate::models::review::CategoryAvg> = cat_rows
+                .iter()
+                .filter(|(eid, _, _)| *eid == row.id)
+                .map(|(_, cat, avg)| crate::models::review::CategoryAvg {
+                    category: cat.clone(),
+                    avg: *avg,
                 })
                 .collect();
 
@@ -130,6 +153,7 @@ pub async fn list_events(
                 companies,
                 avg_rating: row.avg_rating,
                 review_count: row.review_count,
+                category_ratings,
                 created_at: row.created_at,
             }
         })
