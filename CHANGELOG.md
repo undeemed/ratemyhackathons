@@ -32,10 +32,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Globe zoom once at morph, not per-event pulse
   - Scroll perf fix: transform-only GSAP morph (`x`/`y`/`scale`) — no forced reflows
   - Cobe official resize pattern — cached width via event listener, not per-frame `offsetWidth`
-  - Reduced `mapSamples` 24K→12K, `scrub: 2` for smoother fast-scrolls
+  - Dynamic `mapSamples`: 20K hero (high-res) / 12K showcase (perf)
+  - Removed ScrollTrigger `snap` — caused lag on reverse scroll
+  - Globe `destroyed` guard prevents cobe rendering after navigation
+  - `will-change: transform` on globe container for GPU compositor isolation
+  - `data-sveltekit-preload-data="off"` on EventCards — prevents 404 flood on hover
+  - `beforeNavigate` kills ScrollTrigger before SvelteKit client-side nav
   - Globe surface tuned (`mapBrightness: 2`, `baseColor: [0.2,0.2,0.2]`) so hackathon markers stand out
   - Marker dots enlarged to `size: 0.1` with per-marker color based on `start_date`
   - Larger hero globe (90% viewport) positioned at top 45% for more prominent hero presence
+  - Hero layout: "Every hackathon," on one line, search bar beside subtext (larger input)
+  - Events page: back button, removed Archive label
+  - Pull quote: removed "What we believe", `#111` bg
+  - Docker frontend runtime: `node` → `bun`
   - Hero search bar with hackathons/companies toggle and gradient "rated." text
 
 - **Frontend Rebuild — RMP-Style UI (Phase 3+4)**

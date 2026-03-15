@@ -34,7 +34,12 @@
   - [x] Globe zoom once at morph, not per-event pulse
   - [x] Scroll perf fix: transform-only GSAP morph (`x`/`y`/`scale`) — no forced reflows
   - [x] Cobe official resize pattern — cached width via event listener, not per-frame `offsetWidth`
-  - [x] Reduced `mapSamples` 24K→12K, `scrub: 2` for smoother fast-scroll
+  - [x] Dynamic `mapSamples`: 20K hero / 12K showcase
+  - [x] Removed ScrollTrigger snap — caused lag on reverse scroll
+  - [x] Globe destroyed guard + `will-change: transform` compositor isolation
+  - [x] `beforeNavigate` kills ScrollTrigger before SvelteKit nav
+  - [x] Hero layout: single-line heading, search bar beside subtext
+  - [x] Events page: back button, Docker `node` → `bun`
 - [x] **Phase 4: Advanced Features**
   - [x] Compare tool (`/compare` page with side-by-side category comparison)
   - [x] Compare link in nav (desktop + mobile)
