@@ -4,14 +4,12 @@
 
 ## Planned
 
-- [ ] **Performance: Globe/homepage GPU pressure** — hero globe can reach 1440px → 2880x2880 render target (~32MB color buffers). Add `LIMIT` or sampling to `/events/globe` endpoint, cap globe render dimensions
-- [ ] **Performance: Hover detection O(n)** — `findNearestMarker()` scans all markers on every pointer move with trig math. Add spatial index or throttle
+- [ ] **Date range filter** — calendar date range picker (library TBD) for filtering events by start/end date; all subtext/labels should be white, not dim or grey
+- [ ] **Location filter** — global location filter in the nav header (auto-detect via Geolocation API + manual city/state/country input), filters events across all pages
 - [ ] Homepage autocomplete search bar (SearchAutocomplete component — live dropdown)
 - [ ] Tag voting (upvote existing tags on reviews)
 - [ ] Fix LLM sponsor extraction — add paid model fallback for reliability
 - [ ] Store scraped sponsors in DB (new `event_sponsors` table)
-- [ ] Frontend: responsive polish + accessibility audit
-- [ ] Frontend: loading skeletons for API-dependent sections
 - [ ] Deploy analytics dashboard alongside main app (Docker service)
 
 ## Completed
