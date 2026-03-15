@@ -17,7 +17,6 @@ import db
 from dedup import make_source_hash, is_fuzzy_duplicate
 from proxy import get_single_proxy
 from company import detect_companies
-from sponsors import scrape_sponsors
 from geocode import geocode_location
 from spiders.mlh import scrape_mlh
 from spiders.hackiterate import scrape_hackiterate
@@ -119,24 +118,25 @@ async def process_events(
                 f" to '{event['name']}'"
             )
 
-        # 6. Scrape sponsors from event's own website
-        event_url = event.get("url", "")
-        if event_url:
-            try:
-                sponsor_names = scrape_sponsors(event_url, proxy=proxy)
-                if sponsor_names:
-                    print(
-                        f"  [SPONSORS] {event['name']}: "
-                        f"{len(sponsor_names)} found"
-                    )
-                    # Store scraped sponsors in the event's raw data
-                    event["scraped_sponsors"] = sponsor_names
-                    for sname in sponsor_names:
-                        print(f"    • {sname}")
-            except (ConnectionError, OSError, ValueError) as e:
-                print(
-                    f"  [SPONSORS] Failed for {event['name']}: {e}"
-                )
+        # 6. Create companies from hosts/organizers
+        hosts = event.get("hosts", [])
+        for host in hosts:
+            host_name = host.get("name", "").strip()
+            if not host_name or len(host_name) < 2:
+                continue
+            company_id = await db.get_or_create_company(
+                pool,
+                name=host_name,
+                website=host.get("website"),
+                description=host.get("bio"),
+            )
+            role = host.get("role", "host")
+            await db.link_company_to_event(pool, event_id, company_id)
+            print(f"  [HOST] '{host_name}' → '{event['name']}'")
+
+        # 7. Sponsor scraping disabled — StealthyFetcher (Playwright sync)
+        #    cannot run inside asyncio loop. Needs async rewrite to work.
+        #    See sponsors.py for the extraction logic.
 
         inserted += 1
         print(f"  [NEW] {event['name']} ({event.get('start_date', '?')})")
@@ -188,6 +188,9 @@ async def crawl_once(pool, dry_run: bool = False):
                 await db.mark_polled(pool, source_id)
         except (ConnectionError, OSError, ValueError) as e:
             print(f"[ERROR] {source['name']}: {e}")
+            continue
+        except Exception as e:
+            print(f"[ERROR] {source['name']} (unexpected): {type(e).__name__}: {e}")
             continue
 
     print(f"\n{'='*60}")

@@ -163,10 +163,10 @@ pub async fn rating_distribution(pool: &PgPool) -> Result<Vec<RatingBucket>, sql
 #[derive(Serialize, sqlx::FromRow)]
 pub struct RecentReview {
     pub id: Uuid,
-    pub event_name: Option<String>,
+    pub entity_name: Option<String>,
     pub username: Option<String>,
     pub rating: i32,
-    pub title: String,
+    pub title: Option<String>,
     pub created_at: DateTime<Utc>,
 }
 
@@ -175,10 +175,13 @@ pub async fn recent_reviews(
     limit: i32,
 ) -> Result<Vec<RecentReview>, sqlx::Error> {
     sqlx::query_as::<_, RecentReview>(
-        "SELECT r.id, e.name as event_name, u.username, \
+        "SELECT r.id, \
+                COALESCE(e.name, c.name) as entity_name, \
+                u.username, \
                 r.rating, r.title, r.created_at \
          FROM reviews r \
-         JOIN events e ON e.id = r.event_id \
+         LEFT JOIN events e ON e.id = r.event_id \
+         LEFT JOIN companies c ON c.id = r.company_id \
          JOIN users u ON u.id = r.user_id \
          ORDER BY r.created_at DESC LIMIT $1"
     )

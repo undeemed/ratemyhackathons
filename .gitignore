@@ -5,23 +5,58 @@ target/
 *.pdb
 **/mutants.out*/
 
-# ── Node.js (for future SvelteKit frontend) ──
+# ── Node.js / SvelteKit ──
 node_modules/
 .svelte-kit/
 build/
 dist/
+.turbo/
+
+# ── Python ──
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+*.egg
+.venv/
+venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+htmlcov/
+.coverage
+.coverage.*
+
+# ── Playwright ──
+.playwright-mcp/
+playwright-report/
+test-results/
+blob-report/
+
+# ── Docker ──
+docker-compose.override.yml
 
 # ── Environment ──
 .env
 .env.local
 .env.*.local
 
-# ── IDE ──
+# ── IDE / AI ──
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
+.claude/
+.agent/
+
+# ── Logs ──
+logs/
+*.log
+npm-debug.log*
+pids/
+*.pid
+*.seed
 
 # ── OS ──
 .DS_Store

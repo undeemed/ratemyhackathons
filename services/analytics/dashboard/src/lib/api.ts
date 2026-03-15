@@ -1,3 +1,5 @@
+// ── Analytics API (port 8081) ──
+
 const API = '';
 
 export async function fetchCrawlStats() {
@@ -44,4 +46,40 @@ export function connectLiveFeed(onEvent: (data: any) => void): EventSource {
 		} catch {}
 	};
 	return source;
+}
+
+// ── Main API (port 8080, proxied via /main-api) ──
+
+const MAIN = '/main-api';
+
+export async function fetchEvents(page = 1, perPage = 50) {
+	const res = await fetch(`${MAIN}/events?page=${page}&per_page=${perPage}`);
+	return res.json();
+}
+
+export async function fetchEvent(id: string) {
+	const res = await fetch(`${MAIN}/events/${id}`);
+	return res.json();
+}
+
+export async function fetchCompanies(page = 1, perPage = 50) {
+	const res = await fetch(`${MAIN}/companies?page=${page}&per_page=${perPage}`);
+	return res.json();
+}
+
+export async function fetchUsers(page = 1, perPage = 50) {
+	const res = await fetch(`${MAIN}/users?page=${page}&per_page=${perPage}`);
+	return res.json();
+}
+
+export async function fetchGlobeMarkers() {
+	const res = await fetch(`${MAIN}/events/globe`);
+	return res.json();
+}
+
+export async function fetchSearch(q: string, type?: string) {
+	const params = new URLSearchParams({ q });
+	if (type) params.set('type', type);
+	const res = await fetch(`${MAIN}/search?${params}`);
+	return res.json();
 }

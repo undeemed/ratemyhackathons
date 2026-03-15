@@ -1,9 +1,19 @@
 """Database operations for the crawler."""
 
 import asyncpg
+import json
 import uuid
 import hashlib
-from datetime import datetime, timezone
+
+from uuid_utils import uuid7
+from datetime import date, datetime, timezone
+
+
+def _json_default(obj):
+    """JSON serializer for date/datetime objects."""
+    if isinstance(obj, (date, datetime)):
+        return obj.isoformat()
+    raise TypeError(f"Object of type {type(obj).__name__} is not JSON serializable")
 
 
 async def get_pool(database_url: str) -> asyncpg.Pool:
@@ -55,7 +65,7 @@ async def hash_exists(pool: asyncpg.Pool, source_hash: str) -> bool:
 
 async def insert_event(pool: asyncpg.Pool, event: dict) -> uuid.UUID:
     """Insert a new event and return its ID."""
-    event_id = uuid.uuid7()
+    event_id = uuid7()
     await pool.execute(
         """
         INSERT INTO events (id, name, description, location, url, start_date, end_date, image_url)
@@ -82,8 +92,7 @@ async def insert_crawl_source(
     source_hash: str,
 ):
     """Record a crawl source entry with dedup hash."""
-    crawl_id = uuid.uuid7()
-    import json
+    crawl_id = uuid7()
 
     await pool.execute(
         """
@@ -95,7 +104,7 @@ async def insert_crawl_source(
         event_id,
         source_url,
         source_type,
-        json.dumps(raw_data) if raw_data else None,
+        json.dumps(raw_data, default=_json_default) if raw_data else None,
         source_hash,
     )
 
@@ -117,6 +126,35 @@ async def get_all_companies(pool: asyncpg.Pool) -> list[dict]:
     """Fetch all companies for name matching."""
     rows = await pool.fetch("SELECT id, name FROM companies ORDER BY name")
     return [dict(r) for r in rows]
+
+
+async def get_or_create_company(
+    pool: asyncpg.Pool,
+    name: str,
+    website: str | None = None,
+    description: str | None = None,
+) -> uuid.UUID:
+    """Find a company by name or create it. Returns the company ID."""
+    row = await pool.fetchrow(
+        "SELECT id FROM companies WHERE LOWER(name) = LOWER($1)",
+        name.strip(),
+    )
+    if row:
+        return row["id"]
+
+    company_id = uuid7()
+    await pool.execute(
+        """
+        INSERT INTO companies (id, name, website, description, search_vector)
+        VALUES ($1, $2, $3, $4, to_tsvector('english', $2 || ' ' || COALESCE($4, '')))
+        ON CONFLICT DO NOTHING
+        """,
+        company_id,
+        name.strip(),
+        website,
+        description,
+    )
+    return company_id
 
 
 async def find_events_by_name_window(

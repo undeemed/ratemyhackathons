@@ -7,7 +7,11 @@ export default defineConfig({
 	server: {
 		port: 5174,
 		proxy: {
-			'/api': 'http://127.0.0.1:8081'
+			'/api': 'http://127.0.0.1:8081',
+			'/main-api': {
+				target: 'http://127.0.0.1:8080',
+				rewrite: (path) => path.replace(/^\/main-api/, '/api')
+			}
 		}
 	}
 });

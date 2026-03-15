@@ -22,6 +22,31 @@ STATUS_FILTERS = ["featured", "approved"]
 # Max events to enrich with host data (detail API calls)
 MAX_HOST_ENRICHMENT = 200
 
+# Keywords that indicate a hackathon event (case-insensitive)
+HACKATHON_KEYWORDS = [
+    r"\bhack(?:athon|fest|sprint|day|week|night|s)\b",
+    r"\bbuildathon\b",
+    r"\bship(?:athon|fest)\b",
+    r"\bcode\s*jam\b",
+    r"\bcoding\s*(?:challenge|competition|camp)\b",
+    r"\bdevcon\b",
+    r"\bdev\s*(?:fest|day|summit)\b",
+    r"\bai\s*(?:hack|build|jam|sprint|camp)\b",
+    r"\bbuild\s*(?:day|night|week|sprint|fest|jam)\b",
+    r"\bstartup\s*(?:weekend|hackathon)\b",
+    r"\bvibe\s*cod(?:e|ing)\b",
+]
+
+_KEYWORD_PATTERN = re.compile("|".join(HACKATHON_KEYWORDS), re.IGNORECASE)
+
+
+def _is_hackathon_event(name: str, description: str | None = None) -> bool:
+    """Check if an event matches hackathon keywords."""
+    text = name
+    if description:
+        text += " " + description
+    return bool(_KEYWORD_PATTERN.search(text))
+
 
 def _parse_cv_datetime(dt_str: str | None) -> datetime | None:
     """Parse CV datetime string like '2026-02-14 07:00:00'."""
@@ -138,8 +163,17 @@ def scrape_cerebralvalley(url: str = "", proxy: str | None = None) -> list[dict]
 
     events = []
     enriched = 0
+    skipped = 0
 
     for raw in raw_events:
+        name = raw.get("name", "Untitled")
+        description = raw.get("description")
+
+        # Filter: only hackathon-related events
+        if not _is_hackathon_event(name, description):
+            skipped += 1
+            continue
+
         start_dt = _parse_cv_datetime(raw.get("startDateTime"))
         end_dt = _parse_cv_datetime(raw.get("endDateTime"))
 
@@ -159,14 +193,14 @@ def scrape_cerebralvalley(url: str = "", proxy: str | None = None) -> list[dict]
                 time.sleep(0.5)  # Be kind to their API
 
         events.append({
-            "name": raw.get("name", "Untitled"),
+            "name": name,
             "location": raw.get("location"),
             "url": event_url,
             "start_date": start_dt.date() if start_dt else None,
             "end_date": end_dt.date() if end_dt else None,
             "source_url": event_url,
             "source_type": "cerebralvalley",
-            "description": raw.get("description"),
+            "description": description,
             "image_url": raw.get("imageUrl"),
             # Enriched fields
             "event_type": raw.get("type"),  # HACKATHON, etc.
@@ -175,6 +209,6 @@ def scrape_cerebralvalley(url: str = "", proxy: str | None = None) -> list[dict]
         })
 
     host_count = sum(1 for e in events if e.get("hosts"))
-    print(f"[CV] Scraped {len(events)} events ({', '.join(STATUS_FILTERS)}), {host_count} with host data")
+    print(f"[CV] Scraped {len(events)} hackathon events from {len(raw_events)} total ({skipped} filtered), {host_count} with host data")
     return events
 

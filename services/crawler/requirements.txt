@@ -1,3 +1,5 @@
 scrapling[all]>=0.3
 asyncpg>=0.30
 python-dotenv>=1.0
+geopy>=2.4
+uuid-utils>=0.9
