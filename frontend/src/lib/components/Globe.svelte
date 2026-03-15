@@ -27,6 +27,10 @@
 	let tooltipX = $state(0);
 	let tooltipY = $state(0);
 
+	// Cached canvas size — updated via ResizeObserver, never read from DOM in onRender
+	let cachedSize = 0;
+	let resizeTimer: ReturnType<typeof setTimeout> | null = null;
+
 	const today = Date.now();
 
 	function markerBrightness(dateStr: string | null): number {
@@ -48,6 +52,7 @@
 	);
 
 	const doublePi = Math.PI * 2;
+	const DPR = typeof window !== 'undefined' ? Math.min(window.devicePixelRatio, 1.5) : 1.5;
 
 	// Convert lat/lng to cobe's phi/theta
 	function locationToAngles(lat: number, lng: number): [number, number] {
@@ -127,6 +132,7 @@
 		const rafId = requestAnimationFrame(() => {
 			const size = canvasEl.offsetWidth;
 			if (!size) return;
+			cachedSize = size;
 
 			gsap.fromTo(
 				wrapperEl,
@@ -135,14 +141,14 @@
 			);
 
 			globe = createGlobe(canvasEl, {
-				devicePixelRatio: 2,
-				width: size * 2,
-				height: size * 2,
+				devicePixelRatio: DPR,
+				width: size * DPR,
+				height: size * DPR,
 				phi: 0.4,
 				theta: 0.2,
 				dark: 1,
 				diffuse: 1.2,
-				mapSamples: 24000,
+				mapSamples: 16000,
 				mapBrightness: 2,
 				mapBaseBrightness: 0.02,
 				baseColor: [0.2, 0.2, 0.2],
@@ -167,8 +173,8 @@
 
 					state.phi = currentPhi + pointerInteractionMovement;
 					state.theta = currentTheta;
-					// Use offsetWidth for BOTH — keeps globe perfectly circular
-					const s = canvasEl.offsetWidth * 2;
+					// Use cached size — never read from DOM here to avoid forced reflow
+					const s = cachedSize * DPR;
 					state.width = s;
 					state.height = s;
 					state.markers = cobeMarkers;
@@ -176,8 +182,23 @@
 			});
 		});
 
+		// Use ResizeObserver to track size changes without blocking the render loop.
+		// Throttle updates during fast GSAP scrub to prevent thrashing.
+		const ro = new ResizeObserver((entries) => {
+			const w = entries[0]?.contentRect.width;
+			if (w && Math.abs(w - cachedSize) > 2) {
+				if (resizeTimer) clearTimeout(resizeTimer);
+				resizeTimer = setTimeout(() => {
+					cachedSize = w;
+				}, 100);
+			}
+		});
+		ro.observe(canvasEl);
+
 		return () => {
 			cancelAnimationFrame(rafId);
+			if (resizeTimer) clearTimeout(resizeTimer);
+			ro.disconnect();
 			globe?.destroy();
 		};
 	});
