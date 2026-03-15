@@ -74,7 +74,13 @@ Spiders (scrape + geocode) → main.py (dedup + process) → PostgreSQL ← Back
 ```
 
 ### Frontend Architecture
-SvelteKit app at `frontend/`. Landing page is a storyboard with 7 scroll-triggered sections powered by GSAP ScrollTrigger. Hero section has an interactive cobe WebGL globe with dots at hackathon locations (lat/lng from DB). Dark theme matching analytics dashboard. Vite proxies `/api` to backend at `:8080`.
+SvelteKit app at `frontend/`. Editorial brutalist B&W design: pure black (`#000`) background, white text, `Instrument Serif` italic for display, `Space Mono` monospace for body. Grain texture overlay via SVG feTurbulence. No border-radius anywhere.
+
+Landing page is a storyboard with 7 scroll-triggered sections (hero, marquee, stats, featured events, how-it-works, pull quote, CTA) powered by GSAP ScrollTrigger. Hero has an interactive cobe WebGL globe with dots at hackathon locations (lat/lng from DB). Featured events use a magazine layout (1 featured `row-span-2` + 2 stacked right + 3 bottom row).
+
+Theme colors in `app.css` via Tailwind v4 `@theme`: `bg #000`, `surface #080808`, `elevated #141414`, `border #2a2a2a`, `text #fff`, `muted #999`, `dim #555`, `accent #e0e0e0`.
+
+All page loaders have `.catch()` fallback — landing page has hardcoded demo events, inner pages show empty states. Vite proxies `/api` to backend at `:8080`.
 
 ### Backend Structure
 Routes are registered under `/api` scope in `main.rs`. Each route module (`routes/*.rs`) contains Actix handler functions with `#[get]`/`#[post]` attributes. Models (`models/*.rs`) are DTOs with Serde derive. SQL uses correlated subqueries (not N+1) for list endpoints. IDs are UUIDv7. Input sanitized with `ammonia`, validated with `validator`.

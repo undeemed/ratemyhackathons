@@ -9,11 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **Frontend** (`frontend/`) — SvelteKit + Svelte 5 + Tailwind v4 + bun
+- **Frontend v2** — Editorial brutalist B&W redesign
+  - Pure black/white color scheme with Instrument Serif italic + Space Mono monospace
+  - Grain texture overlay (SVG feTurbulence), no border-radius
+  - Improved contrast: borders `#2a2a2a`, muted `#999`, dim `#555`, accent `#e0e0e0`
+  - EventCard redesign: corner accents, large italic rating numbers, hover accent line
+  - Magazine layout: featured `row-span-2` + 2 stacked right cards + 3 bottom row
+  - Alternating section backgrounds (bg/surface) for visual rhythm
+  - CTA with filled primary button (white on black, inverts on hover)
+  - Graceful API fallback: demo events on landing page, empty states on inner pages
+  - All page loaders wrapped in try/catch — no more 500 errors without backend
+
+- **Frontend v1** (`frontend/`) — SvelteKit + Svelte 5 + Tailwind v4 + bun
   - cobe WebGL globe with hackathon location dots on hero section
-  - GSAP ScrollTrigger storyboard landing page (7 sections: hero, stats, trending, how-it-works, companies, testimonials, CTA)
+  - GSAP ScrollTrigger storyboard landing page (7 sections: hero, marquee, stats, featured events, how-it-works, pull quote, CTA)
   - Full inner pages: events (list + detail), companies (list + detail), users, search with tabs
-  - Dark theme (#0a0a0f base, indigo accents) matching analytics dashboard
   - Typed API client (`lib/api.ts`) + TypeScript interfaces
   - Reusable components: Globe, EventCard, ReviewCard, Nav, Footer
 

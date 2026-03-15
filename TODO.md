@@ -1,6 +1,6 @@
 # RateMyHackathons — TODO
 
-> Last updated: 2026-03-14 (frontend implemented)
+> Last updated: 2026-03-14 (frontend v2 — editorial B&W redesign)
 
 ## 🔴 In Progress
 
@@ -17,10 +17,21 @@
 - [ ] Frontend: auth (login/signup)
 - [ ] Frontend: write review form on event detail page
 - [ ] Frontend: responsive polish + accessibility audit
+- [ ] Frontend: mobile navigation (hamburger menu)
+- [ ] Frontend: event images from crawler (OG image scraping)
+- [ ] Frontend: loading skeletons for API-dependent sections
 
 ## 🟢 Completed
 
-- [x] **Frontend** — SvelteKit app with cobe globe hero + GSAP scroll animations
+- [x] **Frontend v2** — Editorial brutalist B&W redesign
+  - [x] Pure black/white color scheme (Instrument Serif italic + Space Mono)
+  - [x] Grain texture overlay via SVG feTurbulence
+  - [x] Improved contrast: borders `#2a2a2a`, muted `#999`, dim `#555`
+  - [x] EventCard with corner accents, large ratings, hover animations
+  - [x] Magazine layout (featured `row-span-2` + stacked right)
+  - [x] Graceful API fallback (demo events on landing, empty states on inner pages)
+  - [x] 0 TypeScript errors across all files
+- [x] **Frontend v1** — SvelteKit app with cobe globe hero + GSAP scroll animations
   - [x] DB migration: add lat/lng to events table
   - [x] Backend: add lat/lng to models/routes + `GET /api/events/globe`
   - [x] Crawler: geocoding module (Nominatim via geopy)
@@ -46,3 +57,4 @@
 - Most hackathon sites are SPAs — use StealthyFetcher for JS rendering
 - Sponsor extraction: CSS strategies work for ~70% of sites, LLM handles the rest
 - Frontend plan: `docs/FRONTEND_PLAN.md`
+- Frontend design: B&W editorial brutalist, Instrument Serif (italic) + Space Mono, no border-radius

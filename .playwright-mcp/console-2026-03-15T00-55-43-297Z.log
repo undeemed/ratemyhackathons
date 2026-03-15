@@ -1,0 +1,370 @@
+[     147ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/favicon.png:0
+[     348ms] [WARNING] Loading /api/events/globe using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[     349ms] [WARNING] Loading /api/events?per_page=6 using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[     355ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events/globe:0
+[     356ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events?per_page=6:0
+[  517774ms] [WARNING] Loading /api/events/4 using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  517779ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events/4:0
+[  517779ms] [WARNING] The next HMR update will cause the page to reload @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  517779ms] [ERROR] Error: API 404: {"type":"error","error":{"type":"not_found_error","message":"Endpoint GET /api/events/4 not found"}}
+    at request (http://localhost:5173/src/lib/api.ts:9:11)
+    at async load (http://localhost:5173/src/routes/events/[id]/+page.ts:3:17)
+    at async load_node (http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:942:13) @ http://localhost:5173/@fs/Users/xiao/ratemyhackathons/frontend/.svelte-kit/generated/client/app.js:27
+[  517780ms] [WARNING] Preloading data for /events/4 failed with the following error: Internal Error
+If this error is transient, you can ignore it. Otherwise, consider disabling preloading for this route. This route was preloaded due to a data-sveltekit-preload-data attribute. See https://svelte.dev/docs/kit/link-options for more info @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  518529ms] [WARNING] Loading /api/events/5 using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  518531ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events/5:0
+[  518531ms] [WARNING] The next HMR update will cause the page to reload @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  518531ms] [ERROR] Error: API 404: {"type":"error","error":{"type":"not_found_error","message":"Endpoint GET /api/events/5 not found"}}
+    at request (http://localhost:5173/src/lib/api.ts:9:11)
+    at async load (http://localhost:5173/src/routes/events/[id]/+page.ts:3:17)
+    at async load_node (http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:942:13) @ http://localhost:5173/@fs/Users/xiao/ratemyhackathons/frontend/.svelte-kit/generated/client/app.js:27
+[  518531ms] [WARNING] Preloading data for /events/5 failed with the following error: Internal Error
+If this error is transient, you can ignore it. Otherwise, consider disabling preloading for this route. This route was preloaded due to a data-sveltekit-preload-data attribute. See https://svelte.dev/docs/kit/link-options for more info @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  519129ms] [WARNING] Loading /api/events/4 using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  519133ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events/4:0
+[  519133ms] [WARNING] The next HMR update will cause the page to reload @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  519133ms] [ERROR] Error: API 404: {"type":"error","error":{"type":"not_found_error","message":"Endpoint GET /api/events/4 not found"}}
+    at request (http://localhost:5173/src/lib/api.ts:9:11)
+    at async load (http://localhost:5173/src/routes/events/[id]/+page.ts:3:17)
+    at async load_node (http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:942:13) @ http://localhost:5173/@fs/Users/xiao/ratemyhackathons/frontend/.svelte-kit/generated/client/app.js:27
+[  519133ms] [WARNING] Preloading data for /events/4 failed with the following error: Internal Error
+If this error is transient, you can ignore it. Otherwise, consider disabling preloading for this route. This route was preloaded due to a data-sveltekit-preload-data attribute. See https://svelte.dev/docs/kit/link-options for more info @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  519463ms] [WARNING] Loading /api/events/1 using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  519467ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events/1:0
+[  519467ms] [WARNING] The next HMR update will cause the page to reload @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  519467ms] [ERROR] Error: API 404: {"type":"error","error":{"type":"not_found_error","message":"Endpoint GET /api/events/1 not found"}}
+    at request (http://localhost:5173/src/lib/api.ts:9:11)
+    at async load (http://localhost:5173/src/routes/events/[id]/+page.ts:3:17)
+    at async load_node (http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:942:13) @ http://localhost:5173/@fs/Users/xiao/ratemyhackathons/frontend/.svelte-kit/generated/client/app.js:27
+[  519468ms] [WARNING] Preloading data for /events/1 failed with the following error: Internal Error
+If this error is transient, you can ignore it. Otherwise, consider disabling preloading for this route. This route was preloaded due to a data-sveltekit-preload-data attribute. See https://svelte.dev/docs/kit/link-options for more info @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  521470ms] [WARNING] Loading /api/events/4 using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  521473ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events/4:0
+[  521473ms] [WARNING] The next HMR update will cause the page to reload @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  521473ms] [ERROR] Error: API 404: {"type":"error","error":{"type":"not_found_error","message":"Endpoint GET /api/events/4 not found"}}
+    at request (http://localhost:5173/src/lib/api.ts:9:11)
+    at async load (http://localhost:5173/src/routes/events/[id]/+page.ts:3:17)
+    at async load_node (http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:942:13) @ http://localhost:5173/@fs/Users/xiao/ratemyhackathons/frontend/.svelte-kit/generated/client/app.js:27
+[  521473ms] [WARNING] Preloading data for /events/4 failed with the following error: Internal Error
+If this error is transient, you can ignore it. Otherwise, consider disabling preloading for this route. This route was preloaded due to a data-sveltekit-preload-data attribute. See https://svelte.dev/docs/kit/link-options for more info @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  522324ms] [WARNING] Loading /api/events/5 using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  522329ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events/5:0
+[  522330ms] [WARNING] The next HMR update will cause the page to reload @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  522330ms] [ERROR] Error: API 404: {"type":"error","error":{"type":"not_found_error","message":"Endpoint GET /api/events/5 not found"}}
+    at request (http://localhost:5173/src/lib/api.ts:9:11)
+    at async load (http://localhost:5173/src/routes/events/[id]/+page.ts:3:17)
+    at async load_node (http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:942:13) @ http://localhost:5173/@fs/Users/xiao/ratemyhackathons/frontend/.svelte-kit/generated/client/app.js:27
+[  522330ms] [WARNING] Preloading data for /events/5 failed with the following error: Internal Error
+If this error is transient, you can ignore it. Otherwise, consider disabling preloading for this route. This route was preloaded due to a data-sveltekit-preload-data attribute. See https://svelte.dev/docs/kit/link-options for more info @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  525469ms] [WARNING] Loading /api/events/3 using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  525472ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events/3:0
+[  525473ms] [WARNING] The next HMR update will cause the page to reload @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  525473ms] [ERROR] Error: API 404: {"type":"error","error":{"type":"not_found_error","message":"Endpoint GET /api/events/3 not found"}}
+    at request (http://localhost:5173/src/lib/api.ts:9:11)
+    at async load (http://localhost:5173/src/routes/events/[id]/+page.ts:3:17)
+    at async load_node (http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:942:13) @ http://localhost:5173/@fs/Users/xiao/ratemyhackathons/frontend/.svelte-kit/generated/client/app.js:27
+[  525473ms] [WARNING] Preloading data for /events/3 failed with the following error: Internal Error
+If this error is transient, you can ignore it. Otherwise, consider disabling preloading for this route. This route was preloaded due to a data-sveltekit-preload-data attribute. See https://svelte.dev/docs/kit/link-options for more info @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  525754ms] [WARNING] Loading /api/events/5 using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  525758ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events/5:0
+[  525758ms] [WARNING] The next HMR update will cause the page to reload @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  525758ms] [ERROR] Error: API 404: {"type":"error","error":{"type":"not_found_error","message":"Endpoint GET /api/events/5 not found"}}
+    at request (http://localhost:5173/src/lib/api.ts:9:11)
+    at async load (http://localhost:5173/src/routes/events/[id]/+page.ts:3:17)
+    at async load_node (http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:942:13) @ http://localhost:5173/@fs/Users/xiao/ratemyhackathons/frontend/.svelte-kit/generated/client/app.js:27
+[  525758ms] [WARNING] Preloading data for /events/5 failed with the following error: Internal Error
+If this error is transient, you can ignore it. Otherwise, consider disabling preloading for this route. This route was preloaded due to a data-sveltekit-preload-data attribute. See https://svelte.dev/docs/kit/link-options for more info @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  538664ms] [WARNING] Loading /api/companies?page=1&per_page=20 using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  538666ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/companies?page=1&per_page=20:0
+[  538667ms] [WARNING] The next HMR update will cause the page to reload @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  538667ms] [ERROR] Error: API 404: {"type":"error","error":{"type":"not_found_error","message":"Endpoint GET /api/companies?page=1&per_page=20 not found"}}
+    at request (http://localhost:5173/src/lib/api.ts:9:11)
+    at async load (http://localhost:5173/src/routes/companies/+page.ts:4:15)
+    at async load_node (http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:942:13) @ http://localhost:5173/@fs/Users/xiao/ratemyhackathons/frontend/.svelte-kit/generated/client/app.js:27
+[  538667ms] [WARNING] Preloading data for /companies failed with the following error: Internal Error
+If this error is transient, you can ignore it. Otherwise, consider disabling preloading for this route. This route was preloaded due to a data-sveltekit-preload-data attribute. See https://svelte.dev/docs/kit/link-options for more info @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  538930ms] [WARNING] Loading /api/events?page=1&per_page=12 using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  538932ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events?page=1&per_page=12:0
+[  538932ms] [WARNING] The next HMR update will cause the page to reload @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  538932ms] [ERROR] Error: API 404: {"type":"error","error":{"type":"not_found_error","message":"Endpoint GET /api/events?page=1&per_page=12 not found"}}
+    at request (http://localhost:5173/src/lib/api.ts:9:11)
+    at async load (http://localhost:5173/src/routes/events/+page.ts:4:15)
+    at async load_node (http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:942:13) @ http://localhost:5173/@fs/Users/xiao/ratemyhackathons/frontend/.svelte-kit/generated/client/app.js:27
+[  538932ms] [WARNING] Preloading data for /events failed with the following error: Internal Error
+If this error is transient, you can ignore it. Otherwise, consider disabling preloading for this route. This route was preloaded due to a data-sveltekit-preload-data attribute. See https://svelte.dev/docs/kit/link-options for more info @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  539355ms] [WARNING] Loading /api/companies?page=1&per_page=20 using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  539359ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/companies?page=1&per_page=20:0
+[  539359ms] [WARNING] The next HMR update will cause the page to reload @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  539359ms] [ERROR] Error: API 404: {"type":"error","error":{"type":"not_found_error","message":"Endpoint GET /api/companies?page=1&per_page=20 not found"}}
+    at request (http://localhost:5173/src/lib/api.ts:9:11)
+    at async load (http://localhost:5173/src/routes/companies/+page.ts:4:15)
+    at async load_node (http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:942:13) @ http://localhost:5173/@fs/Users/xiao/ratemyhackathons/frontend/.svelte-kit/generated/client/app.js:27
+[  539360ms] [WARNING] Preloading data for /companies failed with the following error: Internal Error
+If this error is transient, you can ignore it. Otherwise, consider disabling preloading for this route. This route was preloaded due to a data-sveltekit-preload-data attribute. See https://svelte.dev/docs/kit/link-options for more info @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  539488ms] [WARNING] Loading /api/companies?page=1&per_page=20 using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  539490ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/companies?page=1&per_page=20:0
+[  539491ms] [WARNING] The next HMR update will cause the page to reload @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  539491ms] [ERROR] Error: API 404: {"type":"error","error":{"type":"not_found_error","message":"Endpoint GET /api/companies?page=1&per_page=20 not found"}}
+    at request (http://localhost:5173/src/lib/api.ts:9:11)
+    at async load (http://localhost:5173/src/routes/companies/+page.ts:4:15)
+    at async load_node (http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:942:13) @ http://localhost:5173/@fs/Users/xiao/ratemyhackathons/frontend/.svelte-kit/generated/client/app.js:27
+[  602549ms] [WARNING] Loading /api/events/globe using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  602549ms] [WARNING] Loading /api/events?per_page=6 using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  602553ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events/globe:0
+[  602554ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events?per_page=6:0
+[  618728ms] [WARNING] Loading /api/events/1 using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  618733ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events/1:0
+[  618733ms] [WARNING] The next HMR update will cause the page to reload @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  618734ms] [ERROR] Error: API 404: {"type":"error","error":{"type":"not_found_error","message":"Endpoint GET /api/events/1 not found"}}
+    at request (http://localhost:5173/src/lib/api.ts:9:11)
+    at async load (http://localhost:5173/src/routes/events/[id]/+page.ts:3:17)
+    at async load_node (http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:942:13) @ http://localhost:5173/@fs/Users/xiao/ratemyhackathons/frontend/.svelte-kit/generated/client/app.js:27
+[  618734ms] [WARNING] Preloading data for /events/1 failed with the following error: Internal Error
+If this error is transient, you can ignore it. Otherwise, consider disabling preloading for this route. This route was preloaded due to a data-sveltekit-preload-data attribute. See https://svelte.dev/docs/kit/link-options for more info @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  619066ms] [WARNING] Loading /api/events/1 using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  619069ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events/1:0
+[  619069ms] [WARNING] The next HMR update will cause the page to reload @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  619069ms] [ERROR] Error: API 404: {"type":"error","error":{"type":"not_found_error","message":"Endpoint GET /api/events/1 not found"}}
+    at request (http://localhost:5173/src/lib/api.ts:9:11)
+    at async load (http://localhost:5173/src/routes/events/[id]/+page.ts:3:17)
+    at async load_node (http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:942:13) @ http://localhost:5173/@fs/Users/xiao/ratemyhackathons/frontend/.svelte-kit/generated/client/app.js:27
+[  620679ms] [WARNING] Loading /api/events/globe using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  620679ms] [WARNING] Loading /api/events?per_page=6 using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  620683ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events/globe:0
+[  620684ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events?per_page=6:0
+[  621171ms] [WARNING] Loading /api/events/1 using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  621175ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events/1:0
+[  621176ms] [WARNING] The next HMR update will cause the page to reload @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  621176ms] [ERROR] Error: API 404: {"type":"error","error":{"type":"not_found_error","message":"Endpoint GET /api/events/1 not found"}}
+    at request (http://localhost:5173/src/lib/api.ts:9:11)
+    at async load (http://localhost:5173/src/routes/events/[id]/+page.ts:3:17)
+    at async load_node (http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:942:13) @ http://localhost:5173/@fs/Users/xiao/ratemyhackathons/frontend/.svelte-kit/generated/client/app.js:27
+[  621176ms] [WARNING] Preloading data for /events/1 failed with the following error: Internal Error
+If this error is transient, you can ignore it. Otherwise, consider disabling preloading for this route. This route was preloaded due to a data-sveltekit-preload-data attribute. See https://svelte.dev/docs/kit/link-options for more info @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  666678ms] [WARNING] Loading /api/companies?page=1&per_page=20 using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  666681ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/companies?page=1&per_page=20:0
+[  666681ms] [WARNING] The next HMR update will cause the page to reload @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  666681ms] [ERROR] Error: API 404: {"type":"error","error":{"type":"not_found_error","message":"Endpoint GET /api/companies?page=1&per_page=20 not found"}}
+    at request (http://localhost:5173/src/lib/api.ts:9:11)
+    at async load (http://localhost:5173/src/routes/companies/+page.ts:4:15)
+    at async load_node (http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:942:13) @ http://localhost:5173/@fs/Users/xiao/ratemyhackathons/frontend/.svelte-kit/generated/client/app.js:27
+[  666681ms] [WARNING] Preloading data for /companies failed with the following error: Internal Error
+If this error is transient, you can ignore it. Otherwise, consider disabling preloading for this route. This route was preloaded due to a data-sveltekit-preload-data attribute. See https://svelte.dev/docs/kit/link-options for more info @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  734043ms] [WARNING] Loading /api/events/globe using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  734043ms] [WARNING] Loading /api/events?per_page=6 using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  734054ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events/globe:0
+[  734054ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events?per_page=6:0
+[  785432ms] [WARNING] Loading /api/events/5 using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  785438ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events/5:0
+[  785438ms] [WARNING] The next HMR update will cause the page to reload @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  785438ms] [ERROR] Error: API 404: {"type":"error","error":{"type":"not_found_error","message":"Endpoint GET /api/events/5 not found"}}
+    at request (http://localhost:5173/src/lib/api.ts:9:11)
+    at async load (http://localhost:5173/src/routes/events/[id]/+page.ts:3:17)
+    at async load_node (http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:942:13) @ http://localhost:5173/@fs/Users/xiao/ratemyhackathons/frontend/.svelte-kit/generated/client/app.js:27
+[  785439ms] [WARNING] Preloading data for /events/5 failed with the following error: Internal Error
+If this error is transient, you can ignore it. Otherwise, consider disabling preloading for this route. This route was preloaded due to a data-sveltekit-preload-data attribute. See https://svelte.dev/docs/kit/link-options for more info @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  786107ms] [WARNING] Loading /api/events/4 using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  786109ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events/4:0
+[  786109ms] [WARNING] The next HMR update will cause the page to reload @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  786109ms] [ERROR] Error: API 404: {"type":"error","error":{"type":"not_found_error","message":"Endpoint GET /api/events/4 not found"}}
+    at request (http://localhost:5173/src/lib/api.ts:9:11)
+    at async load (http://localhost:5173/src/routes/events/[id]/+page.ts:3:17)
+    at async load_node (http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:942:13) @ http://localhost:5173/@fs/Users/xiao/ratemyhackathons/frontend/.svelte-kit/generated/client/app.js:27
+[  786109ms] [WARNING] Preloading data for /events/4 failed with the following error: Internal Error
+If this error is transient, you can ignore it. Otherwise, consider disabling preloading for this route. This route was preloaded due to a data-sveltekit-preload-data attribute. See https://svelte.dev/docs/kit/link-options for more info @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  786823ms] [WARNING] Loading /api/events/2 using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  786827ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events/2:0
+[  786827ms] [WARNING] The next HMR update will cause the page to reload @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  786828ms] [ERROR] Error: API 404: {"type":"error","error":{"type":"not_found_error","message":"Endpoint GET /api/events/2 not found"}}
+    at request (http://localhost:5173/src/lib/api.ts:9:11)
+    at async load (http://localhost:5173/src/routes/events/[id]/+page.ts:3:17)
+    at async load_node (http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:942:13) @ http://localhost:5173/@fs/Users/xiao/ratemyhackathons/frontend/.svelte-kit/generated/client/app.js:27
+[  786828ms] [WARNING] Preloading data for /events/2 failed with the following error: Internal Error
+If this error is transient, you can ignore it. Otherwise, consider disabling preloading for this route. This route was preloaded due to a data-sveltekit-preload-data attribute. See https://svelte.dev/docs/kit/link-options for more info @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  787173ms] [WARNING] Loading /api/events/6 using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  787175ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events/6:0
+[  787176ms] [WARNING] The next HMR update will cause the page to reload @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  787176ms] [ERROR] Error: API 404: {"type":"error","error":{"type":"not_found_error","message":"Endpoint GET /api/events/6 not found"}}
+    at request (http://localhost:5173/src/lib/api.ts:9:11)
+    at async load (http://localhost:5173/src/routes/events/[id]/+page.ts:3:17)
+    at async load_node (http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:942:13) @ http://localhost:5173/@fs/Users/xiao/ratemyhackathons/frontend/.svelte-kit/generated/client/app.js:27
+[  787176ms] [WARNING] Preloading data for /events/6 failed with the following error: Internal Error
+If this error is transient, you can ignore it. Otherwise, consider disabling preloading for this route. This route was preloaded due to a data-sveltekit-preload-data attribute. See https://svelte.dev/docs/kit/link-options for more info @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  807257ms] [WARNING] Loading /api/events/globe using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  807258ms] [WARNING] Loading /api/events?per_page=6 using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  807260ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events/globe:0
+[  807260ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events?per_page=6:0
+[  813696ms] [WARNING] Loading /api/events/1 using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  813699ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events/1:0
+[  813700ms] [WARNING] The next HMR update will cause the page to reload @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  813700ms] [ERROR] Error: API 404: {"type":"error","error":{"type":"not_found_error","message":"Endpoint GET /api/events/1 not found"}}
+    at request (http://localhost:5173/src/lib/api.ts:9:11)
+    at async load (http://localhost:5173/src/routes/events/[id]/+page.ts:3:17)
+    at async load_node (http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:942:13) @ http://localhost:5173/@fs/Users/xiao/ratemyhackathons/frontend/.svelte-kit/generated/client/app.js:27
+[  813700ms] [WARNING] Preloading data for /events/1 failed with the following error: Internal Error
+If this error is transient, you can ignore it. Otherwise, consider disabling preloading for this route. This route was preloaded due to a data-sveltekit-preload-data attribute. See https://svelte.dev/docs/kit/link-options for more info @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  814807ms] [WARNING] Loading /api/events/5 using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  814813ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events/5:0
+[  814814ms] [WARNING] The next HMR update will cause the page to reload @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  814814ms] [ERROR] Error: API 404: {"type":"error","error":{"type":"not_found_error","message":"Endpoint GET /api/events/5 not found"}}
+    at request (http://localhost:5173/src/lib/api.ts:9:11)
+    at async load (http://localhost:5173/src/routes/events/[id]/+page.ts:3:17)
+    at async load_node (http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:942:13) @ http://localhost:5173/@fs/Users/xiao/ratemyhackathons/frontend/.svelte-kit/generated/client/app.js:27
+[  814814ms] [WARNING] Preloading data for /events/5 failed with the following error: Internal Error
+If this error is transient, you can ignore it. Otherwise, consider disabling preloading for this route. This route was preloaded due to a data-sveltekit-preload-data attribute. See https://svelte.dev/docs/kit/link-options for more info @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  815473ms] [WARNING] Loading /api/events/1 using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  815476ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events/1:0
+[  815476ms] [WARNING] The next HMR update will cause the page to reload @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  815476ms] [ERROR] Error: API 404: {"type":"error","error":{"type":"not_found_error","message":"Endpoint GET /api/events/1 not found"}}
+    at request (http://localhost:5173/src/lib/api.ts:9:11)
+    at async load (http://localhost:5173/src/routes/events/[id]/+page.ts:3:17)
+    at async load_node (http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:942:13) @ http://localhost:5173/@fs/Users/xiao/ratemyhackathons/frontend/.svelte-kit/generated/client/app.js:27
+[  815476ms] [WARNING] Preloading data for /events/1 failed with the following error: Internal Error
+If this error is transient, you can ignore it. Otherwise, consider disabling preloading for this route. This route was preloaded due to a data-sveltekit-preload-data attribute. See https://svelte.dev/docs/kit/link-options for more info @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  816449ms] [WARNING] Loading /api/events/2 using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  816455ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events/2:0
+[  816456ms] [WARNING] The next HMR update will cause the page to reload @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  816456ms] [ERROR] Error: API 404: {"type":"error","error":{"type":"not_found_error","message":"Endpoint GET /api/events/2 not found"}}
+    at request (http://localhost:5173/src/lib/api.ts:9:11)
+    at async load (http://localhost:5173/src/routes/events/[id]/+page.ts:3:17)
+    at async load_node (http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:942:13) @ http://localhost:5173/@fs/Users/xiao/ratemyhackathons/frontend/.svelte-kit/generated/client/app.js:27
+[  816456ms] [WARNING] Preloading data for /events/2 failed with the following error: Internal Error
+If this error is transient, you can ignore it. Otherwise, consider disabling preloading for this route. This route was preloaded due to a data-sveltekit-preload-data attribute. See https://svelte.dev/docs/kit/link-options for more info @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  817082ms] [WARNING] Loading /api/events/3 using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  817089ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events/3:0
+[  817089ms] [WARNING] The next HMR update will cause the page to reload @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  817089ms] [ERROR] Error: API 404: {"type":"error","error":{"type":"not_found_error","message":"Endpoint GET /api/events/3 not found"}}
+    at request (http://localhost:5173/src/lib/api.ts:9:11)
+    at async load (http://localhost:5173/src/routes/events/[id]/+page.ts:3:17)
+    at async load_node (http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:942:13) @ http://localhost:5173/@fs/Users/xiao/ratemyhackathons/frontend/.svelte-kit/generated/client/app.js:27
+[  817089ms] [WARNING] Preloading data for /events/3 failed with the following error: Internal Error
+If this error is transient, you can ignore it. Otherwise, consider disabling preloading for this route. This route was preloaded due to a data-sveltekit-preload-data attribute. See https://svelte.dev/docs/kit/link-options for more info @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  817381ms] [WARNING] Loading /api/events/1 using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  817384ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events/1:0
+[  817386ms] [WARNING] The next HMR update will cause the page to reload @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  817386ms] [ERROR] Error: API 404: {"type":"error","error":{"type":"not_found_error","message":"Endpoint GET /api/events/1 not found"}}
+    at request (http://localhost:5173/src/lib/api.ts:9:11)
+    at async load (http://localhost:5173/src/routes/events/[id]/+page.ts:3:17)
+    at async load_node (http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:942:13) @ http://localhost:5173/@fs/Users/xiao/ratemyhackathons/frontend/.svelte-kit/generated/client/app.js:27
+[  817386ms] [WARNING] Preloading data for /events/1 failed with the following error: Internal Error
+If this error is transient, you can ignore it. Otherwise, consider disabling preloading for this route. This route was preloaded due to a data-sveltekit-preload-data attribute. See https://svelte.dev/docs/kit/link-options for more info @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  817848ms] [WARNING] Loading /api/events/4 using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  817851ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events/4:0
+[  817851ms] [WARNING] The next HMR update will cause the page to reload @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  817851ms] [ERROR] Error: API 404: {"type":"error","error":{"type":"not_found_error","message":"Endpoint GET /api/events/4 not found"}}
+    at request (http://localhost:5173/src/lib/api.ts:9:11)
+    at async load (http://localhost:5173/src/routes/events/[id]/+page.ts:3:17)
+    at async load_node (http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:942:13) @ http://localhost:5173/@fs/Users/xiao/ratemyhackathons/frontend/.svelte-kit/generated/client/app.js:27
+[  817851ms] [WARNING] Preloading data for /events/4 failed with the following error: Internal Error
+If this error is transient, you can ignore it. Otherwise, consider disabling preloading for this route. This route was preloaded due to a data-sveltekit-preload-data attribute. See https://svelte.dev/docs/kit/link-options for more info @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  818356ms] [WARNING] Loading /api/events/5 using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  818358ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events/5:0
+[  818358ms] [WARNING] The next HMR update will cause the page to reload @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  818359ms] [ERROR] Error: API 404: {"type":"error","error":{"type":"not_found_error","message":"Endpoint GET /api/events/5 not found"}}
+    at request (http://localhost:5173/src/lib/api.ts:9:11)
+    at async load (http://localhost:5173/src/routes/events/[id]/+page.ts:3:17)
+    at async load_node (http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:942:13) @ http://localhost:5173/@fs/Users/xiao/ratemyhackathons/frontend/.svelte-kit/generated/client/app.js:27
+[  818359ms] [WARNING] Preloading data for /events/5 failed with the following error: Internal Error
+If this error is transient, you can ignore it. Otherwise, consider disabling preloading for this route. This route was preloaded due to a data-sveltekit-preload-data attribute. See https://svelte.dev/docs/kit/link-options for more info @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  818857ms] [WARNING] Loading /api/events/6 using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  818859ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events/6:0
+[  818859ms] [WARNING] The next HMR update will cause the page to reload @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  818859ms] [ERROR] Error: API 404: {"type":"error","error":{"type":"not_found_error","message":"Endpoint GET /api/events/6 not found"}}
+    at request (http://localhost:5173/src/lib/api.ts:9:11)
+    at async load (http://localhost:5173/src/routes/events/[id]/+page.ts:3:17)
+    at async load_node (http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:942:13) @ http://localhost:5173/@fs/Users/xiao/ratemyhackathons/frontend/.svelte-kit/generated/client/app.js:27
+[  818859ms] [WARNING] Preloading data for /events/6 failed with the following error: Internal Error
+If this error is transient, you can ignore it. Otherwise, consider disabling preloading for this route. This route was preloaded due to a data-sveltekit-preload-data attribute. See https://svelte.dev/docs/kit/link-options for more info @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  819050ms] [WARNING] Loading /api/events/3 using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  819057ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events/3:0
+[  819058ms] [WARNING] The next HMR update will cause the page to reload @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  819058ms] [ERROR] Error: API 404: {"type":"error","error":{"type":"not_found_error","message":"Endpoint GET /api/events/3 not found"}}
+    at request (http://localhost:5173/src/lib/api.ts:9:11)
+    at async load (http://localhost:5173/src/routes/events/[id]/+page.ts:3:17)
+    at async load_node (http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:942:13) @ http://localhost:5173/@fs/Users/xiao/ratemyhackathons/frontend/.svelte-kit/generated/client/app.js:27
+[  819058ms] [WARNING] Preloading data for /events/3 failed with the following error: Internal Error
+If this error is transient, you can ignore it. Otherwise, consider disabling preloading for this route. This route was preloaded due to a data-sveltekit-preload-data attribute. See https://svelte.dev/docs/kit/link-options for more info @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  819332ms] [WARNING] Loading /api/events/2 using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  819408ms] [WARNING] The next HMR update will cause the page to reload @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  819408ms] [ERROR] TypeError: Failed to fetch
+    at window.fetch (http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/fetcher.js?v=51dc6465:66:10)
+    at request (http://localhost:5173/src/lib/api.ts:3:21)
+    at getEvent (http://localhost:5173/src/lib/api.ts:21:10)
+    at load (http://localhost:5173/src/routes/events/[id]/+page.ts:3:23)
+    at load_node (http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:942:39) @ http://localhost:5173/@fs/Users/xiao/ratemyhackathons/frontend/.svelte-kit/generated/client/app.js:27
+[  819408ms] [WARNING] Preloading data for /events/2 failed with the following error: Internal Error
+If this error is transient, you can ignore it. Otherwise, consider disabling preloading for this route. This route was preloaded due to a data-sveltekit-preload-data attribute. See https://svelte.dev/docs/kit/link-options for more info @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  819485ms] [WARNING] Loading /api/events/globe using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  819485ms] [WARNING] Loading /api/events?per_page=6 using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  819488ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events/globe:0
+[  819488ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events?per_page=6:0
+[  820363ms] [WARNING] Loading /api/events/2 using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  820365ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events/2:0
+[  820366ms] [WARNING] The next HMR update will cause the page to reload @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  820366ms] [ERROR] Error: API 404: {"type":"error","error":{"type":"not_found_error","message":"Endpoint GET /api/events/2 not found"}}
+    at request (http://localhost:5173/src/lib/api.ts:9:11)
+    at async load (http://localhost:5173/src/routes/events/[id]/+page.ts:3:17)
+    at async load_node (http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:942:13) @ http://localhost:5173/@fs/Users/xiao/ratemyhackathons/frontend/.svelte-kit/generated/client/app.js:27
+[  820366ms] [WARNING] Preloading data for /events/2 failed with the following error: Internal Error
+If this error is transient, you can ignore it. Otherwise, consider disabling preloading for this route. This route was preloaded due to a data-sveltekit-preload-data attribute. See https://svelte.dev/docs/kit/link-options for more info @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  821840ms] [WARNING] Loading /api/events/5 using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  821842ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events/5:0
+[  821843ms] [WARNING] The next HMR update will cause the page to reload @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  821843ms] [ERROR] Error: API 404: {"type":"error","error":{"type":"not_found_error","message":"Endpoint GET /api/events/5 not found"}}
+    at request (http://localhost:5173/src/lib/api.ts:9:11)
+    at async load (http://localhost:5173/src/routes/events/[id]/+page.ts:3:17)
+    at async load_node (http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:942:13) @ http://localhost:5173/@fs/Users/xiao/ratemyhackathons/frontend/.svelte-kit/generated/client/app.js:27
+[  821843ms] [WARNING] Preloading data for /events/5 failed with the following error: Internal Error
+If this error is transient, you can ignore it. Otherwise, consider disabling preloading for this route. This route was preloaded due to a data-sveltekit-preload-data attribute. See https://svelte.dev/docs/kit/link-options for more info @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  837665ms] [WARNING] Loading /api/events/3 using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  837671ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events/3:0
+[  837671ms] [WARNING] The next HMR update will cause the page to reload @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  837671ms] [ERROR] Error: API 404: {"type":"error","error":{"type":"not_found_error","message":"Endpoint GET /api/events/3 not found"}}
+    at request (http://localhost:5173/src/lib/api.ts:9:11)
+    at async load (http://localhost:5173/src/routes/events/[id]/+page.ts:3:17)
+    at async load_node (http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:942:13) @ http://localhost:5173/@fs/Users/xiao/ratemyhackathons/frontend/.svelte-kit/generated/client/app.js:27
+[  837671ms] [WARNING] Preloading data for /events/3 failed with the following error: Internal Error
+If this error is transient, you can ignore it. Otherwise, consider disabling preloading for this route. This route was preloaded due to a data-sveltekit-preload-data attribute. See https://svelte.dev/docs/kit/link-options for more info @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  837965ms] [WARNING] Loading /api/events/5 using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  837969ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events/5:0
+[  837970ms] [WARNING] The next HMR update will cause the page to reload @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  837970ms] [ERROR] Error: API 404: {"type":"error","error":{"type":"not_found_error","message":"Endpoint GET /api/events/5 not found"}}
+    at request (http://localhost:5173/src/lib/api.ts:9:11)
+    at async load (http://localhost:5173/src/routes/events/[id]/+page.ts:3:17)
+    at async load_node (http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:942:13) @ http://localhost:5173/@fs/Users/xiao/ratemyhackathons/frontend/.svelte-kit/generated/client/app.js:27
+[  837970ms] [WARNING] Preloading data for /events/5 failed with the following error: Internal Error
+If this error is transient, you can ignore it. Otherwise, consider disabling preloading for this route. This route was preloaded due to a data-sveltekit-preload-data attribute. See https://svelte.dev/docs/kit/link-options for more info @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  842214ms] [WARNING] Loading /api/events/1 using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  842216ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events/1:0
+[  842217ms] [WARNING] The next HMR update will cause the page to reload @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[  842217ms] [ERROR] Error: API 404: {"type":"error","error":{"type":"not_found_error","message":"Endpoint GET /api/events/1 not found"}}
+    at request (http://localhost:5173/src/lib/api.ts:9:11)
+    at async load (http://localhost:5173/src/routes/events/[id]/+page.ts:3:17)
+    at async load_node (http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:942:13) @ http://localhost:5173/@fs/Users/xiao/ratemyhackathons/frontend/.svelte-kit/generated/client/app.js:27
+[  842217ms] [WARNING] Preloading data for /events/1 failed with the following error: Internal Error
+If this error is transient, you can ignore it. Otherwise, consider disabling preloading for this route. This route was preloaded due to a data-sveltekit-preload-data attribute. See https://svelte.dev/docs/kit/link-options for more info @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[ 1164919ms] [WARNING] Loading /api/events/globe using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[ 1164920ms] [WARNING] Loading /api/events?per_page=6 using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[ 1164926ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events/globe:0
+[ 1164927ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events?per_page=6:0
+[ 1166508ms] [WARNING] Loading /api/events/globe using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[ 1166509ms] [WARNING] Loading /api/events?per_page=6 using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[ 1166512ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events/globe:0
+[ 1166513ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events?per_page=6:0
+[ 1168423ms] [WARNING] Loading /api/events/globe using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[ 1168423ms] [WARNING] Loading /api/events?per_page=6 using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[ 1168427ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events/globe:0
+[ 1168428ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events?per_page=6:0
+[ 1169512ms] [WARNING] Loading /api/events/globe using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[ 1169513ms] [WARNING] Loading /api/events?per_page=6 using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[ 1169521ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events/globe:0
+[ 1169524ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events?per_page=6:0
+[ 1183169ms] [WARNING] Loading /api/events/globe using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[ 1183169ms] [WARNING] Loading /api/events?per_page=6 using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[ 1183172ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events/globe:0
+[ 1183172ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events?per_page=6:0
+[ 1227873ms] [WARNING] Loading /api/events/globe using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[ 1227873ms] [WARNING] Loading /api/events?per_page=6 using `window.fetch`. For best results, use the `fetch` that is passed to your `load` function: https://svelte.dev/docs/kit/load#making-fetch-requests @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=51dc6465:3298
+[ 1227877ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events/globe:0
+[ 1227877ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/events?per_page=6:0

@@ -12,7 +12,7 @@ A platform for rating, reviewing, and discovering hackathon events. Search by **
 | Database | PostgreSQL | Many-to-many relations, full-text search (`tsvector`), JSONB for crawler data |
 | Query Layer | [SQLx](https://github.com/launchbadge/sqlx) | Async-native, compile-time checked SQL |
 | IDs | UUIDv7 | Time-ordered for efficient B-tree indexing |
-| Frontend | SvelteKit + Svelte 5 + Tailwind v4 + cobe globe + GSAP | Dark theme, 7-section storyboard landing page, WebGL globe |
+| Frontend | SvelteKit + Svelte 5 + Tailwind v4 + cobe globe + GSAP | Editorial brutalist B&W design, Instrument Serif + Space Mono, WebGL globe, GSAP scroll animations |
 
 ## Data Schema
 

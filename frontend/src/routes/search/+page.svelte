@@ -5,7 +5,7 @@
 
 	let { data }: { data: PageData } = $props();
 
-	let searchQuery = $state(data.q);
+	let searchQuery = $state(data.q || '');
 	let activeTab = $state<'events' | 'companies' | 'users'>('events');
 
 	function handleSearch(e: SubmitEvent) {
