@@ -27,10 +27,6 @@
 	let tooltipX = $state(0);
 	let tooltipY = $state(0);
 
-	// Cached canvas size — updated via ResizeObserver, never read from DOM in onRender
-	let cachedSize = 0;
-	let resizeTimer: ReturnType<typeof setTimeout> | null = null;
-
 	const today = Date.now();
 
 	function markerBrightness(dateStr: string | null): number {
@@ -52,7 +48,6 @@
 	);
 
 	const doublePi = Math.PI * 2;
-	const DPR = typeof window !== 'undefined' ? Math.min(window.devicePixelRatio, 1.5) : 1.5;
 
 	// Convert lat/lng to cobe's phi/theta
 	function locationToAngles(lat: number, lng: number): [number, number] {
@@ -130,9 +125,15 @@
 		// parent's onMount (which sets GSAP dimensions) hasn't run yet.
 		// requestAnimationFrame fires after all onMounts + browser layout.
 		const rafId = requestAnimationFrame(() => {
-			const size = canvasEl.offsetWidth;
-			if (!size) return;
-			cachedSize = size;
+			// Follow cobe's official pattern: cache width via resize listener,
+			// never read offsetWidth inside onRender (avoids forced reflows).
+			let width = canvasEl.offsetWidth;
+			if (!width) return;
+
+			const onResize = () => {
+				if (canvasEl) width = canvasEl.offsetWidth;
+			};
+			window.addEventListener('resize', onResize);
 
 			gsap.fromTo(
 				wrapperEl,
@@ -141,14 +142,14 @@
 			);
 
 			globe = createGlobe(canvasEl, {
-				devicePixelRatio: DPR,
-				width: size * DPR,
-				height: size * DPR,
+				devicePixelRatio: 2,
+				width: width * 2,
+				height: width * 2,
 				phi: 0.4,
 				theta: 0.2,
 				dark: 1,
 				diffuse: 1.2,
-				mapSamples: 16000,
+				mapSamples: 12000,
 				mapBrightness: 2,
 				mapBaseBrightness: 0.02,
 				baseColor: [0.2, 0.2, 0.2],
@@ -157,6 +158,7 @@
 				markers: cobeMarkers,
 				onRender: (state) => {
 					// When focus is set (showcase mode), rotate to that location
+					// and DON'T auto-spin — avoids conflicting with GSAP's tween
 					if (focus && focus.lat !== 0 && focus.lng !== 0) {
 						const [targetPhi, targetTheta] = locationToAngles(focus.lat, focus.lng);
 						const distPos = (targetPhi - currentPhi + doublePi) % doublePi;
@@ -168,37 +170,27 @@
 						}
 						currentTheta = currentTheta * 0.94 + targetTheta * 0.06;
 					} else if (pointerInteracting === null) {
+						// Auto-spin only when idle (no focus, no dragging)
 						currentPhi += 0.002;
 					}
 
 					state.phi = currentPhi + pointerInteractionMovement;
 					state.theta = currentTheta;
-					// Use cached size — never read from DOM here to avoid forced reflow
-					const s = cachedSize * DPR;
-					state.width = s;
-					state.height = s;
+					state.width = width * 2;
+					state.height = width * 2;
 					state.markers = cobeMarkers;
 				},
 			});
-		});
 
-		// Use ResizeObserver to track size changes without blocking the render loop.
-		// Throttle updates during fast GSAP scrub to prevent thrashing.
-		const ro = new ResizeObserver((entries) => {
-			const w = entries[0]?.contentRect.width;
-			if (w && Math.abs(w - cachedSize) > 2) {
-				if (resizeTimer) clearTimeout(resizeTimer);
-				resizeTimer = setTimeout(() => {
-					cachedSize = w;
-				}, 100);
-			}
+			// Store cleanup ref for resize listener
+			(canvasEl as any).__cleanupResize = () => {
+				window.removeEventListener('resize', onResize);
+			};
 		});
-		ro.observe(canvasEl);
 
 		return () => {
 			cancelAnimationFrame(rafId);
-			if (resizeTimer) clearTimeout(resizeTimer);
-			ro.disconnect();
+			(canvasEl as any)?.__cleanupResize?.();
 			globe?.destroy();
 		};
 	});
