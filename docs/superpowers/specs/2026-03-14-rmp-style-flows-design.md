@@ -187,14 +187,17 @@ POST /api/reviews  [Auth required]
 }
 ```
 
-Inserts into `reviews` + batch-inserts 10 rows into `review_ratings` + inserts into `review_tags`. All in a transaction.
+The `rating` field is computed as the average of the 10 category scores (rounded to nearest integer) at insert time. All 10 categories are required. Inserts into `reviews` + batch-inserts 10 rows into `review_ratings` + inserts into `review_tags`. All in a transaction.
 
 #### Tags
 
 ```
-GET /api/tags                                          — list all tags
-GET /api/tags/top?entity_type=event&entity_id=uuid     — top tags for entity
+GET  /api/tags                                          — list all tags
+GET  /api/tags/top?entity_type=event&entity_id=uuid     — top tags for entity
+POST /api/tags  [Auth required]                         — create a new tag
 ```
+
+`POST /api/tags` body: `{"name": "well-organized"}`. Returns existing tag if name matches (case-insensitive). Used by the rate form's "suggest new tag" feature.
 
 #### Compare
 
