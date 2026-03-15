@@ -1,6 +1,9 @@
 import type { PageLoad } from './$types';
 import { getGlobeMarkers, listEvents } from '$lib/api';
 
+// Homepage uses cobe (WebGL globe) which requires browser APIs
+export const ssr = false;
+
 export const load: PageLoad = async () => {
 	const [markers, eventsRes] = await Promise.all([
 		getGlobeMarkers().catch(() => []),

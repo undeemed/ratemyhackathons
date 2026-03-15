@@ -47,6 +47,9 @@
 		})
 	);
 
+	// Track previous markers to avoid reassigning every frame
+	let prevMarkerRef: typeof cobeMarkers | null = null;
+
 	const doublePi = Math.PI * 2;
 
 	// Convert lat/lng to cobe's phi/theta
@@ -145,15 +148,17 @@
 				{ opacity: 1, duration: 1.5, ease: 'power2.out', delay: 0.2 }
 			);
 
+			const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
 			globe = createGlobe(canvasEl, {
-				devicePixelRatio: 2,
+				devicePixelRatio: dpr,
 				width: width * 2,
 				height: width * 2,
 				phi: 0.4,
 				theta: 0.2,
 				dark: 1,
 				diffuse: 1.2,
-				mapSamples: 20000,
+				mapSamples: 16000,
 				mapBrightness: 2,
 				mapBaseBrightness: 0.02,
 				baseColor: [0.2, 0.2, 0.2],
@@ -184,9 +189,13 @@
 					state.theta = currentTheta;
 					state.width = width * 2;
 					state.height = width * 2;
-					state.markers = cobeMarkers;
-					// High-res when large (hero), lower when shrunk (showcase)
-					state.mapSamples = (focus && focus.lat !== 0) ? 12000 : 20000;
+					// Only reassign markers when the derived array actually changes
+					if (cobeMarkers !== prevMarkerRef) {
+						state.markers = cobeMarkers;
+						prevMarkerRef = cobeMarkers;
+					}
+					// Reduced mapSamples: 8k when zoomed (showcase), 16k for hero
+					state.mapSamples = (focus && focus.lat !== 0) ? 8000 : 16000;
 				},
 			});
 

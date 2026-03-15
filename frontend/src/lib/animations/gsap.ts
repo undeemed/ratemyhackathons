@@ -13,7 +13,7 @@ function ensureRegistered() {
 export function fadeIn(node: HTMLElement, params?: { delay?: number; duration?: number; y?: number }) {
 	ensureRegistered();
 	const { delay = 0, duration = 0.8, y = 40 } = params ?? {};
-	gsap.fromTo(
+	const tween = gsap.fromTo(
 		node,
 		{ opacity: 0, y },
 		{
@@ -22,13 +22,14 @@ export function fadeIn(node: HTMLElement, params?: { delay?: number; duration?: 
 			scrollTrigger: { trigger: node, start: 'top 85%', toggleActions: 'play none none none' },
 		}
 	);
-	return { destroy() { ScrollTrigger.getAll().forEach((t) => { if (t.trigger === node) t.kill(); }); } };
+	const st = tween.scrollTrigger;
+	return { destroy() { st?.kill(); tween.kill(); } };
 }
 
 export function slideUp(node: HTMLElement, params?: { delay?: number; duration?: number }) {
 	ensureRegistered();
 	const { delay = 0, duration = 0.8 } = params ?? {};
-	gsap.fromTo(
+	const tween = gsap.fromTo(
 		node,
 		{ opacity: 0, y: 60 },
 		{
@@ -37,13 +38,14 @@ export function slideUp(node: HTMLElement, params?: { delay?: number; duration?:
 			scrollTrigger: { trigger: node, start: 'top 85%', toggleActions: 'play none none none' },
 		}
 	);
-	return { destroy() { ScrollTrigger.getAll().forEach((t) => { if (t.trigger === node) t.kill(); }); } };
+	const st = tween.scrollTrigger;
+	return { destroy() { st?.kill(); tween.kill(); } };
 }
 
 export function staggerChildren(node: HTMLElement, params?: { stagger?: number; y?: number }) {
 	ensureRegistered();
 	const { stagger = 0.1, y = 30 } = params ?? {};
-	gsap.fromTo(
+	const tween = gsap.fromTo(
 		node.children,
 		{ opacity: 0, y },
 		{
@@ -52,12 +54,13 @@ export function staggerChildren(node: HTMLElement, params?: { stagger?: number; 
 			scrollTrigger: { trigger: node, start: 'top 85%', toggleActions: 'play none none none' },
 		}
 	);
-	return { destroy() { ScrollTrigger.getAll().forEach((t) => { if (t.trigger === node) t.kill(); }); } };
+	const st = tween.scrollTrigger;
+	return { destroy() { st?.kill(); tween.kill(); } };
 }
 
 export function globeReveal(node: HTMLElement) {
 	ensureRegistered();
-	gsap.fromTo(
+	const tween = gsap.fromTo(
 		node,
 		{ opacity: 0, x: 200, scale: 0.7, rotation: -40 },
 		{
@@ -71,7 +74,8 @@ export function globeReveal(node: HTMLElement) {
 			},
 		}
 	);
-	return { destroy() { ScrollTrigger.getAll().forEach((t) => { if (t.trigger === node) t.kill(); }); } };
+	const st = tween.scrollTrigger;
+	return { destroy() { st?.kill(); tween.kill(); } };
 }
 
 export function countUp(node: HTMLElement, params: { target: number; duration?: number; prefix?: string; suffix?: string }) {
@@ -79,7 +83,7 @@ export function countUp(node: HTMLElement, params: { target: number; duration?: 
 	const { target, duration = 2, prefix = '', suffix = '' } = params;
 	const obj = { val: 0 };
 	let lastDisplay = -1;
-	gsap.to(obj, {
+	const tween = gsap.to(obj, {
 		val: target, duration,
 		ease: 'power1.out',
 		scrollTrigger: { trigger: node, start: 'top 85%', toggleActions: 'play none none none' },
@@ -91,5 +95,6 @@ export function countUp(node: HTMLElement, params: { target: number; duration?: 
 			}
 		},
 	});
-	return { destroy() { ScrollTrigger.getAll().forEach((t) => { if (t.trigger === node) t.kill(); }); } };
+	const st = tween.scrollTrigger;
+	return { destroy() { st?.kill(); tween.kill(); } };
 }
