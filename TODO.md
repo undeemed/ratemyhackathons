@@ -17,6 +17,8 @@
 
 ## Completed
 
+- [x] **Fix: ScrollTrigger ghost layout on navigation** — `beforeNavigate` kills pin spacer before SvelteKit swaps pages
+- [x] **Fix: Globe too dim** — bumped diffuse, mapBrightness, baseColor, glowColor, marker brightness floors
 - [x] **Internal Admin Dashboard** — multi-page analytics dashboard
   - [x] Sidebar navigation (Overview, Events, Crawl Sources, Reviews)
   - [x] Overview: entity counts, crawl stats, live SSE feed, trending, ratings, recent reviews
