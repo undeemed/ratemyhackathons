@@ -1,16 +1,10 @@
 # RateMyHackathons — TODO
 
-> Last updated: 2026-03-13 (API recon complete)
+> Last updated: 2026-03-14 (frontend implemented)
 
 ## 🔴 In Progress
 
 - [ ] Fix LLM sponsor extraction — add paid model fallback for reliability
-- [x] Investigate AIDA MCP for discovering event data endpoints (CV, Luma, etc.)
-  - See `services/crawler/cv/API_RECON.md` for full report
-- [x] Build CV (Cerebral Valley) spider — **PUBLIC API cracked: `GET /v1/public/event/pull?featured=true`** (no auth!)
-  - ✅ Dry run: **9,258 events** extracted (featured + approved)
-- [x] Build Luma spider — **open API at `api.lu.ma/discover/get-paginated-events`** (no auth, JSON, cursor-paginated)
-  - ✅ Dry run: **920 events** extracted (20 pages)
 
 ## 🟡 Planned
 
@@ -20,19 +14,30 @@
 - [ ] Rate-limit sponsor scraping (avoid hammering event sites)
 - [ ] Dashboard: sponsor analytics panel (top sponsors, sponsor frequency)
 - [ ] Integration tests for spider → DB pipeline
+- [ ] Frontend: auth (login/signup)
+- [ ] Frontend: write review form on event detail page
+- [ ] Frontend: responsive polish + accessibility audit
 
 ## 🟢 Completed
 
+- [x] **Frontend** — SvelteKit app with cobe globe hero + GSAP scroll animations
+  - [x] DB migration: add lat/lng to events table
+  - [x] Backend: add lat/lng to models/routes + `GET /api/events/globe`
+  - [x] Crawler: geocoding module (Nominatim via geopy)
+  - [x] Frontend scaffold (SvelteKit + Tailwind v4 + bun)
+  - [x] Landing page storyboard (7 sections with GSAP ScrollTrigger)
+  - [x] Inner pages (events, companies, users, search)
 - [x] MLH spider — 194 events, correct name/location parsing
 - [x] Hackiterate spider — 6 events via StealthyFetcher (Playwright)
-- [x] Sponsor scraper — 4-strategy extraction (CSS class/id, headings, src path, LLM fallback)
-- [x] LLM module — dynamic free model discovery from OpenRouter `/api/v1/models`
-- [x] Provider-priority rotation (Google first)
+- [x] CV spider — 9,258 events via public API
+- [x] Luma spider — 920 events via discover API
+- [x] Sponsor scraper — 4-strategy extraction
+- [x] LLM module — dynamic free model discovery from OpenRouter
 - [x] Analytics Rust API + SvelteKit dashboard
 - [x] Backend API (Actix-web, PostgreSQL)
-- [x] Sub-READMEs with UML diagrams for backend, services, crawler, analytics
+- [x] API recon for CV, Luma, MLH, Hackiterate
 - [x] Root README with doc links, getting started guide
-- [x] CHANGELOG
+- [x] CLAUDE.md with context7 MCP requirement
 
 ## 📝 Notes
 
@@ -40,3 +45,4 @@
 - Use paid models as fallback when free tier is congested
 - Most hackathon sites are SPAs — use StealthyFetcher for JS rendering
 - Sponsor extraction: CSS strategies work for ~70% of sites, LLM handles the rest
+- Frontend plan: `docs/FRONTEND_PLAN.md`

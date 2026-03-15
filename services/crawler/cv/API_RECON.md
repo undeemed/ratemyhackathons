@@ -1,6 +1,6 @@
 # API Recon — Cerebral Valley
 
-> Date: 2026-03-13 | Tools: AIDA Exegol + JS bundle analysis + HTTP probing
+> Date: 2026-03-14 | Tools: AIDA Exegol + JS bundle analysis + HTTP probing
 
 ---
 
@@ -15,8 +15,8 @@ GET /public/event/pull?{status}=true
 ```
 
 **Status Filters** (one required):
-- `featured=true` — Featured/promoted events
-- `approved=true` — Community-approved events
+- `featured=true` — Featured/promoted events (~9 events)
+- `approved=true` — Community-approved events (~9,200+ events)
 - `pending=true` — Pending review
 - `denied=true` — Denied events
 
@@ -27,26 +27,65 @@ GET /public/event/pull?{status}=true
   "events": [
     {
       "id": "ac3987b5-...",
-      "name": "Gemini 3 Bengaluru Hackathon",
+      "name": "Gemini 3 Paris Hackathon",
       "description": "Full event description...",
       "descriptionSummary": "AI-generated summary...",
       "startDateTime": "2026-02-14 07:00:00",
       "endDateTime": "2026-02-14 20:00:00",
-      "url": "https://cerebralvalley.ai/e/gemini-3-bengaluru-hackathon",
-      "location": "Bengaluru, India",
+      "url": "https://cerebralvalley.ai/e/gemini-3-paris-hackathon",
+      "location": "Paris",
       "venue": null,
       "type": "HACKATHON",
       "status": "featured",
       "imageUrl": "https://cdn.cerebralvalley.ai/...",
-      "CVEvent": true,
-      "featuredStartTime": "2026-01-27 00:00:00",
-      "featuredEndTime": "2026-03-14 00:00:00"
+      "CVEvent": true
     }
   ]
 }
 ```
 
-### 2. Event Search
+### 2. Event Detail (with hosts!)
+
+```
+GET /event/{slug}
+```
+
+**No auth required.** Returns the full event with host profiles.
+
+```json
+{
+  "event": { "...same fields as pull..." },
+  "hosts": [
+    {
+      "role": "co-host",
+      "userProfile": {
+        "firstName": "Google DeepMind",
+        "lastName": "",
+        "handle": "deepmind",
+        "isOrganizationAccount": true,
+        "xHandle": "googledeepmind",
+        "linkedinUsername": "...",
+        "githubUsername": "...",
+        "siteUrl": null,
+        "description": "...",
+        "avatarUrl": "https://cdn.cerebralvalley.ai/..."
+      }
+    }
+  ],
+  "questions": [...],
+  "media": [...]
+}
+```
+
+**Key fields per host:**
+- `firstName` + `lastName` → display name
+- `isOrganizationAccount` → distinguishes companies from individuals
+- `xHandle` → Twitter/X username
+- `linkedinUsername`, `githubUsername`, `siteUrl`
+- `handle` → CV profile slug
+- `role` → "co-host", etc.
+
+### 3. Event Search
 
 ```
 POST /search/event/search
@@ -55,87 +94,44 @@ Content-Type: application/json
 {"tz": "America/Los_Angeles", "query": "hackathon"}
 ```
 
-**Response:**
-```json
-{
-  "detail": "Public event search executed successfully",
-  "results": {
-    "numTotalMatches": 5,
-    "numDirectMatches": 5,
-    "numVectorMatches": 0,
-    "matches": [
-      {
-        "data": {
-          "id": "36efc3ed-...",
-          "name": "Hackathon",
-          "startDateTime": "2026-03-19 17:30:00",
-          "endDateTime": "2026-03-20 02:30:00",
-          "url": "http://hackathon.tempo.xyz",
-          "location": "San Francisco, CA",
-          "venue": null,
-          "imageUrl": null,
-          "descriptionSummary": "...",
-          "description": "..."
-        },
-        "metadata": {
-          "matchType": "keyword",
-          "onlyId": false
-        }
-      }
-    ]
-  }
-}
-```
-
-### 3. Event Detail (auth needed)
-
-```
-GET /v1/event/{slug}
-```
-Returns event detail but requires Clerk JWT auth header.
+Returns same basic fields as pull (no hosts).
 
 ### Data Available Per Event
 
-- ✅ Event ID (UUID)
-- ✅ Name
-- ✅ Full description + AI summary
-- ✅ Start/end dates
-- ✅ Location (city, country)
-- ✅ Venue name
-- ✅ Event type (HACKATHON, etc.)
-- ✅ Status (featured, approved, pending, denied)
-- ✅ Image URL (CDN)
-- ✅ Event page URL
-- ✅ CVEvent flag (own vs community events)
-- ✅ Featured start/end times
+| Field | Pull | Detail |
+|---|---|---|
+| Name, description, AI summary | ✅ | ✅ |
+| Start/end dates | ✅ | ✅ |
+| Location, venue | ✅ | ✅ |
+| Event type (HACKATHON, etc.) | ✅ | ✅ |
+| Image URL | ✅ | ✅ |
+| **Hosts/organizers** | ❌ | ✅ |
+| **Host socials** (Twitter, LinkedIn, GitHub) | ❌ | ✅ |
+| **isOrganizationAccount** | ❌ | ✅ |
+| Media (videos, images) | ❌ | ✅ |
+| Registration questions | ❌ | ✅ |
+
+### ⚠️ URL Overlap with Luma
+
+67% of approved events (6,238/9,258) link to external platforms:
+- `lu.ma` / `luma.com`: 6,238 events
+- `partiful.com`: 1,048 events
+- `eventbrite.com`: 553 events
+- `meetup.com`: 304 events
+
+Only ~30 events are CV-hosted (`cerebralvalley.ai/e/...`).
+Cross-source dedup via URL normalization is required.
 
 ### Spider Strategy
 
-Simple HTTP with `urllib`. No StealthyFetcher needed!
-
-```python
-# Pull all featured events
-GET https://api.cerebralvalley.ai/v1/public/event/pull?featured=true
-
-# Pull all approved events
-GET https://api.cerebralvalley.ai/v1/public/event/pull?approved=true
-
-# Search for specific event types
-POST https://api.cerebralvalley.ai/v1/search/event/search
-Body: {"tz": "America/Los_Angeles", "query": "hackathon"}
-```
+1. Pull featured + approved events via public endpoint
+2. Enrich CV-hosted events with host data via detail endpoint
+3. Deduplicate against Luma events by normalized URL
 
 ### Tech Stack (discovered via JS analysis)
 - **Framework**: Next.js (Turbopack)
-- **Auth**: Clerk (`pk_live_Y2xlcmsuY2VyZWJyYWx2YWxsZXkuYWkk`)
+- **Auth**: Clerk
 - **Backend**: Express.js API at `api.cerebralvalley.ai`
-- **Database**: Supabase (backend-only, not client-exposed)
+- **Database**: Supabase
 - **Analytics**: PostHog
 - **Search**: Hybrid keyword + vector search
-
-### How We Found It
-
-1. Downloaded all 37 JS bundles → grepped for `fetch()` calls
-2. Found `/public/event/pull` and `/search/event/search`
-3. Tested with params from error messages
-4. AIDA Exegol used for curl through Docker container

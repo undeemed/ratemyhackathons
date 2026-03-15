@@ -16,6 +16,8 @@ pub struct Event {
     pub start_date: Option<NaiveDate>,
     pub end_date: Option<NaiveDate>,
     pub image_url: Option<String>,
+    pub latitude: Option<f64>,
+    pub longitude: Option<f64>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
@@ -31,6 +33,8 @@ pub struct EventRow {
     pub start_date: Option<NaiveDate>,
     pub end_date: Option<NaiveDate>,
     pub image_url: Option<String>,
+    pub latitude: Option<f64>,
+    pub longitude: Option<f64>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub avg_rating: Option<f64>,
@@ -70,6 +74,8 @@ pub struct EventSummary {
     pub start_date: Option<NaiveDate>,
     pub end_date: Option<NaiveDate>,
     pub image_url: Option<String>,
+    pub latitude: Option<f64>,
+    pub longitude: Option<f64>,
     pub companies: Vec<EventCompanyRef>,
     pub avg_rating: Option<f64>,
     pub review_count: i64,
@@ -86,6 +92,8 @@ pub struct EventDetail {
     pub start_date: Option<NaiveDate>,
     pub end_date: Option<NaiveDate>,
     pub image_url: Option<String>,
+    pub latitude: Option<f64>,
+    pub longitude: Option<f64>,
     pub companies: Vec<EventCompanyRef>,
     pub reviews: Vec<EventReviewRef>,
     pub avg_rating: Option<f64>,
@@ -133,4 +141,17 @@ pub struct CreateEvent {
     pub image_url: Option<String>,
 
     pub company_ids: Option<Vec<Uuid>>,
+
+    pub latitude: Option<f64>,
+    pub longitude: Option<f64>,
+}
+
+/// Lightweight marker for globe visualization
+#[derive(Debug, Serialize, FromRow)]
+pub struct GlobeMarker {
+    pub id: Uuid,
+    pub name: String,
+    pub latitude: f64,
+    pub longitude: f64,
+    pub start_date: Option<NaiveDate>,
 }

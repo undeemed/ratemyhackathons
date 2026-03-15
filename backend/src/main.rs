@@ -60,6 +60,7 @@ async fn main() -> std::io::Result<()> {
                     .service(routes::events::list_events)
                     .service(routes::events::get_event)
                     .service(routes::events::create_event)
+                    .service(routes::events::globe_markers)
                     .service(routes::companies::list_companies)
                     .service(routes::companies::get_company)
                     .service(routes::companies::create_company)

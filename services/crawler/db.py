@@ -134,3 +134,15 @@ async def find_events_by_name_window(
         days_window,
     )
     return [dict(r) for r in rows]
+
+
+async def update_event_coords(
+    pool, event_id, latitude: float, longitude: float
+):
+    """Update an event's geocoded coordinates."""
+    await pool.execute(
+        "UPDATE events SET latitude = $1, longitude = $2 WHERE id = $3",
+        latitude,
+        longitude,
+        event_id,
+    )

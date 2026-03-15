@@ -18,6 +18,7 @@ from dedup import make_source_hash, is_fuzzy_duplicate
 from proxy import get_single_proxy
 from company import detect_companies
 from sponsors import scrape_sponsors
+from geocode import geocode_location
 from spiders.mlh import scrape_mlh
 from spiders.hackiterate import scrape_hackiterate
 from spiders.cerebralvalley import scrape_cerebralvalley
@@ -98,7 +99,14 @@ async def process_events(
             source_hash=source_hash,
         )
 
-        # 4. Best-effort company detection (regex on name/desc)
+        # 4. Geocode location → lat/lng
+        location_text = event.get("location")
+        coords = geocode_location(location_text)
+        if coords:
+            await db.update_event_coords(pool, event_id, coords[0], coords[1])
+            print(f"  [GEO] {event['name']}: {coords[0]:.4f}, {coords[1]:.4f}")
+
+        # 5. Best-effort company detection (regex on name/desc)
         text_to_scan = " ".join(filter(None, [
             event.get("name", ""),
             event.get("description", ""),
@@ -111,7 +119,7 @@ async def process_events(
                 f" to '{event['name']}'"
             )
 
-        # 5. Scrape sponsors from event's own website
+        # 6. Scrape sponsors from event's own website
         event_url = event.get("url", "")
         if event_url:
             try:

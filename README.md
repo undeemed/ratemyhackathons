@@ -12,7 +12,7 @@ A platform for rating, reviewing, and discovering hackathon events. Search by **
 | Database | PostgreSQL | Many-to-many relations, full-text search (`tsvector`), JSONB for crawler data |
 | Query Layer | [SQLx](https://github.com/launchbadge/sqlx) | Async-native, compile-time checked SQL |
 | IDs | UUIDv7 | Time-ordered for efficient B-tree indexing |
-| Frontend | SvelteKit + Bun *(coming soon)* | |
+| Frontend | SvelteKit + Svelte 5 + Tailwind v4 + cobe globe + GSAP | Dark theme, 7-section storyboard landing page, WebGL globe |
 
 ## Data Schema
 
@@ -36,6 +36,8 @@ erDiagram
         date start_date
         date end_date
         text image_url
+        float latitude
+        float longitude
         tsvector search_vector
         timestamptz created_at
         timestamptz updated_at
@@ -137,6 +139,20 @@ erDiagram
 
 ```
 ratemyhackathons/
+├── frontend/              # SvelteKit frontend
+│   ├── src/
+│   │   ├── app.css       # Dark theme (Tailwind v4)
+│   │   ├── lib/
+│   │   │   ├── api.ts         # Typed API client
+│   │   │   ├── types.ts       # TypeScript interfaces
+│   │   │   ├── animations/gsap.ts  # ScrollTrigger actions
+│   │   │   └── components/    # Globe, EventCard, ReviewCard, Nav, Footer
+│   │   └── routes/
+│   │       ├── +page.svelte   # Landing page (7 sections)
+│   │       ├── events/        # Event list + detail
+│   │       ├── companies/     # Company list + detail
+│   │       ├── users/[id]/    # User profiles
+│   │       └── search/        # Tabbed search results
 ├── backend/               # Rust API server
 │   ├── src/
 │   │   ├── main.rs        # Server entry point + health check
@@ -151,9 +167,9 @@ ratemyhackathons/
 ├── services/              # Standalone services
 │   ├── crawler/           # Python event scraper
 │   │   ├── main.py        # CLI: --once, --daemon, --dry-run
-│   │   ├── dry_run.py     # Standalone spider test (no DB needed)
+│   │   ├── dry_run.py     # Standalone spider test (no DB, all sources + dedup)
 │   │   ├── db.py          # asyncpg database layer
-│   │   ├── dedup.py       # Hash + fuzzy deduplication
+│   │   ├── dedup.py       # Hash + fuzzy + cross-source URL deduplication
 │   │   ├── proxy.py       # Proxy rotation setup
 │   │   ├── company.py     # Best-effort company matching
 │   │   ├── sponsors.py    # 4-strategy sponsor extraction
@@ -161,9 +177,16 @@ ratemyhackathons/
 │   │   ├── spiders/       # Source-specific scrapers
 │   │   │   ├── mlh.py             # MLH (HTML scraping)
 │   │   │   ├── hackiterate.py     # Hackiterate (Playwright)
-│   │   │   ├── cerebralvalley.py  # CV public API
-│   │   │   └── luma.py            # Luma discover API
-│   │   └── cv/            # API recon notes
+│   │   │   ├── cerebralvalley.py  # CV public API + host enrichment
+│   │   │   └── luma.py            # Luma API (15-city geo sweep + keyword filter)
+│   │   ├── cv/            # CV API recon
+│   │   │   └── API_RECON.md
+│   │   ├── luma/          # Luma API recon
+│   │   │   └── API_RECON.md
+│   │   ├── mlh/           # MLH scraping recon
+│   │   │   └── API_RECON.md
+│   │   └── hackiterate/   # Hackiterate scraping recon
+│   │       └── API_RECON.md
 │   └── analytics/         # Rust analytics API + SvelteKit dashboard
 │       ├── src/            # Actix-web server (:8081)
 │       │   ├── main.rs
@@ -203,6 +226,7 @@ psql -d ratemyhackathons -f backend/migrations/20260313_initial_schema.sql
 psql -d ratemyhackathons -f backend/migrations/20260313_review_votes_comments.sql
 psql -d ratemyhackathons -f backend/migrations/20260313_user_profiles_event_slugs.sql
 psql -d ratemyhackathons -f backend/migrations/20260313_crawl_registry.sql
+psql -d ratemyhackathons -f backend/migrations/20260314_event_geocoding.sql
 
 # 5. Start the server
 cd backend
@@ -222,8 +246,19 @@ cargo run                  # API on :8081
 cd dashboard && bun install && bun dev   # dashboard on :5174
 ```
 
-The API will be available at `http://127.0.0.1:8080`.  
+The API will be available at `http://127.0.0.1:8080`.
+The frontend will be at `http://localhost:5173`.
 The analytics dashboard will be at `http://localhost:5174`.
+
+### Frontend
+
+```bash
+cd frontend
+bun install
+bun dev                    # Dev server on :5173 (proxies /api → :8080)
+bun run build              # Production build
+bun run check              # TypeScript/Svelte type checking
+```
 
 ## API Endpoints & Schemas
 
@@ -235,6 +270,7 @@ The analytics dashboard will be at `http://localhost:5174`.
 | `GET` | `/api/events` | List events (paginated, filterable) |
 | `GET` | `/api/events/{id}` | Event detail with companies & reviews |
 | `POST` | `/api/events` | Create event |
+| `GET` | `/api/events/globe` | Globe markers (events with lat/lng) |
 | `GET` | `/api/companies` | List companies (paginated) |
 | `GET` | `/api/companies/{id}` | Company detail with events |
 | `POST` | `/api/companies` | Create company |

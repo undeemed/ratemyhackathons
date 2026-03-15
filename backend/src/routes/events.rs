@@ -31,7 +31,8 @@ pub async fn list_events(
         let rows = sqlx::query_as::<_, EventRow>(
             r#"
             SELECT e.id, e.name, e.description, e.location, e.url,
-                   e.start_date, e.end_date, e.image_url, e.created_at, e.updated_at,
+                   e.start_date, e.end_date, e.image_url, e.latitude, e.longitude,
+                   e.created_at, e.updated_at,
                    COALESCE(rs.avg_rating, NULL) as avg_rating,
                    COALESCE(rs.review_count, 0) as review_count
             FROM events e
@@ -62,7 +63,8 @@ pub async fn list_events(
         let rows = sqlx::query_as::<_, EventRow>(
             r#"
             SELECT e.id, e.name, e.description, e.location, e.url,
-                   e.start_date, e.end_date, e.image_url, e.created_at, e.updated_at,
+                   e.start_date, e.end_date, e.image_url, e.latitude, e.longitude,
+                   e.created_at, e.updated_at,
                    COALESCE(rs.avg_rating, NULL) as avg_rating,
                    COALESCE(rs.review_count, 0) as review_count
             FROM events e
@@ -122,6 +124,8 @@ pub async fn list_events(
                 start_date: row.start_date,
                 end_date: row.end_date,
                 image_url: row.image_url,
+                latitude: row.latitude,
+                longitude: row.longitude,
                 companies,
                 avg_rating: row.avg_rating,
                 review_count: row.review_count,
@@ -146,7 +150,7 @@ pub async fn get_event(
     let event_id = id.into_inner();
 
     let event = sqlx::query_as::<_, Event>(
-        "SELECT id, name, description, location, url, start_date, end_date, image_url, created_at, updated_at FROM events WHERE id = $1",
+        "SELECT id, name, description, location, url, start_date, end_date, image_url, latitude, longitude, created_at, updated_at FROM events WHERE id = $1",
     )
     .bind(event_id)
     .fetch_optional(pool.get_ref())
@@ -194,6 +198,8 @@ pub async fn get_event(
         start_date: event.start_date,
         end_date: event.end_date,
         image_url: event.image_url,
+        latitude: event.latitude,
+        longitude: event.longitude,
         companies,
         reviews: reviews.into_iter().map(|r| EventReviewRef {
             id: r.id,
@@ -229,8 +235,8 @@ pub async fn create_event(
 
     sqlx::query(
         r#"
-        INSERT INTO events (id, name, description, location, url, start_date, end_date, image_url)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        INSERT INTO events (id, name, description, location, url, start_date, end_date, image_url, latitude, longitude)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
         "#,
     )
     .bind(event_id)
@@ -241,6 +247,8 @@ pub async fn create_event(
     .bind(body.start_date)
     .bind(body.end_date)
     .bind(&body.image_url)
+    .bind(body.latitude)
+    .bind(body.longitude)
     .execute(&mut *tx)
     .await?;
 
@@ -260,11 +268,28 @@ pub async fn create_event(
     tx.commit().await?;
 
     let event = sqlx::query_as::<_, Event>(
-        "SELECT id, name, description, location, url, start_date, end_date, image_url, created_at, updated_at FROM events WHERE id = $1",
+        "SELECT id, name, description, location, url, start_date, end_date, image_url, latitude, longitude, created_at, updated_at FROM events WHERE id = $1",
     )
     .bind(event_id)
     .fetch_one(pool.get_ref())
     .await?;
 
     Ok(HttpResponse::Created().json(event))
+}
+
+#[get("/events/globe")]
+pub async fn globe_markers(
+    pool: web::Data<PgPool>,
+) -> Result<HttpResponse, ApiError> {
+    let markers = sqlx::query_as::<_, GlobeMarker>(
+        r#"
+        SELECT id, name, latitude, longitude, start_date
+        FROM events
+        WHERE latitude IS NOT NULL AND longitude IS NOT NULL
+        "#,
+    )
+    .fetch_all(pool.get_ref())
+    .await?;
+
+    Ok(HttpResponse::Ok().json(markers))
 }

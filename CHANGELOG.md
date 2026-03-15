@@ -9,6 +9,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Frontend** (`frontend/`) — SvelteKit + Svelte 5 + Tailwind v4 + bun
+  - cobe WebGL globe with hackathon location dots on hero section
+  - GSAP ScrollTrigger storyboard landing page (7 sections: hero, stats, trending, how-it-works, companies, testimonials, CTA)
+  - Full inner pages: events (list + detail), companies (list + detail), users, search with tabs
+  - Dark theme (#0a0a0f base, indigo accents) matching analytics dashboard
+  - Typed API client (`lib/api.ts`) + TypeScript interfaces
+  - Reusable components: Globe, EventCard, ReviewCard, Nav, Footer
+
+- **Event geocoding**
+  - DB migration: `latitude`/`longitude` columns on events table
+  - Backend: lat/lng in all event models + `GET /api/events/globe` endpoint
+  - Crawler: Nominatim geocoding module (`geocode.py`) with 50-city seed cache
+
+- **CLAUDE.md** — context7 MCP requirement, frontend commands, updated architecture
+
+### Planned
+
+---
+
 - **API Reconnaissance** (`services/crawler/cv/API_RECON.md`)
   - Discovered Lu.ma open REST API: `api.lu.ma/discover/get-paginated-events` — no auth, rich JSON, cursor pagination
   - **Cracked Cerebral Valley public API**: `api.cerebralvalley.ai/v1/public/event/pull` — no auth required!
