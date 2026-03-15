@@ -13,4 +13,5 @@
 | 2026-03-15 | Per-event zoom in/out (scale 1.25→1) caused distracting pulsing during scrub | Apply zoom once at section start, hold during content cycling, zoom out once at exit |
 | 2026-03-15 | Pushed to prod before user tested locally — broke globe sizing | ALWAYS let user test on localhost first before pushing/deploying |
 | 2026-03-15 | Capped cobe's cached `width` variable to 800px — broke display size (cobe rendered 800px but CSS stretched to 1440px) | Cap `devicePixelRatio` instead of width to limit GPU buffer; width must match actual display size for correct rendering |
-| 2026-03-15 | Transform-based morph (`scale`/`x`/`y`) caused globe to overflow container — cobe renders at original size regardless of CSS transform | Use layout-based GSAP morph (`width`/`height`/`left`) so cobe re-renders at correct size within its container |
+| 2026-03-15 | Transform-based morph (`scale`/`x`/`y`) caused globe to overflow container — cobe renders at original size regardless of CSS transform | Initialize cobe at showcase (small) size, use CSS scale-up for hero. Morph = remove transforms. Cobe never needs to resize. |
+| 2026-03-15 | ResizeObserver on canvas during GSAP tween caused cobe to resize WebGL buffer 60fps — laggy, globe disappeared | Never use ResizeObserver to sync cobe with GSAP tweens; instead render at target size and scale up via CSS transforms |

@@ -26,7 +26,10 @@
   const globeMarkers = $derived(
     data.markers.length <= MAX_GLOBE_MARKERS
       ? data.markers
-      : data.markers.filter((_, i) => i % Math.ceil(data.markers.length / MAX_GLOBE_MARKERS) === 0)
+      : data.markers.filter(
+          (_, i) =>
+            i % Math.ceil(data.markers.length / MAX_GLOBE_MARKERS) === 0,
+        ),
   );
 
   function handleHeroSearch(e: SubmitEvent) {
@@ -181,21 +184,27 @@
       const vw = window.innerWidth;
       const vh = window.innerHeight;
 
-      // Hero: large, shifted right + up
-      const heroW = Math.min(vw >= 1024 ? vw * 0.9 : vw * 1.2, 1440);
-      const heroL = vw * 1.05 - heroW;
-
-      // Showcase: fits within viewport, centered
-      const showW = Math.min(vh * 0.65, vw * 0.5);
+      // Showcase size = cobe's native render size (fits within viewport)
+      const showW = Math.min(vh * 0.85, vw * 0.85);
       const showL = (vw - showW) / 2;
 
-      // Initial hero position
+      // Hero: large, shifted right — achieved via CSS scale + translate
+      const heroW = Math.min(vw >= 1024 ? vw * 0.9 : vw * 1.2, 1440);
+      const heroL = vw * 1.05 - heroW;
+      const heroScale = heroW / showW;
+      const heroX = heroL + heroW / 2 - (showL + showW / 2);
+      const heroY = vh * -0.05;
+
+      // Base layout at showcase size, hero appearance via transforms
       gsap.set(globeContainerEl, {
-        width: heroW,
-        height: heroW,
-        left: heroL,
-        top: "45%",
+        width: showW,
+        height: showW,
+        left: showL,
+        top: "50%",
         yPercent: -50,
+        scale: heroScale,
+        x: heroX,
+        y: heroY,
       });
 
       if (showcaseEvents.length === 0) return;
@@ -212,8 +221,12 @@
           start: "top top",
           end: "+=5000",
           scrub: 2,
-          onLeave: () => { globeVisible = false; },
-          onEnterBack: () => { globeVisible = true; },
+          onLeave: () => {
+            globeVisible = false;
+          },
+          onEnterBack: () => {
+            globeVisible = true;
+          },
         },
       });
 
@@ -221,17 +234,16 @@
       tl.addLabel("hero");
       tl.to({}, { duration: 0.15 });
 
-      // Phase 2: Fade hero text, morph globe to center + shrink
-      // Layout-based morph: width/height/left so cobe re-renders at correct size
+      // Phase 2: Fade hero text, morph globe to showcase (pure transforms)
+      // Globe is already at showcase layout size — just remove hero transforms
       tl.addLabel("morph");
       tl.to(heroTextEl, { autoAlpha: 0, y: -60, duration: 0.15 });
       tl.to(
         globeContainerEl,
         {
-          width: showW,
-          height: showW,
-          left: showL,
-          top: "50%",
+          scale: 1,
+          x: 0,
+          y: 0,
           duration: 0.2,
           ease: "power2.inOut",
         },
@@ -268,10 +280,11 @@
         tl.to(card, { autoAlpha: 0, x: 60, duration: 0.15 });
       });
 
-      // Phase 4: Exit — fade out
+      // Phase 4: Exit — fade out + shrink
       tl.addLabel("exit");
       tl.to(globeContainerEl, {
         opacity: 0,
+        scale: 0.85,
         duration: 0.2,
       });
 
@@ -301,10 +314,10 @@
     <Globe markers={globeMarkers} focus={globeFocus} visible={globeVisible} />
   </div>
 
-  <!-- Hero text — fades out during morph -->
+  <!-- Hero text — fades out during morph, pointer-events pass through to globe -->
   <div
     bind:this={heroTextEl}
-    class="relative z-10 mx-auto flex h-screen w-full max-w-[1400px] items-center px-6"
+    class="pointer-events-none relative z-10 mx-auto flex h-screen w-full max-w-[1400px] items-center px-6"
   >
     <div class="max-w-5xl">
       <h1
@@ -317,16 +330,21 @@
         >
       </h1>
 
-      <div class="mt-10 flex flex-col gap-8 sm:flex-row sm:items-start sm:gap-12">
+      <div
+        class="mt-10 flex flex-col gap-8 sm:flex-row sm:items-start sm:gap-12"
+      >
         <div class="shrink-0 sm:max-w-xs">
           <div class="mb-4 h-px w-24 bg-dim"></div>
           <p class="text-sm leading-relaxed text-muted">
-            No sponsored placements. No corporate filters. Just thousands of honest
-            reviews from people who were actually there.
+            No sponsored placements. No corporate filters. Just thousands of
+            honest reviews from people who were actually there.
           </p>
         </div>
 
-        <form onsubmit={handleHeroSearch} class="flex-1 sm:max-w-lg">
+        <form
+          onsubmit={handleHeroSearch}
+          class="pointer-events-auto flex-1 sm:max-w-lg"
+        >
           <div class="mb-4 flex gap-4 text-xs uppercase tracking-[0.2em]">
             <button
               type="button"

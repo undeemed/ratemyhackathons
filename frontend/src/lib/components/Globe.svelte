@@ -147,8 +147,9 @@
 		const rafId = requestAnimationFrame(() => {
 			if (destroyed) return;
 
-			// Follow cobe's official pattern: cache width via resize listener,
-			// never read offsetWidth inside onRender (avoids forced reflows).
+			// Cache width via resize listener — never read offsetWidth inside onRender.
+			// GSAP layout tweens (width/height) don't fire window resize, but the
+			// canvas CSS (w-full) scales the WebGL output down visually, which is fine.
 			let width = canvasEl.offsetWidth;
 			if (!width) return;
 

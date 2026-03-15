@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **ScrollTrigger ghost layout on navigation** — pin spacer (~5000px) persisted during client-side navigation, pushing new page content below a blank gap. `beforeNavigate` now calls `ctx.revert()` before SvelteKit swaps pages.
+- **Globe too dim** — increased `diffuse` (1.2→2), `mapBrightness` (2→4), `baseColor` (0.2→0.35), `glowColor` (0.1→0.15), raised marker brightness floors
+
 ### Added
 
 - **Internal Admin Dashboard** (`services/analytics/dashboard/`)
@@ -30,7 +35,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Date-based marker brightness (closer = brighter)
   - Scroll-driven showcase: hero → morph → event cycling → exit
   - Globe zoom once at morph, not per-event pulse
-  - Scroll morph: layout-based GSAP morph (`width`/`height`/`left`) — globe re-renders at correct size within container
+  - Scroll morph: cobe renders at showcase size, hero is CSS scale-up — pure transform morph (scale/x/y), no layout changes, no cobe resize
+  - Hero text `pointer-events-none` so globe is draggable through text overlay
   - Cobe official resize pattern — cached width via event listener, not per-frame `offsetWidth`
   - Dynamic `mapSamples`: 16K hero / 8K showcase (perf)
   - Globe visibility toggle: `globe.toggle(false/true)` pauses/resumes cobe when scrolled past
