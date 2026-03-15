@@ -78,11 +78,18 @@ export function countUp(node: HTMLElement, params: { target: number; duration?: 
 	ensureRegistered();
 	const { target, duration = 2, prefix = '', suffix = '' } = params;
 	const obj = { val: 0 };
+	let lastDisplay = -1;
 	gsap.to(obj, {
 		val: target, duration,
 		ease: 'power1.out',
 		scrollTrigger: { trigger: node, start: 'top 85%', toggleActions: 'play none none none' },
-		onUpdate() { node.textContent = `${prefix}${Math.round(obj.val).toLocaleString()}${suffix}`; },
+		onUpdate() {
+			const rounded = Math.round(obj.val);
+			if (rounded !== lastDisplay) {
+				lastDisplay = rounded;
+				node.textContent = `${prefix}${rounded.toLocaleString()}${suffix}`;
+			}
+		},
 	});
 	return { destroy() { ScrollTrigger.getAll().forEach((t) => { if (t.trigger === node) t.kill(); }); } };
 }

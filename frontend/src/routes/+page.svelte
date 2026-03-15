@@ -182,7 +182,7 @@
 		<div class="max-w-3xl">
 			<h1 class="font-display text-[clamp(3.5rem,11vw,10rem)] italic leading-[0.85] tracking-tight">
 				Every<br />hackathon,<br />
-				<span class="bg-gradient-to-r from-score-red via-score-yellow to-score-green bg-clip-text text-transparent">rated.</span>
+				<span style="background-image: linear-gradient(to right, var(--color-score-red), var(--color-score-yellow), var(--color-score-green)); -webkit-background-clip: text; background-clip: text; color: transparent;">rated.</span>
 			</h1>
 
 			<div class="mt-8 h-px w-24 bg-dim"></div>
@@ -297,7 +297,7 @@
 			</a>
 		</div>
 
-		<div class="grid gap-4 sm:grid-cols-2 md:grid-cols-3" use:staggerChildren={{ stagger: 0.06 }}>
+		<div class="grid gap-4 sm:grid-cols-2 md:grid-cols-3 will-change-transform" style="contain: layout style;" use:staggerChildren={{ stagger: 0.06 }}>
 			{#each events.slice(0, 6) as event (event.id)}
 				<EventCard {event} />
 			{/each}
