@@ -9,7 +9,6 @@
   } from "$lib/animations/gsap";
   import { ArrowRight } from "lucide-svelte";
   import { onMount } from "svelte";
-  import { beforeNavigate } from "$app/navigation";
   import gsap from "gsap";
   import { ScrollTrigger } from "gsap/ScrollTrigger";
   import type { PageData } from "./$types";
@@ -153,124 +152,120 @@
     });
   }
 
-  // Kill ScrollTrigger BEFORE navigation — snap intercepts scroll changes
-  // during SvelteKit client-side nav and pulls the page back to a label.
-  beforeNavigate(() => {
-    gsap.killTweensOf("*");
-    ScrollTrigger.getAll().forEach((t) => t.kill());
-  });
+  // GSAP context scopes all animations — ctx.revert() cleans up everything
+  // on unmount without the expensive killTweensOf("*") nuclear option.
 
   onMount(() => {
     gsap.registerPlugin(ScrollTrigger);
 
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
+    const ctx = gsap.context(() => {
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
 
-    // Hero: large, shifted right + up
-    const heroW = Math.min(vw >= 1024 ? vw * 0.9 : vw * 1.2, 1440);
-    const heroL = vw * 1.05 - heroW;
+      // Hero: large, shifted right + up
+      const heroW = Math.min(vw >= 1024 ? vw * 0.9 : vw * 1.2, 1440);
+      const heroL = vw * 1.05 - heroW;
 
-    // Showcase: visually smaller + centered (achieved via transforms, not layout)
-    const maxShowSize = Math.min(vh * 0.9, vw * 0.9);
-    const morphScale = maxShowSize / heroW; // shrink to fit viewport
-    const heroCenterX = heroL + heroW / 2;
-    const morphX = vw / 2 - heroCenterX; // translate to viewport center
-    const heroCenterY = vh * 0.45; // matches top: '45%' with yPercent: -50
-    const morphY = vh / 2 - heroCenterY; // translate to vertical center
+      // Showcase: visually smaller + centered (achieved via transforms, not layout)
+      const maxShowSize = Math.min(vh * 0.9, vw * 0.9);
+      const morphScale = maxShowSize / heroW; // shrink to fit viewport
+      const heroCenterX = heroL + heroW / 2;
+      const morphX = vw / 2 - heroCenterX; // translate to viewport center
+      const heroCenterY = vh * 0.45; // matches top: '45%' with yPercent: -50
+      const morphY = vh / 2 - heroCenterY; // translate to vertical center
 
-    // Initial hero position — fixed layout, never changes during scroll.
-    // All scroll animations use transforms only (x/scale) so offsetWidth
-    // reads in Globe.svelte stay cheap (no forced layout reflow).
-    gsap.set(globeContainerEl, {
-      width: heroW,
-      height: heroW,
-      left: heroL,
-      top: "45%",
-      yPercent: -50,
-    });
-
-    if (showcaseEvents.length === 0) return;
-
-    // Hide all event cards
-    showcaseCardEls.forEach((el) => {
-      if (el) gsap.set(el, { autoAlpha: 0, x: -60 });
-    });
-
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: sectionEl,
-        pin: true,
-        start: "top top",
-        end: "+=5000",
-        scrub: 2,
-      },
-    });
-
-    // Phase 1: Hold hero (globe auto-spins with dots visible)
-    tl.addLabel("hero");
-    tl.to({}, { duration: 0.15 });
-
-    // Phase 2: Fade hero text, morph globe to center + zoom in
-    // Uses ONLY transform properties (x, scale) — no layout changes
-    tl.addLabel("morph");
-    tl.to(heroTextEl, { autoAlpha: 0, y: -60, duration: 0.15 });
-    tl.to(
-      globeContainerEl,
-      {
-        x: morphX,
-        y: morphY,
-        scale: morphScale,
-        duration: 0.2,
-        ease: "power2.inOut",
-      },
-      "<",
-    );
-
-    // Phase 3: Cycle events — spin globe to each location
-    showcaseEvents.forEach((event, i) => {
-      const card = showcaseCardEls[i];
-      if (!card) return;
-
-      tl.addLabel(`event-${i}`);
-
-      // Spin globe to this event's lat/lng
-      tl.to(globeFocus, {
-        lat: event.latitude!,
-        lng: event.longitude!,
-        duration: 0.3,
-        ease: "power2.inOut",
+      // Initial hero position — fixed layout, never changes during scroll.
+      // All scroll animations use transforms only (x/scale) so offsetWidth
+      // reads in Globe.svelte stay cheap (no forced layout reflow).
+      gsap.set(globeContainerEl, {
+        width: heroW,
+        height: heroW,
+        left: heroL,
+        top: "45%",
+        yPercent: -50,
       });
 
-      // Event card slides in
-      tl.fromTo(
-        card,
-        { autoAlpha: 0, x: -60 },
-        { autoAlpha: 1, x: 0, duration: 0.15 },
-        "-=0.1",
+      if (showcaseEvents.length === 0) return;
+
+      // Hide all event cards
+      showcaseCardEls.forEach((el) => {
+        if (el) gsap.set(el, { autoAlpha: 0, x: -60 });
+      });
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: sectionEl,
+          pin: true,
+          start: "top top",
+          end: "+=5000",
+          scrub: 2,
+        },
+      });
+
+      // Phase 1: Hold hero (globe auto-spins with dots visible)
+      tl.addLabel("hero");
+      tl.to({}, { duration: 0.15 });
+
+      // Phase 2: Fade hero text, morph globe to center + zoom in
+      // Uses ONLY transform properties (x, scale) — no layout changes
+      tl.addLabel("morph");
+      tl.to(heroTextEl, { autoAlpha: 0, y: -60, duration: 0.15 });
+      tl.to(
+        globeContainerEl,
+        {
+          x: morphX,
+          y: morphY,
+          scale: morphScale,
+          duration: 0.2,
+          ease: "power2.inOut",
+        },
+        "<",
       );
 
-      // Hold on this event
-      tl.to({}, { duration: 0.35 });
+      // Phase 3: Cycle events — spin globe to each location
+      showcaseEvents.forEach((event, i) => {
+        const card = showcaseCardEls[i];
+        if (!card) return;
 
-      // Card exits
-      tl.to(card, { autoAlpha: 0, x: 60, duration: 0.15 });
+        tl.addLabel(`event-${i}`);
+
+        // Spin globe to this event's lat/lng
+        tl.to(globeFocus, {
+          lat: event.latitude!,
+          lng: event.longitude!,
+          duration: 0.3,
+          ease: "power2.inOut",
+        });
+
+        // Event card slides in
+        tl.fromTo(
+          card,
+          { autoAlpha: 0, x: -60 },
+          { autoAlpha: 1, x: 0, duration: 0.15 },
+          "-=0.1",
+        );
+
+        // Hold on this event
+        tl.to({}, { duration: 0.35 });
+
+        // Card exits
+        tl.to(card, { autoAlpha: 0, x: 60, duration: 0.15 });
+      });
+
+      // Phase 4: Exit — fade out
+      tl.addLabel("exit");
+      tl.to(globeContainerEl, {
+        opacity: 0,
+        scale: 0.85,
+        duration: 0.2,
+      });
+
+      tl.addLabel("end");
     });
 
-    // Phase 4: Exit — fade out
-    tl.addLabel("exit");
-    tl.to(globeContainerEl, {
-      opacity: 0,
-      scale: 0.85,
-      duration: 0.2,
-    });
-
-    tl.addLabel("end");
-
-    return () => {
-      tl.kill();
-      ScrollTrigger.getAll().forEach((t) => t.kill());
-      ScrollTrigger.refresh();
-    };
+    // gsap.context().revert() cleans up ALL tweens, timelines, and ScrollTriggers
+    // created within the context — single call, no manual tracking needed.
+    return () => ctx.revert();
   });
 </script>
 
@@ -285,7 +280,7 @@
 <!-- ═══════ HERO + GLOBE SHOWCASE (single pinned section) ═══════ -->
 <section bind:this={sectionEl} class="relative h-screen overflow-hidden">
   <!-- Globe container — ONE instance, GSAP morphs position/size -->
-  <div bind:this={globeContainerEl} class="absolute aspect-square" style="will-change: transform;">
+  <div bind:this={globeContainerEl} class="absolute aspect-square">
     <Globe markers={data.markers} focus={globeFocus} />
   </div>
 

@@ -18,9 +18,7 @@
 	--font-body: 'Space Mono', monospace;
 }
 
-html {
-	scroll-behavior: smooth;
-}
+/* scroll-behavior: smooth removed — conflicts with GSAP ScrollTrigger scrub */
 
 body {
 	background-color: var(--color-bg);
@@ -31,17 +29,18 @@ body {
 	overflow-x: hidden;
 }
 
-/* Grain texture overlay */
+/* Grain texture overlay — lightweight repeating gradient pattern
+   (replaced SVG feTurbulence filter which forced recomposition every frame) */
 body::before {
 	content: '';
 	position: fixed;
 	inset: 0;
 	z-index: 9999;
 	pointer-events: none;
-	opacity: 0.035;
-	background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-	background-repeat: repeat;
-	background-size: 256px 256px;
+	opacity: 0.03;
+	background-image:
+		repeating-conic-gradient(rgba(255,255,255,0.08) 0% 25%, transparent 0% 50%);
+	background-size: 4px 4px;
 }
 
 /* Selection */
@@ -89,91 +88,8 @@ body::before {
 	width: 100%;
 }
 
-/* ═══════ CINEMATIC SECTIONS ═══════ */
-
-.section-hero {
-	position: relative;
-	min-height: 100svh;
-	display: flex;
-	align-items: center;
-	overflow: hidden;
-}
-
-.section-title {
-	font-family: var(--font-display);
-	font-style: italic;
-	font-size: clamp(5rem, 15vw, 14rem);
-	line-height: 0.85;
-	letter-spacing: -0.02em;
-	color: #fff;
-	mix-blend-mode: difference;
-}
-
-/* Section edge transitions — diagonal clip */
-.section-edge-top {
-	clip-path: polygon(0 4vw, 100% 0, 100% 100%, 0 100%);
-	margin-top: -4vw;
-	padding-top: calc(4vw + 2rem);
-}
-
-.section-edge-bottom::after {
-	content: '';
-	position: absolute;
-	bottom: -1px;
-	left: 0;
-	right: 0;
-	height: 6vw;
-	background: inherit;
-	clip-path: polygon(0 0, 100% 100%, 0 100%);
-	z-index: 1;
-}
-
-/* Section tinted backgrounds — barely perceptible */
-.section-warm { background-color: #0a0806; }
-.section-cool { background-color: #06080a; }
-.section-neutral { background-color: #050505; }
-
-/* Drop cap for section taglines */
-.drop-cap::first-letter {
-	font-family: var(--font-display);
-	font-style: italic;
-	font-size: 4em;
-	float: left;
-	line-height: 0.8;
-	margin-right: 0.08em;
-	margin-top: 0.05em;
-	color: var(--color-gold);
-}
-
-/* Gold accent line */
-.accent-line {
-	height: 1px;
-	background: linear-gradient(90deg, var(--color-gold) 0%, transparent 100%);
-}
-
-/* Fade mask for generative backgrounds */
-.fade-edges {
-	-webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, black 40%, transparent 100%);
-	mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, black 40%, transparent 100%);
-}
-
-/* Split text animation helper */
-.char-reveal {
-	display: inline-block;
-	opacity: 0;
-	transform: translateY(40px);
-}
-
-/* Section number (roman numeral) */
-.section-numeral {
-	font-family: var(--font-display);
-	font-style: italic;
-	font-size: clamp(8rem, 20vw, 20rem);
-	color: #0f0f0f;
-	line-height: 0.8;
-	user-select: none;
-	pointer-events: none;
-}
+/* Unused cinematic section classes removed for CSS performance.
+   Kept only classes actively referenced in the codebase. */
 
 /* Horizontal rule with fade */
 .hr-fade {

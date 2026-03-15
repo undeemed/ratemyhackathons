@@ -29,6 +29,9 @@
 		let particles: { x: number; y: number; vx: number; vy: number; size: number; opacity: number }[] = [];
 		let mouse = { x: -1000, y: -1000 };
 
+		// Pre-compute squared distance threshold (avoids Math.sqrt every frame)
+		const connectDistSq = connectDistance * connectDistance;
+
 		function resize() {
 			const rect = canvasEl.parentElement?.getBoundingClientRect();
 			width = rect?.width ?? window.innerWidth;
@@ -40,8 +43,9 @@
 		}
 
 		function initParticles() {
+			// Reduced cap: 100 max (was 200) — halves O(n²) connection checks
 			const count = Math.floor((width * height) / (10000 / density * 100));
-			particles = Array.from({ length: Math.min(count, 200) }, () => ({
+			particles = Array.from({ length: Math.min(count, 100) }, () => ({
 				x: Math.random() * width,
 				y: Math.random() * height,
 				vx: (Math.random() - 0.5) * speed,
@@ -51,23 +55,38 @@
 			}));
 		}
 
-		function draw() {
+		let lastFrameTime = 0;
+		const targetInterval = 1000 / 30; // Throttle to 30fps (was uncapped 60fps)
+
+		function draw(timestamp: number) {
+			animId = requestAnimationFrame(draw);
+
+			// Throttle: skip frames to maintain ~30fps
+			const delta = timestamp - lastFrameTime;
+			if (delta < targetInterval) return;
+			lastFrameTime = timestamp - (delta % targetInterval);
+
 			ctx!.clearRect(0, 0, width, height);
 
-			// Draw connections
-			for (let i = 0; i < particles.length; i++) {
-				for (let j = i + 1; j < particles.length; j++) {
-					const dx = particles[i].x - particles[j].x;
-					const dy = particles[i].y - particles[j].y;
-					const dist = Math.sqrt(dx * dx + dy * dy);
+			const len = particles.length;
 
-					if (dist < connectDistance) {
+			// Draw connections — using squared distance to avoid sqrt
+			for (let i = 0; i < len; i++) {
+				const pi = particles[i];
+				for (let j = i + 1; j < len; j++) {
+					const pj = particles[j];
+					const dx = pi.x - pj.x;
+					const dy = pi.y - pj.y;
+					const distSq = dx * dx + dy * dy;
+
+					if (distSq < connectDistSq) {
+						const dist = Math.sqrt(distSq); // sqrt only for matched pairs
 						const opacity = (1 - dist / connectDistance) * 0.15;
 						ctx!.beginPath();
 						ctx!.strokeStyle = `rgba(${color}, ${opacity})`;
 						ctx!.lineWidth = 0.5;
-						ctx!.moveTo(particles[i].x, particles[i].y);
-						ctx!.lineTo(particles[j].x, particles[j].y);
+						ctx!.moveTo(pi.x, pi.y);
+						ctx!.lineTo(pj.x, pj.y);
 						ctx!.stroke();
 					}
 				}
@@ -78,8 +97,9 @@
 				// Mouse repulsion
 				const mdx = p.x - mouse.x;
 				const mdy = p.y - mouse.y;
-				const mDist = Math.sqrt(mdx * mdx + mdy * mdy);
-				if (mDist < 150) {
+				const mDistSq = mdx * mdx + mdy * mdy;
+				if (mDistSq < 22500) { // 150 * 150
+					const mDist = Math.sqrt(mDistSq);
 					const force = (150 - mDist) / 150;
 					p.x += (mdx / mDist) * force * 2;
 					p.y += (mdy / mDist) * force * 2;
@@ -99,8 +119,6 @@
 				ctx!.fillStyle = `rgba(${color}, ${p.opacity})`;
 				ctx!.fill();
 			}
-
-			animId = requestAnimationFrame(draw);
 		}
 
 		function onMouseMove(e: MouseEvent) {
@@ -115,7 +133,7 @@
 		}
 
 		resize();
-		draw();
+		animId = requestAnimationFrame(draw);
 
 		window.addEventListener('resize', resize);
 		canvasEl.addEventListener('mousemove', onMouseMove);
