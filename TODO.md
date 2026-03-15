@@ -27,11 +27,14 @@
   - [x] WIP popup: shows once only (localStorage), "Enter anyways" button
   - [x] Recent events: flat 3-column grid (removed oversized `row-span-2` magazine layout)
 - [x] **Globe & Landing Page Overhaul**
-  - [x] Fixed oval globe: canvas `aspect-square` + cobe `offsetWidth` for both dims
+  - [x] Fixed oval globe: canvas `aspect-square` + cobe official resize pattern
   - [x] `requestAnimationFrame` for cobe creation (child-before-parent mount timing)
   - [x] Date-based marker brightness (closer = brighter)
   - [x] Scroll-driven showcase: hero → morph → event cycling → exit
   - [x] Globe zoom once at morph, not per-event pulse
+  - [x] Scroll perf fix: transform-only GSAP morph (`x`/`y`/`scale`) — no forced reflows
+  - [x] Cobe official resize pattern — cached width via event listener, not per-frame `offsetWidth`
+  - [x] Reduced `mapSamples` 24K→12K, `scrub: 2` for smoother fast-scroll
 - [x] **Phase 4: Advanced Features**
   - [x] Compare tool (`/compare` page with side-by-side category comparison)
   - [x] Compare link in nav (desktop + mobile)

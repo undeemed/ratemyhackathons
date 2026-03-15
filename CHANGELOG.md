@@ -25,15 +25,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Recent events section: flat 3-column grid replacing oversized magazine layout with `row-span-2`
 
 - **Globe & Landing Page Overhaul**
-  - Fixed oval globe rendering: canvas uses `w-full aspect-square` (CSS `height: 100%` can't resolve against `aspect-ratio`-derived height)
-  - Cobe uses `offsetWidth` for both width and height (official cobe pattern for circular rendering)
-  - Cobe creation delayed via `requestAnimationFrame` (Svelte mounts children before parents)
-  - Date-based marker brightness: closer/ongoing events glow brighter, distant future events are dimmer
+  - Fixed oval globe: canvas `aspect-square` + cobe official resize pattern
+  - `requestAnimationFrame` for cobe creation (child-before-parent mount timing)
+  - Date-based marker brightness (closer = brighter)
+  - Scroll-driven showcase: hero → morph → event cycling → exit
+  - Globe zoom once at morph, not per-event pulse
+  - Scroll perf fix: transform-only GSAP morph (`x`/`y`/`scale`) — no forced reflows
+  - Cobe official resize pattern — cached width via event listener, not per-frame `offsetWidth`
+  - Reduced `mapSamples` 24K→12K, `scrub: 2` for smoother fast-scrolls
   - Globe surface tuned (`mapBrightness: 2`, `baseColor: [0.2,0.2,0.2]`) so hackathon markers stand out
   - Marker dots enlarged to `size: 0.1` with per-marker color based on `start_date`
-  - Scroll-driven showcase: hero globe (shifted right) morphs to centered showcase (80% size, scale 1.25)
-  - Globe zoom applied once at morph start, stays zoomed during event cycling, zooms out at exit
-  - Globe centering via `left: '50%'` + GSAP `xPercent: -50` for reliable centering with scale transforms
+  - Larger hero globe (90% viewport) positioned at top 45% for more prominent hero presence
   - Hero search bar with hackathons/companies toggle and gradient "rated." text
 
 - **Frontend Rebuild — RMP-Style UI (Phase 3+4)**
