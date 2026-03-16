@@ -50,6 +50,13 @@ export interface EventDetail {
 	category_ratings: CategoryAvg[];
 	top_tags: TagCount[];
 	rating_distribution: RatingDistributionEntry[];
+	sponsors: EventSponsorRef[];
+}
+
+export interface EventSponsorRef {
+	id: string;
+	name: string;
+	logo_url: string | null;
 }
 
 export interface CompanyRef {
@@ -92,6 +99,7 @@ export interface Company {
 	event_count: number;
 	avg_rating: number | null;
 	review_count: number;
+	latest_event_date: string | null;
 	category_ratings: CategoryAvg[];
 	created_at: string;
 }

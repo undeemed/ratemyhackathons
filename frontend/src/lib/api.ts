@@ -38,6 +38,14 @@ export function listEvents(params?: { page?: number; per_page?: number; company_
 	return request<PaginatedResponse<EventSummary>>(`/events?${q}`);
 }
 
+let _locationsCache: string[] | null = null;
+
+export async function getUniqueLocations(): Promise<string[]> {
+	if (_locationsCache) return _locationsCache;
+	_locationsCache = await request<string[]>('/events/locations');
+	return _locationsCache;
+}
+
 export function getEvent(id: string) {
 	return request<EventDetail>(`/events/${id}`);
 }
@@ -122,6 +130,13 @@ export function createTag(name: string) {
 	return request<Tag>('/tags', {
 		method: 'POST',
 		body: JSON.stringify({ name }),
+	});
+}
+
+export function voteTag(tagId: string) {
+	return request<{ voted: boolean; vote_count: number }>(`/tags/${tagId}/vote`, {
+		method: 'POST',
+		body: JSON.stringify({}),
 	});
 }
 
