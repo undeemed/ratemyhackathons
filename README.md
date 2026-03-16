@@ -151,8 +151,8 @@ ratemyhackathons/
 │   │       ├── +page.svelte   # Landing page (7 sections)
 │   │       ├── about/         # About page (mission, stack, data sources)
 │   │       ├── api/           # API documentation (interactive endpoint reference)
-│   │       ├── events/        # Event list (sort/search/list-grid toggle) + detail
-│   │       ├── companies/     # Company list + detail
+│   │       ├── events/        # Event list (sort/search/date-range filter/list-grid toggle) + detail
+│   │       ├── companies/     # Company list (sort/search) + detail
 │   │       ├── compare/       # Side-by-side comparison (inline search, entity chips, shareable URLs)
 │   │       ├── users/[id]/    # User profiles
 │   │       └── search/        # Tabbed search results
@@ -275,6 +275,7 @@ bun run check              # TypeScript/Svelte type checking
 | `GET` | `/api/events/{id}` | Event detail with companies & reviews |
 | `POST` | `/api/events` | Create event |
 | `GET` | `/api/events/globe` | Globe markers (events with lat/lng) |
+| `GET` | `/api/events/locations` | Unique location strings (for autocomplete) |
 | `GET` | `/api/companies` | List companies (paginated) |
 | `GET` | `/api/companies/{id}` | Company detail with events |
 | `POST` | `/api/companies` | Create company |
@@ -366,6 +367,7 @@ Query params: `?page=1&per_page=20&search=google`
     "id": "uuid", "name": "Google", "logo_url": "https://...",
     "website": "https://google.com", "description": "...",
     "event_count": 12, "avg_rating": 4.1, "review_count": 23,
+    "latest_event_date": "2025-10-01",
     "category_ratings": [
       { "category": "organization", "avg": 4.5 },
       { "category": "vibes", "avg": 4.2 }

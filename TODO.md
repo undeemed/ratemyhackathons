@@ -4,20 +4,24 @@
 
 ## Planned
 
-- [ ] **Date range filter** — calendar date range picker (library TBD) for filtering events by start/end date; all subtext/labels should be white, not dim or grey
-- [ ] **Location filter** — global location filter in the nav header (auto-detect via Geolocation API + manual city/state/country input), filters events across all pages
-- [ ] Homepage autocomplete search bar (SearchAutocomplete component — live dropdown)
-- [ ] Tag voting (upvote existing tags on reviews)
-- [ ] Fix LLM sponsor extraction — add paid model fallback for reliability
-- [ ] Store scraped sponsors in DB (new `event_sponsors` table)
-- [ ] Deploy analytics dashboard alongside main app (Docker service)
+(none — all current items implemented)
 
 ## Completed
 
+- [x] **Homepage autocomplete search bar** — `SearchAutocomplete.svelte` component with 300ms debounced search via existing `/api/search` endpoint, live dropdown with score badges and review counts, keyboard navigation (arrow keys + escape), click-to-navigate to detail pages, Enter falls through to `/search` results page. Replaces static form in hero section.
+- [x] **Tag voting** — `tag_votes` table (user_id + tag_id unique), `POST /api/tags/{id}/vote` toggle endpoint (insert/delete), `TagPills.svelte` updated with upvote buttons and live vote counts. Backend `resolve_user_id` moved to `auth.rs` as shared helper.
+- [x] **Store scraped sponsors in DB** — `event_sponsors` table with unique constraint on `(event_id, LOWER(name))`, `EventSponsor` model in backend, sponsors fetched and returned in event detail response, `insert_event_sponsors()` added to crawler `db.py`. Sponsor scraping itself remains disabled (Playwright sync/async incompatibility).
+- [x] **Deploy analytics dashboard** — analytics service in `docker-compose.yml` (Dockerfile.analytics, binds `:8081`)
+- [x] **Fix LLM sponsor extraction** — paid model fallback (`google/gemini-2.0-flash-001`) in `llm.py` when all free OpenRouter models fail
+
+- [x] **Location filter** — global location filter in the nav header (auto-detect via Geolocation API + manual city/state/country input), autocomplete dropdown with keyword match via dedicated `GET /api/events/locations` endpoint (`SELECT DISTINCT location`), `locationStore` with localStorage persistence, filters events page by substring match on `event.location`. Frontend caches location list per session (module-level, no TTL).
+
+- [x] **Date range filter** — custom `DatePicker.svelte` component (black bg, monospace, no border-radius, month/year nav, click-outside-to-close) replacing native browser date inputs, client-side filtering on `start_date`, clear button, white labels (`text-text`)
+- [x] **Companies page: "Most Recent Event" sort** — `latest_event_date` correlated subquery (`MAX(e.start_date)` via `event_companies`) in backend, 14 sort options in frontend dropdown (4 general + 10 categories)
 - [x] **Compare page: inline search with entity selection** — debounced search dropdown filtered by event/company type, click-to-add chips, `goto()` URL sync for shareable links, max 4 entities, dev-only mock data (4 events + 4 companies) gated behind `esm-env` DEV
 - [x] **About page (`/about`)** — mission, how-it-works, tech stack (2-col grid), data sources, rating categories, open source links
 - [x] **API docs page (`/api`)** — interactive endpoint reference with expandable sections, method color-coding, auth badges, request/response examples
-- [x] **Companies page: list layout with sort & search** — flat list view (rating/name/events hosted), client-side search, sort dropdown with 13 options (name/rating/events + 10 categories), category sort swaps rating column to show category avg, backend returns avg_rating + review_count + category_ratings + search param
+- [x] **Companies page: list layout with sort & search** — flat list view (rating/name/events hosted), client-side search, sort dropdown with 14 options (name/rating/events/latest event + 10 categories), category sort swaps rating column to show category avg, backend returns avg_rating + review_count + category_ratings + latest_event_date + search param
 - [x] **Fix: Clerk sign-in/sign-up dark theme** — dark brutalist appearance on ClerkProvider, removed redundant headings, centered + enlarged card
 - [x] **Events page: sort, search, and view toggle** — client-side search/sort/display-mode toolbar, sort dropdown with 13 options (date/name/rating + 10 categories), category sort swaps rating column to show category avg, backend returns `category_ratings` in EventSummary (batch-fetched), list default
 - [x] **Fix: Globe memory leak / browser freeze on reverse scroll** — cobe render loop never paused when off-screen; added `onLeave`/`onEnterBack` to toggle `visible` prop
@@ -85,3 +89,4 @@
 - Rate form requires: all 10 categories rated + 350-5000 char review body
 - Auth: Clerk (signed-in required for reviews), dev mode falls back to body user_id
 - Admin dashboard: SvelteKit on :5174, reads from analytics API (:8081) + main API (:8080)
+- **Location autocomplete cache**: `getUniqueLocations()` in `api.ts` calls `GET /api/events/locations` (dedicated `SELECT DISTINCT` query), caches result in module-level `_locationsCache` with no TTL. Cache lives for the browser tab session. Lightweight — no Redis or heavy infra needed.

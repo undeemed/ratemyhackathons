@@ -9,6 +9,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Homepage autocomplete search bar**
+  - New `SearchAutocomplete.svelte` component replacing the static search form in the hero section
+  - 300ms debounced search calls existing `GET /api/search` endpoint filtered by type (event/company)
+  - Live dropdown shows up to 6 results with color-coded score badges, review counts, and entity type labels
+  - Keyboard navigation: Arrow Up/Down to select, Enter to navigate, Escape to close
+  - Click result navigates directly to event/company detail page
+  - Enter with no selection falls through to `/search?q=...` results page
+  - "View all results" link at bottom of dropdown
+  - Inherits hero Hackathons/Companies toggle for filtered results
+
+- **Tag voting (upvote tags on reviews)**
+  - `tag_votes` table with `UNIQUE(tag_id, user_id)` constraint — one vote per user per tag
+  - `POST /api/tags/{id}/vote` toggle endpoint — inserts vote if not exists, deletes if already voted; returns `{ voted, vote_count }`
+  - `TagPills.svelte` updated: tags are now clickable upvote buttons with ▲ indicator and live vote count
+  - `auth.resolve_user_id()` extracted as shared public helper (was duplicated in reviews.rs and users.rs)
+  - Frontend `voteTag()` API function added
+
+- **Event sponsors stored in DB**
+  - `event_sponsors` table: `id`, `event_id`, `name`, `logo_url`, with unique constraint on `(event_id, LOWER(name))`
+  - `EventSponsor` model in backend, fetched and included in event detail API response
+  - `insert_event_sponsors()` added to crawler `db.py` for pipeline integration
+  - Frontend `EventSponsorRef` type added to `EventDetail` interface
+  - Note: sponsor scraping itself remains disabled in crawler pipeline (Playwright sync/async incompatibility)
+
+- **Global location filter**
+  - `locationStore` (`$lib/stores/location.svelte.ts`) — Svelte 5 runes-based reactive store with localStorage persistence
+  - Auto-detect via Geolocation API + Nominatim reverse geocoding (city/state label)
+  - Manual city/state/country text input with autocomplete dropdown (keyword match against known event locations)
+  - `GET /api/events/locations` backend endpoint — `SELECT DISTINCT location` query, no client-side extraction needed
+  - Frontend `getUniqueLocations()` calls the dedicated endpoint, module-level cache (per-session, no TTL)
+  - Suggestions list: case-insensitive substring filter, max 8 results, shows top 8 on empty input for browsing
+  - Nav header integration (desktop dropdown + mobile section) with MapPin/Locate icons
+  - Events page wired to filter by location (case-insensitive substring match on `event.location`)
+  - Outside-click-to-close overlay for desktop dropdown
+
+- **Events page: date range filter**
+  - Custom `DatePicker.svelte` component replacing native browser date inputs — black bg, monospace text, no border-radius, month/year navigation, today highlighted in accent, selected date inverted (white on black), click-outside-to-close
+  - Two date pickers (From / To) in a second toolbar row, separated by `border-t`
+  - Client-side filtering on `start_date` — events outside the range are excluded from results
+  - Clear button appears when either date is set; results count updates to reflect filtered subset
+  - All labels use `text-text` (white), not dim or grey, per design spec
+
+- **Companies page: "Most Recent Event" sort**
+  - New `latest_event_date` field in `CompanySummaryResponse` — correlated subquery: `MAX(e.start_date)` via `event_companies` join
+  - Added to `CompanySummary` (FromRow) and `CompanySummaryResponse` structs in backend
+  - Frontend sort dropdown now has 14 options: Name, Overall Rating, Events Hosted, Most Recent Event + 10 rating categories
+  - Defaults to descending (most recent first) when selected
 
 - **Compare page: inline search with entity selection**
   - Debounced search input (300ms) calls `/api/search` filtered by type (event or company)
