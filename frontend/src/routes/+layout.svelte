@@ -9,8 +9,12 @@
 
 	let { children } = $props();
 	let showWip = $state(browser && !localStorage.getItem('wip-dismissed'));
-	let overlay: HTMLDivElement;
-	let modal: HTMLDivElement;
+	let overlay = $state<HTMLDivElement>(undefined!);
+	let modal = $state<HTMLDivElement>(undefined!);
+
+	function handleOverlayKeydown(e: KeyboardEvent) {
+		if (e.key === 'Escape') dismiss();
+	}
 
 	onMount(() => {
 		if (!showWip) return;
@@ -74,9 +78,9 @@
 }}>
 	{#if showWip}
 		<!-- svelte-ignore a11y_no_static_element_interactions -->
-		<div bind:this={overlay} onclick={dismiss}
+		<div bind:this={overlay} onclick={dismiss} onkeydown={handleOverlayKeydown}
 			class="fixed inset-0 z-[999] flex items-center justify-center bg-black/70 backdrop-blur-sm">
-			<!-- svelte-ignore a11y_no_static_element_interactions -->
+			<!-- svelte-ignore a11y_no_static_element_interactions, a11y_click_events_have_key_events -->
 			<div bind:this={modal} onclick={(e) => e.stopPropagation()}
 				class="relative mx-4 max-w-md border border-border bg-surface px-10 py-8 text-center">
 				<p class="font-display text-3xl italic text-text">Work in progress.</p>

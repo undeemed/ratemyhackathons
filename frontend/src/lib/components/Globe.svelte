@@ -276,8 +276,8 @@
 		onpointermove={onPointerMove}
 	></canvas>
 	<!-- Subtle edge fade -->
-	<div class="pointer-events-none absolute inset-0 bg-gradient-to-r from-bg/30 via-transparent to-bg/30"></div>
-	<div class="pointer-events-none absolute inset-0 bg-gradient-to-b from-bg/20 via-transparent to-bg/40"></div>
+	<div class="pointer-events-none absolute inset-0 bg-linear-to-r from-bg/30 via-transparent to-bg/30"></div>
+	<div class="pointer-events-none absolute inset-0 bg-linear-to-b from-bg/20 via-transparent to-bg/40"></div>
 </div>
 
 <!-- Tooltip follows cursor near dots -->

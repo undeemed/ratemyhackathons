@@ -1,7 +1,7 @@
 <script lang="ts">
   import Globe from "$lib/components/Globe.svelte";
   import EventCard from "$lib/components/EventCard.svelte";
-  import { ArrowRight } from "lucide-svelte";
+  import SearchAutocomplete from "$lib/components/SearchAutocomplete.svelte";
   import { onMount } from "svelte";
   import gsap from "gsap";
   import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -11,7 +11,6 @@
 
   let { data }: { data: PageData } = $props();
 
-  let heroSearchQuery = $state("");
   let searchMode = $state<"events" | "companies">("events");
   let globeVisible = $state(true);
 
@@ -25,14 +24,6 @@
             i % Math.ceil(data.markers.length / MAX_GLOBE_MARKERS) === 0,
         ),
   );
-
-  function handleHeroSearch(e: SubmitEvent) {
-    e.preventDefault();
-    if (heroSearchQuery.trim()) {
-      const type = searchMode === "companies" ? "&type=company" : "";
-      window.location.href = `/search?q=${encodeURIComponent(heroSearchQuery.trim())}${type}`;
-    }
-  }
 
   const demoEvents: EventSummary[] = [
     {
@@ -531,10 +522,7 @@
           </p>
         </div>
 
-        <form
-          onsubmit={handleHeroSearch}
-          class="pointer-events-auto flex-1 sm:max-w-lg"
-        >
+        <div class="pointer-events-auto flex-1 sm:max-w-lg">
           <div class="mb-4 flex gap-4 text-xs uppercase tracking-[0.2em]">
             <button
               type="button"
@@ -551,25 +539,13 @@
               onclick={() => (searchMode = "companies")}>Companies</button
             >
           </div>
-          <div
-            class="group flex items-center border-b-2 border-dim transition-colors focus-within:border-text"
-          >
-            <input
-              bind:value={heroSearchQuery}
-              type="text"
-              placeholder={searchMode === "events"
-                ? "Search hackathons..."
-                : "Search companies..."}
-              class="w-full bg-transparent py-4 text-lg text-text placeholder:text-dim focus:outline-none"
-            />
-            <button
-              type="submit"
-              class="text-dim transition-colors group-focus-within:text-text"
-            >
-              <ArrowRight class="h-6 w-6" />
-            </button>
-          </div>
-        </form>
+          <SearchAutocomplete
+            mode={searchMode}
+            placeholder={searchMode === "events"
+              ? "Search hackathons..."
+              : "Search companies..."}
+          />
+        </div>
       </div>
     </div>
   </div>

@@ -5,7 +5,7 @@
 
 	let { data }: { data: PageData } = $props();
 
-	type SortKey = 'name' | 'rating' | 'events' | RatingCategory;
+	type SortKey = 'name' | 'rating' | 'events' | 'latest_event' | RatingCategory;
 	let sortBy: SortKey = $state('name');
 	let sortDir: 'asc' | 'desc' = $state('asc');
 
@@ -36,6 +36,8 @@
 				cmp = (a.avg_rating ?? 0) - (b.avg_rating ?? 0);
 			} else if (sortBy === 'events') {
 				cmp = a.event_count - b.event_count;
+			} else if (sortBy === 'latest_event') {
+				cmp = (a.latest_event_date ?? '').localeCompare(b.latest_event_date ?? '');
 			} else {
 				cmp = (getCategoryAvg(a, sortBy) ?? 0) - (getCategoryAvg(b, sortBy) ?? 0);
 			}
@@ -124,6 +126,7 @@
 					<option value="name">Name</option>
 					<option value="rating">Overall Rating</option>
 					<option value="events">Events Hosted</option>
+					<option value="latest_event">Most Recent Event</option>
 				</optgroup>
 				<optgroup label="Category">
 					{#each RATING_CATEGORIES as cat}

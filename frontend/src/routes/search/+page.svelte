@@ -5,7 +5,8 @@
 
 	let { data }: { data: PageData } = $props();
 
-	let searchQuery = $state(data.q || '');
+	// svelte-ignore state_referenced_locally
+	let searchQuery = $state(String(data.q || ''));
 	let activeTab = $state<'events' | 'companies' | 'users'>('events');
 
 	function handleSearch(e: SubmitEvent) {

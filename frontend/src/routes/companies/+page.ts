@@ -14,6 +14,7 @@ const DEV_COMPANIES: Company[] = dev
 				event_count: 12,
 				avg_rating: 4.3,
 				review_count: 27,
+				latest_event_date: '2025-11-15',
 				category_ratings: [
 					{ category: 'organization', avg: 4.5 },
 					{ category: 'prizes', avg: 3.8 },
@@ -37,6 +38,7 @@ const DEV_COMPANIES: Company[] = dev
 				event_count: 5,
 				avg_rating: 3.1,
 				review_count: 8,
+				latest_event_date: '2025-06-01',
 				category_ratings: [
 					{ category: 'organization', avg: 3.0 },
 					{ category: 'prizes', avg: 2.5 },
@@ -60,6 +62,7 @@ const DEV_COMPANIES: Company[] = dev
 				event_count: 1,
 				avg_rating: null,
 				review_count: 0,
+				latest_event_date: null,
 				category_ratings: [],
 				created_at: '2025-06-01T00:00:00Z',
 			},

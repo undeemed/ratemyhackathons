@@ -87,6 +87,12 @@
   "start_date": "2025-10-01"
 }]`,
 				},
+				{
+					method: 'GET',
+					path: '/api/events/locations',
+					desc: 'Unique location strings for autocomplete',
+					response: `["Cambridge, MA", "San Francisco, CA", "New York, NY"]`,
+				},
 			],
 		},
 		{

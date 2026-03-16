@@ -21,7 +21,8 @@
 	let submitting = $state(false);
 	let error = $state('');
 	let success = $state(false);
-	let availableTags = $state<Tag[]>(data.tags ?? []);
+	// svelte-ignore state_referenced_locally
+	let availableTags = $state<Tag[]>([...(data.tags ?? [])]);
 
 	const allRated = $derived(RATING_CATEGORIES.every((c) => categoryRatings[c] > 0));
 	const bodyLength = $derived(reviewBody.length);

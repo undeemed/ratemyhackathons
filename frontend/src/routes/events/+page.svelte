@@ -1,8 +1,10 @@
 <script lang="ts">
 	import EventCard from '$lib/components/EventCard.svelte';
+	import DatePicker from '$lib/components/DatePicker.svelte';
 	import { fadeIn } from '$lib/animations/gsap';
 	import type { PageData } from './$types';
 	import { RATING_CATEGORIES, CATEGORY_LABELS, type RatingCategory } from '$lib/types';
+	import { locationStore } from '$lib/stores/location.svelte';
 
 	let { data }: { data: PageData } = $props();
 
@@ -13,6 +15,8 @@
 	let sortDir: 'asc' | 'desc' = $state('desc');
 
 	let search = $state('');
+	let dateFrom = $state('');
+	let dateTo = $state('');
 
 	function getCategoryAvg(event: (typeof data.events)[0], category: string): number {
 		const cat = event.category_ratings?.find((c) => c.category === category);
@@ -22,6 +26,11 @@
 	const filtered = $derived.by(() => {
 		let events = data.events;
 
+		if (locationStore.value) {
+			const loc = locationStore.value.label.toLowerCase();
+			events = events.filter((e) => e.location?.toLowerCase().includes(loc));
+		}
+
 		if (search.trim()) {
 			const q = search.toLowerCase().trim();
 			events = events.filter(
@@ -29,6 +38,13 @@
 					e.name.toLowerCase().includes(q) ||
 					e.location?.toLowerCase().includes(q),
 			);
+		}
+
+		if (dateFrom) {
+			events = events.filter((e) => e.start_date && e.start_date >= dateFrom);
+		}
+		if (dateTo) {
+			events = events.filter((e) => e.start_date && e.start_date <= dateTo);
 		}
 
 		return [...events].sort((a, b) => {
@@ -109,85 +125,104 @@
 
 	<!-- Toolbar -->
 	<div
-		class="mb-8 flex flex-col gap-4 border border-border bg-surface p-4 sm:flex-row sm:items-center sm:justify-between"
+		class="mb-8 flex flex-col gap-4 border border-border bg-surface p-4"
 		use:fadeIn
 	>
-		<!-- Search -->
-		<div class="relative flex-1 sm:max-w-sm">
-			<input
-				type="text"
-				bind:value={search}
-				placeholder="Search events..."
-				class="w-full border border-border bg-bg px-3 py-2 text-xs tracking-wide text-text placeholder:text-dim focus:border-accent focus:outline-none"
-			/>
-			{#if search}
-				<button
-					onclick={() => (search = '')}
-					class="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-dim transition-colors hover:text-text"
-				>
-					×
-				</button>
-			{/if}
+		<!-- Row 1: Search + Sort + View -->
+		<div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+			<!-- Search -->
+			<div class="relative flex-1 sm:max-w-sm">
+				<input
+					type="text"
+					bind:value={search}
+					placeholder="Search events..."
+					class="w-full border border-border bg-bg px-3 py-2 text-xs tracking-wide text-text placeholder:text-dim focus:border-accent focus:outline-none"
+				/>
+				{#if search}
+					<button
+						onclick={() => (search = '')}
+						class="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-dim transition-colors hover:text-text"
+					>
+						×
+					</button>
+				{/if}
+			</div>
+
+			<div class="flex items-center gap-3">
+				<!-- Sort -->
+				<div class="flex items-center gap-1">
+					<span class="mr-1 text-[10px] uppercase tracking-[0.2em] text-dim">Sort</span>
+					<select
+						value={sortBy}
+						onchange={handleSortChange}
+						class="appearance-none border border-border bg-bg px-2 py-1 pr-6 text-[10px] uppercase tracking-[0.15em] text-text focus:border-accent focus:outline-none"
+						style="background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2210%22 height=%226%22><path d=%22M0 0l5 6 5-6z%22 fill=%22%23555%22/></svg>'); background-repeat: no-repeat; background-position: right 6px center;"
+					>
+						<optgroup label="General">
+							<option value="date">Date</option>
+							<option value="name">Name</option>
+							<option value="rating">Overall Rating</option>
+						</optgroup>
+						<optgroup label="Category">
+							{#each RATING_CATEGORIES as cat}
+								<option value={cat}>{CATEGORY_LABELS[cat]}</option>
+							{/each}
+						</optgroup>
+					</select>
+					<button
+						onclick={toggleDir}
+						class="border border-border px-2 py-1 text-[10px] text-accent transition-all hover:bg-elevated"
+						title="{sortDir === 'desc' ? 'Descending' : 'Ascending'} — click to flip"
+					>
+						{sortDir === 'desc' ? '↓' : '↑'}
+					</button>
+				</div>
+
+				<!-- View toggle -->
+				<div class="flex border border-border">
+					<button
+						onclick={() => (view = 'list')}
+						class="px-2 py-1 text-xs transition-all {view === 'list'
+							? 'bg-elevated text-text'
+							: 'text-dim hover:text-muted'}"
+						title="List view"
+					>
+						≡
+					</button>
+					<button
+						onclick={() => (view = 'grid')}
+						class="border-l border-border px-2 py-1 text-xs transition-all {view ===
+						'grid'
+							? 'bg-elevated text-text'
+							: 'text-dim hover:text-muted'}"
+						title="Grid view"
+					>
+						⊞
+					</button>
+				</div>
+			</div>
 		</div>
 
-		<div class="flex items-center gap-3">
-			<!-- Sort -->
-			<div class="flex items-center gap-1">
-				<span class="mr-1 text-[10px] uppercase tracking-[0.2em] text-dim">Sort</span>
-				<select
-					value={sortBy}
-					onchange={handleSortChange}
-					class="appearance-none border border-border bg-bg px-2 py-1 pr-6 text-[10px] uppercase tracking-[0.15em] text-text focus:border-accent focus:outline-none"
-					style="background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2210%22 height=%226%22><path d=%22M0 0l5 6 5-6z%22 fill=%22%23555%22/></svg>'); background-repeat: no-repeat; background-position: right 6px center;"
-				>
-					<optgroup label="General">
-						<option value="date">Date</option>
-						<option value="name">Name</option>
-						<option value="rating">Overall Rating</option>
-					</optgroup>
-					<optgroup label="Category">
-						{#each RATING_CATEGORIES as cat}
-							<option value={cat}>{CATEGORY_LABELS[cat]}</option>
-						{/each}
-					</optgroup>
-				</select>
+		<!-- Row 2: Date range -->
+		<div class="flex items-center gap-3 border-t border-border pt-4">
+			<span class="text-[10px] uppercase tracking-[0.2em] text-text">Date</span>
+			<DatePicker bind:value={dateFrom} placeholder="From" />
+			<span class="text-[10px] text-text">to</span>
+			<DatePicker bind:value={dateTo} placeholder="To" />
+			{#if dateFrom || dateTo}
 				<button
-					onclick={toggleDir}
-					class="border border-border px-2 py-1 text-[10px] text-accent transition-all hover:bg-elevated"
-					title="{sortDir === 'desc' ? 'Descending' : 'Ascending'} — click to flip"
+					onclick={() => { dateFrom = ''; dateTo = ''; }}
+					class="text-[10px] uppercase tracking-[0.2em] text-text transition-colors hover:text-accent"
 				>
-					{sortDir === 'desc' ? '↓' : '↑'}
+					Clear
 				</button>
-			</div>
-
-			<!-- View toggle -->
-			<div class="flex border border-border">
-				<button
-					onclick={() => (view = 'list')}
-					class="px-2 py-1 text-xs transition-all {view === 'list'
-						? 'bg-elevated text-text'
-						: 'text-dim hover:text-muted'}"
-					title="List view"
-				>
-					≡
-				</button>
-				<button
-					onclick={() => (view = 'grid')}
-					class="border-l border-border px-2 py-1 text-xs transition-all {view ===
-					'grid'
-						? 'bg-elevated text-text'
-						: 'text-dim hover:text-muted'}"
-					title="Grid view"
-				>
-					⊞
-				</button>
-			</div>
+			{/if}
 		</div>
 	</div>
 
 	<!-- Results count -->
-	{#if search.trim()}
-		<p class="mb-4 text-[10px] uppercase tracking-[0.3em] text-dim">
+	{#if search.trim() || dateFrom || dateTo}
+		<p class="mb-4 text-[10px] uppercase tracking-[0.3em] text-text">
 			{filtered.length} result{filtered.length !== 1 ? 's' : ''}
 		</p>
 	{/if}
