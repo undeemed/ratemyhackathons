@@ -3,3 +3,4 @@ pub mod company;
 pub mod user;
 pub mod review;
 pub mod tag;
+pub mod sponsor;

@@ -28,6 +28,7 @@ pub struct CompanySummary {
     pub event_count: i64,
     pub avg_rating: Option<f64>,
     pub review_count: i64,
+    pub latest_event_date: Option<NaiveDate>,
     pub created_at: DateTime<Utc>,
 }
 
@@ -41,6 +42,7 @@ pub struct CompanySummaryResponse {
     pub event_count: i64,
     pub avg_rating: Option<f64>,
     pub review_count: i64,
+    pub latest_event_date: Option<NaiveDate>,
     pub category_ratings: Vec<crate::models::review::CategoryAvg>,
     pub created_at: DateTime<Utc>,
 }

@@ -104,6 +104,7 @@ pub struct EventDetail {
     pub category_ratings: Vec<crate::models::review::CategoryAvg>,
     pub top_tags: Vec<crate::models::tag::TagCount>,
     pub rating_distribution: Vec<crate::models::review::RatingDistribution>,
+    pub sponsors: Vec<crate::models::sponsor::EventSponsor>,
 }
 
 #[derive(Debug, Serialize, FromRow)]

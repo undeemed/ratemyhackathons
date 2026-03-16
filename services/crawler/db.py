@@ -184,3 +184,21 @@ async def update_event_coords(
         longitude,
         event_id,
     )
+
+
+async def insert_event_sponsors(
+    pool: asyncpg.Pool, event_id: uuid.UUID, sponsor_names: list[str]
+):
+    """Store scraped sponsor names for an event (skip duplicates)."""
+    for name in sponsor_names:
+        sponsor_id = uuid7()
+        await pool.execute(
+            """
+            INSERT INTO event_sponsors (id, event_id, name)
+            VALUES ($1, $2, $3)
+            ON CONFLICT (event_id, LOWER(name)) DO NOTHING
+            """,
+            sponsor_id,
+            event_id,
+            name.strip(),
+        )

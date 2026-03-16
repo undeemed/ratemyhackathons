@@ -268,6 +268,14 @@ pub async fn get_event(
     .fetch_all(pool.get_ref())
     .await?;
 
+    // Sponsors
+    let sponsors = sqlx::query_as::<_, crate::models::sponsor::EventSponsor>(
+        "SELECT id, name, logo_url FROM event_sponsors WHERE event_id = $1 ORDER BY name",
+    )
+    .bind(event_id)
+    .fetch_all(pool.get_ref())
+    .await?;
+
     // Batch-fetch category ratings for all reviews
     let review_ids: Vec<Uuid> = review_rows.iter().map(|r| r.id).collect();
     let all_ratings = sqlx::query_as::<_, (Uuid, String, i16)>(
@@ -321,6 +329,7 @@ pub async fn get_event(
         category_ratings,
         top_tags,
         rating_distribution,
+        sponsors,
     }))
 }
 
@@ -405,4 +414,17 @@ pub async fn globe_markers(
     .await?;
 
     Ok(HttpResponse::Ok().json(markers))
+}
+
+#[get("/events/locations")]
+pub async fn list_locations(
+    pool: web::Data<PgPool>,
+) -> Result<HttpResponse, ApiError> {
+    let rows = sqlx::query_scalar::<_, String>(
+        "SELECT DISTINCT location FROM events WHERE location IS NOT NULL ORDER BY location",
+    )
+    .fetch_all(pool.get_ref())
+    .await?;
+
+    Ok(HttpResponse::Ok().json(rows))
 }

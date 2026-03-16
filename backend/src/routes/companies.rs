@@ -39,6 +39,7 @@ pub async fn list_companies(
                    (SELECT COUNT(*) FROM event_companies WHERE company_id = c.id) as event_count,
                    (SELECT AVG(rating)::float8 FROM reviews WHERE company_id = c.id) as avg_rating,
                    (SELECT COUNT(*) FROM reviews WHERE company_id = c.id) as review_count,
+                   (SELECT MAX(e.start_date) FROM events e JOIN event_companies ec ON ec.event_id = e.id WHERE ec.company_id = c.id) as latest_event_date,
                    c.created_at
             FROM companies c
             ORDER BY c.name ASC
@@ -62,6 +63,7 @@ pub async fn list_companies(
                    (SELECT COUNT(*) FROM event_companies WHERE company_id = c.id) as event_count,
                    (SELECT AVG(rating)::float8 FROM reviews WHERE company_id = c.id) as avg_rating,
                    (SELECT COUNT(*) FROM reviews WHERE company_id = c.id) as review_count,
+                   (SELECT MAX(e.start_date) FROM events e JOIN event_companies ec ON ec.event_id = e.id WHERE ec.company_id = c.id) as latest_event_date,
                    c.created_at
             FROM companies c
             WHERE c.name ILIKE $3
@@ -116,6 +118,7 @@ pub async fn list_companies(
                 event_count: s.event_count,
                 avg_rating: s.avg_rating,
                 review_count: s.review_count,
+                latest_event_date: s.latest_event_date,
                 category_ratings: cats,
                 created_at: s.created_at,
             }

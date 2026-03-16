@@ -221,3 +221,22 @@ pub async fn require_auth(
         clerk_id: claims.sub,
     })
 }
+
+/// Resolve user_id from JWT auth (if configured) or from request body fallback (dev mode).
+/// Shared helper used by multiple route modules.
+pub async fn resolve_user_id(
+    req: &actix_web::HttpRequest,
+    auth_state: &Option<web::Data<AuthState>>,
+    pool: &PgPool,
+    body_user_id: Option<uuid::Uuid>,
+) -> Result<uuid::Uuid, crate::errors::ApiError> {
+    if let Some(state) = auth_state {
+        let auth_user = require_auth(req, state, pool).await
+            .map_err(|e| crate::errors::ApiError::Unauthorized(e.to_string()))?;
+        Ok(auth_user.user_id)
+    } else {
+        body_user_id.ok_or_else(|| {
+            crate::errors::ApiError::BadRequest("user_id is required (no auth configured)".to_string())
+        })
+    }
+}
