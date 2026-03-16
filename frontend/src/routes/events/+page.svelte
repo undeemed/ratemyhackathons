@@ -27,7 +27,9 @@
 		let events = data.events;
 
 		if (locationStore.value) {
-			const loc = locationStore.value.label.toLowerCase();
+			// Match on city name only (before first comma) — auto-detect returns
+			// "San Francisco, California" but DB has "San Francisco, CA"
+			const loc = locationStore.value.label.split(',')[0].trim().toLowerCase();
 			events = events.filter((e) => e.location?.toLowerCase().includes(loc));
 		}
 
